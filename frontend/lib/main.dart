@@ -1,48 +1,52 @@
 import 'package:flutter/material.dart';
-import "./core/modular_form.dart";
+import 'presentation/pages/main_menu.dart';
 
-main() => runApp(MainApp());
-
-class MainApp extends StatefulWidget {
-  const MainApp({super.key});
-
-  @override
-  State<MainApp> createState() => _MainAppState();
+void main() {
+  runApp(const MyApp());
 }
 
-class _MainAppState extends State<MainApp> {
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        backgroundColor: Colors.blueGrey,
-        appBar: AppBar(
-          backgroundColor: Colors.grey,
-          title: Container(
-            width: double.infinity,
-            margin: EdgeInsets.all(10),
-            child: Text(
-              "olá",
-              style: TextStyle(fontSize: 40),
-              textAlign: TextAlign.center,
+      title: 'Gestão de Contatos',
+      theme: ThemeData(
+        primaryColor: const Color(0xFF9C27B0),
+        scaffoldBackgroundColor: const Color(0xFFF5F5F5),
+
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF9C27B0),
+          titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+          iconTheme: IconThemeData(color: Colors.white),
+        ),
+
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF9C27B0),
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
         ),
-        body: Column(
-          children: [
-            ModularForm(
-              titulo: "Cadastro de Contato",
-              campos: [
-                TextFormField(decoration: InputDecoration(labelText: 'Nome')),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Telefone'),
-                ),
-              ],
-              onSalvar: () {},
-            ),
-          ],
+
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Colors.grey),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Color(0xFF9C27B0), width: 2),
+          ),
+          labelStyle: const TextStyle(color: Colors.black),
         ),
       ),
+      home: const MainMenu(),
     );
   }
 }
