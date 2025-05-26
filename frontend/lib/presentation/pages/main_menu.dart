@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/modular_form.dart';
 import '../../data/contato_repository.dart';
 import '../widgets/contato_card.dart';
+import '../../core/delete_dialog.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});
@@ -32,41 +33,40 @@ class _MainMenuState extends State<MainMenu> {
     carregarContatos();
   }
 
-void abrirFormulario({Map<String, dynamic>? contato}) {
-  showDialog(
-    context: context,
-    builder: (context) => ModularFormDialog(
-      titulo: contato == null ? 'Novo Contato' : 'Editar Contato',
-      dataInicial: contato,
-      camposTexto: [
-        {'label': 'Nome', 'key': 'name'},
-        {'label': 'Telefone', 'key': 'number'},
-        {'label': 'Email', 'key': 'email'},
-        {'label': 'Assunto', 'key': 'subject'},
-      ],
-      camposDropdown: [
-        {
-          'label': 'Prioridade',
-          'key': 'priority',
-          'itens': [
-            {'label': 'Baixo', 'value': 'BAIXO'},
-            {'label': 'Médio', 'value': 'MEDIO'},
-            {'label': 'Alto', 'value': 'ALTO'},
-          ],
+  void abrirFormulario({Map<String, dynamic>? contato}) {
+    showDialog(
+      context: context,
+      builder: (context) => ModularFormDialog(
+        titulo: contato == null ? 'Novo Contato' : 'Editar Contato',
+        dataInicial: contato,
+        camposTexto: [
+          {'label': 'Nome', 'key': 'name'},
+          {'label': 'Telefone', 'key': 'number'},
+          {'label': 'Email', 'key': 'email'},
+          {'label': 'Assunto', 'key': 'subject'},
+        ],
+        camposDropdown: [
+          {
+            'label': 'Prioridade',
+            'key': 'priority',
+            'itens': [
+              {'label': 'Baixo', 'value': 'BAIXO'},
+              {'label': 'Médio', 'value': 'MEDIO'},
+              {'label': 'Alto', 'value': 'ALTO'},
+            ],
+          },
+        ],
+        onSubmit: (data) async {
+          if (contato == null) {
+            await repo.criar(data);
+          } else {
+            await repo.atualizar(contato['id'], data);
+          }
+          carregarContatos();
         },
-      ],
-      onSubmit: (data) async {
-        if (contato == null) {
-          await repo.criar(data);
-        } else {
-          await repo.atualizar(contato['id'], data); 
-        }
-        carregarContatos();
-      },
-    ),
-  );
-}
-
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +81,17 @@ void abrirFormulario({Map<String, dynamic>? contato}) {
                   return ContatoCard(
                     contato: contato,
                     onEdit: () => abrirFormulario(contato: contato),
-                    onDelete: () => deletarContato(contato['id']),
+                    onDelete: () => showDialog(
+                      context: context,
+                      builder: (context) => ConfirmDeleteDialog(
+                        titulo: 'Confirmar Exclusão',
+                        mensagem:
+                            'Tem certeza que deseja deletar este contato?',
+                        onConfirm: () {
+                          deletarContato(contato['id']);
+                        },
+                      ),
+                    ),
                   );
                 }).toList(),
               ),
