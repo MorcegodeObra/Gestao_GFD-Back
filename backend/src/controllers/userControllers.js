@@ -1,10 +1,22 @@
 import { User } from "../models/users.js";
+import bcrypt from 'bcrypt';
 
 export const createUser = async (req, res) => {
   const { userName, userNumber, userEmail, userCode } = req.body;
+
   try {
-    // Criação do usuário no banco de dados
-    const user = await User.create({ userName, userNumber, userEmail, userCode });
+    // Gerar o hash da senha
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(userCode, saltRounds);
+
+    // Criar o usuário com a senha criptografada
+    const user = await User.create({
+      userName,
+      userNumber,
+      userEmail,
+      userCode: hashedPassword
+    });
+
     res.status(201).json(user);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -48,5 +60,28 @@ export const deleteUser = async (req, res) => {
     res.status(200).json({ message: 'Usuário deletado com sucesso' }); // Retorna uma mensagem de sucesso
   } catch (error) {
     res.status(400).json({ error: error.message }); // Em caso de erro, retorna o erro com status 400
+  }
+};
+
+export const loginUser = async (req, res) => {
+  const { userEmail, password } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { userEmail } });
+
+    if (!user) {
+      return res.status(404).json({ error: 'Usuário não encontrado' });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.userCode);
+
+    if (!passwordMatch) {
+      return res.status(401).json({ error: 'Senha incorreta' });
+    }
+
+    // Se quiser, aqui você pode gerar um token JWT para autenticação futura.
+    res.status(200).json({ message: 'Login bem-sucedido', user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
