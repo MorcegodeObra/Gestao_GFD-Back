@@ -2,19 +2,19 @@ import { User } from "../models/users.js";
 import bcrypt from 'bcrypt';
 
 export const createUser = async (req, res) => {
-  const { userName, userNumber, userEmail, userCode } = req.body;
+  const { userName, userNumber, userEmail, password } = req.body;
 
   try {
     // Gerar o hash da senha
     const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(userCode, saltRounds);
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     // Criar o usuário com a senha criptografada
     const user = await User.create({
       userName,
       userNumber,
       userEmail,
-      userCode: hashedPassword
+      password: hashedPassword
     });
 
     res.status(201).json(user);
@@ -25,7 +25,7 @@ export const createUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   const { id } = req.params; // ID do usuário a ser atualizado
-  const { userName, userNumber, userEmail, userCode } = req.body; // Novos dados
+  const { userName, userNumber, userEmail, password } = req.body; // Novos dados
 
   try {
     const user = await User.findByPk(id); // Busca o usuário pelo ID
@@ -37,7 +37,7 @@ export const updateUser = async (req, res) => {
     user.userName = userName || user.userName;
     user.userNumber = userNumber || user.userNumber;
     user.userEmail = userEmail || user.userEmail;
-    user.userCode = userCode || user.userCode;
+    user.password = password || user.password;
 
     await user.save(); // Salva as mudanças no banco de dados
     res.status(200).json(user); // Retorna o usuário atualizado
@@ -73,7 +73,7 @@ export const loginUser = async (req, res) => {
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.userCode);
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
       return res.status(401).json({ error: 'Senha incorreta' });
