@@ -12,14 +12,22 @@ export const criarContato = async (req, res) => {
 };
 
 export const listarContato = async (req, res) => {
+  const { userId } = req.query; // Recebe via query params
+
   try {
-    const contacts = await Contact.findAll();
-    res.json(contacts);
+    const whereClause = userId ? { lastUserModified: userId } : {};
+
+    const contatos = await Contact.findAll({
+      where: whereClause,
+      order: [['updatedAt', 'DESC']], // Opcional: ordena por última atualização
+    });
+
+    res.json(contatos);
   } catch (error) {
-    console.error(error); // Log do erro
-    res.status(500).json({ error: 'Erro ao listar os contatos. Tente novamente mais tarde.' });
+    res.status(500).json({ error: error.message });
   }
 };
+
 
 export const listarId = async (req, res) => {
   try {

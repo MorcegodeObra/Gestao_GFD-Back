@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'presentation/pages/main_menu.dart';
+import './presentation/pages/login.dart';
+import './presentation/pages/cadastro.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Gestão de Contatos',
+      title: 'Gestão GFD',
       theme: ThemeData(
         primaryColor: const Color(0xFF9C27B0),
         scaffoldBackgroundColor: const Color(0xFFF5F5F5),
@@ -46,7 +47,10 @@ class MyApp extends StatelessWidget {
           labelStyle: const TextStyle(color: Colors.black),
         ),
       ),
-      home: const MainMenu(),
+      routes: {
+        "/": (context) => const LoginPage(),
+        "/cadastro": (context) => const CadastroPage(),
+      },
     );
   }
 }

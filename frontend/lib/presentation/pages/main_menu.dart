@@ -3,6 +3,7 @@ import '../../core/modular_form.dart';
 import '../../data/contato_repository.dart';
 import '../widgets/contato_card.dart';
 import '../../core/delete_dialog.dart';
+import '../../data/salvar_dados.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});
@@ -14,15 +15,25 @@ class MainMenu extends StatefulWidget {
 class _MainMenuState extends State<MainMenu> {
   final repo = ContatoRepository();
   List<dynamic> contatos = [];
+  int? userId;
 
   @override
   void initState() {
     super.initState();
+    carregarDadosUsuario();
+  }
+
+  Future<void> carregarDadosUsuario() async {
+    final userData = await getDadosUsuario();
+    setState(() {
+      userId = userData['userId'];
+    });
     carregarContatos();
   }
 
   Future<void> carregarContatos() async {
-    final data = await repo.getContatos();
+    if (userId == null) return;
+    final data = await repo.getContatos(userId: userId!);
     setState(() {
       contatos = data;
     });
@@ -53,10 +64,12 @@ class _MainMenuState extends State<MainMenu> {
               {'label': 'Baixo', 'value': 'BAIXO'},
               {'label': 'Médio', 'value': 'MEDIO'},
               {'label': 'Alto', 'value': 'ALTO'},
+              {'label': 'Urgente', 'value': 'URGENTE'},
             ],
           },
         ],
         onSubmit: (data) async {
+          data['lastUserModified'] = userId;
           if (contato == null) {
             await repo.criar(data);
           } else {
