@@ -71,6 +71,24 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // 🔥 Aqui vai a imagem
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/der.png',
+                  height: 150,
+                ),
+                const SizedBox(width: 16,),
+                Image.asset(
+                  'assets/simemp.jpeg',
+                  height: 150,
+                ),
+              ],
+            ),
+            const SizedBox(height: 32),
+
+            // 🔥 Campos de email e senha
             TextField(
               controller: emailController,
               decoration: const InputDecoration(labelText: 'Email'),
@@ -82,6 +100,8 @@ class _LoginPageState extends State<LoginPage> {
               obscureText: true,
             ),
             const SizedBox(height: 24),
+
+            // 🔥 Botão de login
             ElevatedButton(
               onPressed: isLoading ? null : login,
               child: isLoading
@@ -89,6 +109,8 @@ class _LoginPageState extends State<LoginPage> {
                   : const Text('Login'),
             ),
             const SizedBox(height: 16),
+
+            // 🔥 Link para cadastro
             GestureDetector(
               onTap: () {
                 Navigator.pushNamed(context, '/cadastro');

@@ -17,3 +17,9 @@ Future<Map<String, dynamic>> getDadosUsuario() async {
     'userNumber': prefs.getString('userNumber'),
   };
 }
+
+Future<void> logout() async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.clear();
+}
+

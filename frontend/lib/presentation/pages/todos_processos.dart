@@ -5,18 +5,17 @@ import '../widgets/contato_card.dart';
 import '../../core/delete_dialog.dart';
 import '../../data/salvar_dados.dart';
 
-class MainMenu extends StatefulWidget {
-  const MainMenu({super.key});
+class Todosprocessos extends StatefulWidget {
+  const Todosprocessos({super.key});
 
   @override
-  State<MainMenu> createState() => _MainMenuState();
+  State<Todosprocessos> createState() => _TodosprocessosState();
 }
 
-class _MainMenuState extends State<MainMenu> {
+class _TodosprocessosState extends State<Todosprocessos> {
   final repo = ContatoRepository();
   List<dynamic> contatos = [];
   int? userId;
-  bool isLoading = true;
 
   @override
   void initState() {
@@ -29,28 +28,15 @@ class _MainMenuState extends State<MainMenu> {
     setState(() {
       userId = userData['userId'];
     });
-    await carregarContatos();
+    carregarContatos();
   }
 
   Future<void> carregarContatos() async {
     if (userId == null) return;
-
+    final data = await repo.getContatos();
     setState(() {
-      isLoading = true;
+      contatos = data;
     });
-
-    try {
-      final data = await repo.getContatos(userId: userId!);
-      setState(() {
-        contatos = data;
-      });
-    } catch (e) {
-      debugPrint('Erro ao carregar contatos: $e');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
   }
 
   Future<void> deletarContato(int id) async {
@@ -98,44 +84,14 @@ class _MainMenuState extends State<MainMenu> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Meus Processos'),
-        automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => ConfirmDeleteDialog(
-                  titulo: 'Confirmar Logout',
-                  mensagem: 'Deseja realmente sair?',
-                  onConfirm: () async {
-                    await logout();
-                    Navigator.pushReplacementNamed(context, '/');
-                  },
-                ),
-              );
-            },
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Contatos')),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : contatos.isEmpty
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.folder_off, size: 64, color: Colors.grey),
-                    SizedBox(height: 16),
-                    Text(
-                      "Sem processos na sua carga!",
-                      style: TextStyle(fontSize: 18, color: Colors.black54),
-                    ),
-                  ],
+        child: contatos.isEmpty
+            ? const Center(
+                child: Text(
+                  'Nenhum processo encontrado.',
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
                 ),
               )
             : ListView(
@@ -157,22 +113,6 @@ class _MainMenuState extends State<MainMenu> {
                   );
                 }).toList(),
               ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF9C27B0),
-        onPressed: () => abrirFormulario(),
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(12),
-        child: ElevatedButton.icon(
-          onPressed: () async{
-            await Navigator.pushNamed(context, '/todosProcessos');
-            carregarContatos();
-          },
-          icon: const Icon(Icons.folder_copy),
-          label: const Text('Acessar Todos os Processos'),
-        ),
       ),
     );
   }

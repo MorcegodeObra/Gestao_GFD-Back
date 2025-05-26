@@ -26,7 +26,7 @@ class _CadastroPageState extends State<CadastroPage> {
         'userName': nomeController.text.trim(),
         'userNumber': numeroController.text.trim(),
         'userEmail': emailController.text.trim(),
-        'userCode': senhaController.text.trim(),
+        'password': senhaController.text.trim(),
       });
 
       showDialog(

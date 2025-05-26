@@ -1,16 +1,22 @@
 import 'package:dio/dio.dart';
 
 class ApiService {
-  final Dio dio = Dio(BaseOptions(baseUrl: 'https://chatbotwhatsapp-z0bc.onrender.com'));
+  final Dio dio = Dio(
+    BaseOptions(
+      baseUrl: 'https://chatbotwhatsapp-z0bc.onrender.com',
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    ),
+  );
 
   // CONTATOS
-Future<List<dynamic>> getContatos({int? userId}) async {
-  final response = await dio.get(
-    '/contatos',
-    queryParameters: userId != null ? {'userId': userId} : null,
-  );
-  return response.data;
-}
+  Future<List<dynamic>> getContatos({int? userId}) async {
+    final response = await dio.get(
+      '/contatos',
+      queryParameters: userId != null ? {'userId': userId} : null,
+    );
+    return response.data;
+  }
 
   Future<void> criarContato(Map<String, dynamic> data) async {
     await dio.post('/contatos', data: data);
