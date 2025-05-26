@@ -36,9 +36,7 @@ class _LoginPageState extends State<LoginPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                // Aqui você pode navegar para a home, por exemplo:
-                // Navigator.pushReplacementNamed(context, '/home');
+                Navigator.pushReplacementNamed(context, '/home');
               },
               child: const Text('Ok'),
             ),

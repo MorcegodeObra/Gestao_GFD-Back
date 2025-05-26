@@ -14,7 +14,6 @@ class _CadastroPageState extends State<CadastroPage> {
   final TextEditingController nomeController = TextEditingController();
   final TextEditingController numeroController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController codigoController = TextEditingController();
   final TextEditingController senhaController = TextEditingController();
 
   bool isLoading = false;
@@ -27,8 +26,7 @@ class _CadastroPageState extends State<CadastroPage> {
         'userName': nomeController.text.trim(),
         'userNumber': numeroController.text.trim(),
         'userEmail': emailController.text.trim(),
-        'userCode': codigoController.text.trim(),
-        'password': senhaController.text.trim(),
+        'userCode': senhaController.text.trim(),
       });
 
       showDialog(
@@ -89,11 +87,6 @@ class _CadastroPageState extends State<CadastroPage> {
               controller: emailController,
               decoration: const InputDecoration(labelText: 'Email'),
               keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: codigoController,
-              decoration: const InputDecoration(labelText: 'Código'),
             ),
             const SizedBox(height: 16),
             TextField(
