@@ -42,8 +42,8 @@ class ContatoCard extends StatelessWidget {
                           'Telefone': contato['number'],
                           'Assunto': contato['subject'],
                           'Email': contato['email'],
-                          'Ultima Atualização': formatarData(
-                            contato['updatedAt'],
+                          'Ultimo contato': formatarData(
+                            contato['lastSent'],
                           ),
                         }),
                       ],

@@ -1,26 +1,35 @@
 import nodemailer from 'nodemailer';
+import { User } from '../models/user.js';  // Importa o modelo de User
 
-// Função para enviar e-mail via Gmail (com autenticação e configuração detalhada)
 export async function sendEmailMessage(contact, message) {
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',  // Usando o serviço do Gmail
+      service: 'gmail',
       auth: {
-        user: process.env.EMAIL_USER,  // Certifique-se de que o campo é userEmail e não email
-        pass: process.env.EMAIL_PASS,   // Certifique-se de que o campo é userCode e não code
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
+    // 🔥 Buscar o usuário que modificou por último, se houver
+    let ccEmail = null;
+    if (contact.lastUserModified) {
+      const user = await User.findByPk(contact.lastUserModified);
+      if (user && user.userEmail) {
+        ccEmail = user.userEmail;
+      }
+    }
+
     const mailOptions = {
-      from: process.env.EMAIL_USER,  // E-mail do remetente
-      to: contact.email,  // E-mail do destinatário
+      from: process.env.EMAIL_USER,
+      to: contact.email,  // Destinatário principal
+      cc: ccEmail ?? undefined,  // 🔥 CC apenas se existir
       subject: 'Notificação de Solicitação',
-      text: message,  // Corpo da mensagem
+      text: message,
     };
 
-    // Envio do e-mail
     const info = await transporter.sendMail(mailOptions);
-    console.log('E-mail enviado para ' + contact.email + ': ' + info.response);
+    console.log(`E-mail enviado para ${contact.email} (CC: ${ccEmail ?? 'nenhum'}) -> ${info.response}`);
   } catch (error) {
     console.error('Erro ao enviar e-mail:', error.message);
   }

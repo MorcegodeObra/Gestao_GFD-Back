@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../presentation/widgets/dropdown_padrao.dart';
+import '../utils/forms_utils.dart';
 
 class ModularFormDialog extends StatefulWidget {
   final String titulo;
   final Map<String, dynamic>? dataInicial;
-  final List<Map<String, String>> camposTexto;
+  final List<Map<String, dynamic>> camposTexto;
   final List<Map<String, dynamic>> camposDropdown;
   final Future<void> Function(Map<String, dynamic>) onSubmit;
 
@@ -29,15 +31,21 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
   void initState() {
     super.initState();
 
-    // Inicializar TextFields
+    // Inicializar campos texto
     for (var campo in widget.camposTexto) {
       final key = campo['key']!;
       textControllers[key] = TextEditingController(
-        text: widget.dataInicial?[key] ?? '',
+        text: widget.dataInicial?[key] != null
+            ? FormUtils.isDateField(campo)
+                ? FormUtils.formatDateToDisplay(
+                    DateTime.tryParse(widget.dataInicial![key]) ??
+                        DateTime.now())
+                : widget.dataInicial![key].toString()
+            : '',
       );
     }
 
-    // Inicializar Dropdowns
+    // Inicializar dropdowns
     for (var drop in widget.camposDropdown) {
       final chave = drop['key'];
       dropdownSelecionados[chave] = widget.dataInicial?[chave];
@@ -60,23 +68,40 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // TextFields
-            ...widget.camposTexto.map(
-              (campo) => Padding(
+            // Campos de texto e data
+            ...widget.camposTexto.map((campo) {
+              final isDate = FormUtils.isDateField(campo);
+              final controller = textControllers[campo['key']]!;
+
+              return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
-                child: TextField(
-                  controller: textControllers[campo['key']]!,
-                  decoration: InputDecoration(
-                    labelText: campo['label'],
-                    border: const OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Colors.white,
+                child: GestureDetector(
+                  onTap: isDate
+                      ? () => FormUtils.pickDate(
+                            context: context,
+                            controller: controller,
+                          )
+                      : null,
+                  child: AbsorbPointer(
+                    absorbing: isDate,
+                    child: TextField(
+                      controller: controller,
+                      decoration: InputDecoration(
+                        labelText: campo['label'],
+                        border: const OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Colors.white,
+                        suffixIcon: isDate
+                            ? const Icon(Icons.calendar_today)
+                            : null,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
+              );
+            }),
 
-            // Dropdowns
+            // Campos dropdown
             ...widget.camposDropdown.map(
               (drop) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
@@ -104,12 +129,22 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
           onPressed: () async {
             final data = <String, dynamic>{};
 
-            // Dados dos TextFields
+            // Dados dos campos texto e data
             textControllers.forEach((key, controller) {
-              data[key] = controller.text;
+              final campo = widget.camposTexto.firstWhere(
+                (e) => e['key'] == key,
+              );
+              if (FormUtils.isDateField(campo)) {
+                final date = FormUtils.parseDateFromDisplay(controller.text);
+                data[key] = date != null
+                    ? FormUtils.formatDateToBackend(date)
+                    : controller.text;
+              } else {
+                data[key] = controller.text;
+              }
             });
 
-            // Dados dos Dropdowns
+            // Dados dos dropdowns
             dropdownSelecionados.forEach((key, valor) {
               data[key] = valor ?? '';
             });

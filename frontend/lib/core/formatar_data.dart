@@ -1,8 +1,12 @@
-String formatarData(String dataIso) {
+import 'package:intl/intl.dart';
+
+String formatarData(String? data) {
+  if (data == null || data.isEmpty) return 'Sem data';
+
   try {
-    DateTime data = DateTime.parse(dataIso).toLocal();
-    return '${data.day.toString().padLeft(2, '0')}/${data.month.toString().padLeft(2, '0')}/${data.year}';
-  } catch (e) {
-    return '';
+    final date = DateTime.parse(data);
+    return DateFormat('dd/MM/yyyy').format(date);
+  } catch (_) {
+    return 'Data inválida';
   }
 }

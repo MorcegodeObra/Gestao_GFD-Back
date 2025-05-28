@@ -69,6 +69,7 @@ class _MainMenuState extends State<MainMenu> {
           {'label': 'Telefone', 'key': 'number'},
           {'label': 'Email', 'key': 'email'},
           {'label': 'Assunto', 'key': 'subject'},
+          {'label': 'Ultimo contato', 'key': 'lastSent', "type": "date"},
         ],
         camposDropdown: [
           {
@@ -166,7 +167,7 @@ class _MainMenuState extends State<MainMenu> {
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(12),
         child: ElevatedButton.icon(
-          onPressed: () async{
+          onPressed: () async {
             await Navigator.pushNamed(context, '/todosProcessos');
             carregarContatos();
           },
