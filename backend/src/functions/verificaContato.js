@@ -16,7 +16,7 @@ const priorityDays = {
 configDotenv();
 
 // Função para o cron job
-export const runCronJob = cron.schedule('0 9 * * *', async () => {
+export const runCronJob = cron.schedule('* * * * *', async () => {
   try {
     const now = new Date();
     // Buscando contatos que não responderam e que precisam de mensagens baseadas na prioridade e na data do último envio
