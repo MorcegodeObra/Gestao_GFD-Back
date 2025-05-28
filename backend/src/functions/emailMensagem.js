@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import User from "../models/users.js"  // Importa o modelo de User
+import {User} from "../models/users.js"  // Importa o modelo de User
 
 export async function sendEmailMessage(contact, message) {
   try {
