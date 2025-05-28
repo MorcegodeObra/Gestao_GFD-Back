@@ -6,7 +6,7 @@ export const criarContato = async (req, res) => {
     const contact = await Contact.create({ name, number, email, subject, priority,lastUserModified });
     res.status(201).json(contact);
   } catch (error) {
-    console.error(error); // Log do erro para debugging
+    console.error(error);
     res.status(500).json({ error: 'Erro ao criar o contato. Tente novamente mais tarde.' });
   }
 };
@@ -49,8 +49,8 @@ export const editarContato = async (req, res) => {
     if (!contact) {
       return res.status(404).json({ error: 'Contato não encontrado' });
     }
-    const { name, number, email, subject, priority, lastUserModified } = req.body;
-    await contact.update({ name, number, email, subject, priority, lastUserModified });
+    const { name, number, email, subject, priority, lastUserModified,lastSent } = req.body;
+    await contact.update({ name, number, email, subject, priority, lastUserModified,lastSent });
     res.json(contact);
   } catch (error) {
     console.error(error); // Log do erro

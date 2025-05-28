@@ -21,7 +21,9 @@ export const Contact = sequelize.define('Contact', {
   lastSent: {
     type: DataTypes.DATE,
     allowNull: true,
+    defaultValue: DataTypes.NOW,
   },
+
   lastUserModified: {
     type: DataTypes.INTEGER,
     references: {
