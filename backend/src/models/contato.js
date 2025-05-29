@@ -20,11 +20,9 @@ export const Contact = sequelize.define('Contact', {
   },
   lastSent: {
     type: DataTypes.DATE,
-    allowNull: true,
     defaultValue: DataTypes.NOW,
   },
-
-  lastUserModified: {
+  userId: {
     type: DataTypes.INTEGER,
     references: {
       model: "Users",
@@ -47,5 +45,21 @@ export const Contact = sequelize.define('Contact', {
   executed: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
+  },
+  contatoStatus: {
+    type: DataTypes.ENUM("REVISÃO DE PROJETO", "IMPLANTAÇÃO", "VISTORIA INICIAL", "VISTORIA FINAL", "SEM STATUS"),
+    defaultValue: "SEM STATUS"
+  },
+  processoSider: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  protocolo: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  area: {
+    type: DataTypes.ENUM("AREA 1", "AREA 2", "AREA 3", "AREA 4", "AREA 5", "SEM AREA"),
+    defaultValue: "SEM AREA"
   },
 });

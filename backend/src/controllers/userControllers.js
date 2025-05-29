@@ -2,19 +2,19 @@ import { User } from "../models/users.js";
 import bcrypt from 'bcrypt';
 
 export const createUser = async (req, res) => {
-  const { userName, userNumber, userEmail, password } = req.body;
+  const { userName, userNumber, userEmail, password, userArea, userCargo } = req.body;
 
   try {
-    // Gerar o hash da senha
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Criar o usuário com a senha criptografada
     const user = await User.create({
       userName,
       userNumber,
       userEmail,
-      password: hashedPassword
+      password: hashedPassword,
+      userArea: userArea || "SEM AREA",
+      userCargo: userCargo || "SEM CARGO",
     });
 
     res.status(201).json(user);
@@ -23,28 +23,33 @@ export const createUser = async (req, res) => {
   }
 };
 
+
 export const updateUser = async (req, res) => {
-  const { id } = req.params; // ID do usuário a ser atualizado
-  const { userName, userNumber, userEmail, password } = req.body; // Novos dados
+  const { id } = req.params;
+  const { userName, userNumber, userEmail, password, userArea, userCargo } = req.body;
 
   try {
-    const user = await User.findByPk(id); // Busca o usuário pelo ID
+    const user = await User.findByPk(id);
+    if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
 
-    if (!user) {
-      return res.status(404).json({ error: 'Usuário não encontrado' }); // Retorna 404 se não encontrar o usuário
-    }
-    // Atualiza os dados do usuário
     user.userName = userName || user.userName;
     user.userNumber = userNumber || user.userNumber;
     user.userEmail = userEmail || user.userEmail;
-    user.password = password || user.password;
+    user.userArea = userArea || user.userArea;
+    user.userCargo = userCargo || user.userCargo;
 
-    await user.save(); // Salva as mudanças no banco de dados
-    res.status(200).json(user); // Retorna o usuário atualizado
+    if (password) {
+      const saltRounds = 10;
+      user.password = await bcrypt.hash(password, saltRounds);
+    }
+
+    await user.save();
+    res.status(200).json(user);
   } catch (error) {
-    res.status(400).json({ error: error.message }); // Em caso de erro, retorna o erro com status 400
+    res.status(400).json({ error: error.message });
   }
 };
+
 
 export const deleteUser = async (req, res) => {
   const { id } = req.params; // ID do usuário a ser excluído
@@ -68,18 +73,11 @@ export const loginUser = async (req, res) => {
 
   try {
     const user = await User.findOne({ where: { userEmail } });
-
-    if (!user) {
-      return res.status(404).json({ error: 'Usuário não encontrado' });
-    }
+    if (!user) return res.status(404).json({ error: 'Usuário não encontrado' });
 
     const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) return res.status(401).json({ error: 'Senha incorreta' });
 
-    if (!passwordMatch) {
-      return res.status(401).json({ error: 'Senha incorreta' });
-    }
-
-    // Se quiser, aqui você pode gerar um token JWT para autenticação futura.
     res.status(200).json({ message: 'Login bem-sucedido', user });
   } catch (error) {
     res.status(500).json({ error: error.message });

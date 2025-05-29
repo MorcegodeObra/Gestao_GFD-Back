@@ -1,17 +1,16 @@
 import express from 'express';
-import bodyParser from 'body-parser';
 import { sequelize } from './src/config/sequelize.js';
 import routerBot from './src/router/mainRouter.js';
 import { configDotenv } from 'dotenv';
 import cors from 'cors';
-import {runCronJob} from './src/functions/verificaContato.js'; // Importando o cron job
+import {runCronJob} from './src/functions/controladorMensagens.js'; // Importando o cron job
 
 const app = express();
 const PORT = 3000;
 
 configDotenv();
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(routerBot);
 
 // Autenticação com PostgreSQL
@@ -23,7 +22,7 @@ sequelize.authenticate()
   });
 
 // Iniciando o cron job
-runCronJob;
+runCronJob.start();
 
 // Sincronizar DB e iniciar servidor
 sequelize.sync({alter:true}).then(() => {

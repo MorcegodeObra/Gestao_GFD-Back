@@ -24,4 +24,16 @@ export const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  userArea: {
+    type: DataTypes.ENUM("AREA 1", "AREA 2", "AREA 3", "AREA 4", "AREA 5", "SEM AREA"),
+    defaultValue: "SEM AREA"
+  },
+  userCargo: {
+    type: DataTypes.ENUM("ENGENHEIRO", "TÉCNICO", "COORDENADOR", "SEM CARGO"),
+    defaultValue: "SEM CARGO"
+  },
+  userResumo: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  },
 });

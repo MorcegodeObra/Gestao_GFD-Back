@@ -2,8 +2,34 @@ import { Contact } from '../models/contato.js';
 
 export const criarContato = async (req, res) => {
   try {
-    const { name, number, email, subject, priority,lastUserModified } = req.body;
-    const contact = await Contact.create({ name, number, email, subject, priority,lastUserModified });
+    const {
+      name,
+      number,
+      email,
+      subject,
+      priority,
+      userId,
+      contatoStatus,
+      processoSider,
+      protocolo,
+      area,
+      lastSent,
+    } = req.body;
+
+    const contact = await Contact.create({
+      name,
+      number,
+      email,
+      subject,
+      priority,
+      userId,
+      contatoStatus,
+      processoSider,
+      protocolo,
+      area,
+      lastSent,
+    });
+
     res.status(201).json(contact);
   } catch (error) {
     console.error(error);
@@ -11,15 +37,16 @@ export const criarContato = async (req, res) => {
   }
 };
 
+
 export const listarContato = async (req, res) => {
-  const { userId } = req.query; // Recebe via query params
+  const { userId } = req.query;
 
   try {
-    const whereClause = userId ? { lastUserModified: userId } : {};
+    const whereClause = userId ? { userId } : {};
 
     const contatos = await Contact.findAll({
       where: whereClause,
-      order: [['updatedAt', 'DESC']], // Opcional: ordena por última atualização
+      order: [['updatedAt', 'DESC']],
     });
 
     res.json(contatos);
@@ -27,6 +54,7 @@ export const listarContato = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 
 export const listarId = async (req, res) => {
@@ -46,14 +74,39 @@ export const listarId = async (req, res) => {
 export const editarContato = async (req, res) => {
   try {
     const contact = await Contact.findByPk(req.params.id);
-    if (!contact) {
-      return res.status(404).json({ error: 'Contato não encontrado' });
-    }
-    const { name, number, email, subject, priority, lastUserModified,lastSent } = req.body;
-    await contact.update({ name, number, email, subject, priority, lastUserModified,lastSent });
+    if (!contact) return res.status(404).json({ error: 'Contato não encontrado' });
+
+    const {
+      name,
+      number,
+      email,
+      subject,
+      priority,
+      userId,
+      lastSent,
+      contatoStatus,
+      processoSider,
+      protocolo,
+      area,
+    } = req.body;
+
+    await contact.update({
+      name,
+      number,
+      email,
+      subject,
+      priority,
+      userId,
+      lastSent,
+      contatoStatus,
+      processoSider,
+      protocolo,
+      area,
+    });
+
     res.json(contact);
   } catch (error) {
-    console.error(error); // Log do erro
+    console.error(error);
     res.status(500).json({ error: 'Erro ao editar o contato. Tente novamente mais tarde.' });
   }
 };
@@ -76,27 +129,37 @@ export const deletarContato = async (req, res) => {
 export const atualizarCamposContato = async (req, res) => {
   try {
     const contact = await Contact.findByPk(req.params.id);
+    if (!contact) return res.status(404).json({ error: 'Contato não encontrado' });
 
-    if (!contact) {
-      return res.status(404).json({ error: 'Contato não encontrado' });
-    }
+    const {
+      subject,
+      priority,
+      answer,
+      check,
+      executed,
+      lastSent,
+      contatoStatus,
+      processoSider,
+      protocolo,
+      area,
+    } = req.body;
 
-    // Extraindo os campos a serem atualizados
-    const { subject, priority, answer, check, executed, lastSent } = req.body;
-
-    // Atualizando apenas os campos fornecidos
     await contact.update({
-      subject: subject || contact.subject,
-      lastSent: lastSent || contact.lastSent,
-      priority: priority || contact.priority,
-      answer: answer !== undefined ? answer : contact.answer,  // Para garantir que o valor booleano não seja alterado para `undefined`
-      check: check !== undefined ? check : contact.check,        // O mesmo para o campo `check`
-      executed: executed !== undefined ? executed : contact.executed,  // O mesmo para `executed`
+      subject: subject ?? contact.subject,
+      priority: priority ?? contact.priority,
+      answer: answer ?? contact.answer,
+      check: check ?? contact.check,
+      executed: executed ?? contact.executed,
+      lastSent: lastSent ?? contact.lastSent,
+      contatoStatus: contatoStatus ?? contact.contatoStatus,
+      processoSider: processoSider ?? contact.processoSider,
+      protocolo: protocolo ?? contact.protocolo,
+      area: area ?? contact.area,
     });
 
-    res.json(contact);  // Retorna o contato atualizado
+    res.json(contact);
   } catch (error) {
-    console.error(error); // Log do erro
+    console.error(error);
     res.status(500).json({ error: 'Erro ao atualizar o contato. Tente novamente mais tarde.' });
   }
-}
+};
