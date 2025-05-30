@@ -9,6 +9,7 @@ import {
 } from '../controllers/contatoController.js';
 import {
   createUser,
+  listarUser,
   updateUser,
   deleteUser,
   loginUser
@@ -24,6 +25,7 @@ router.delete('/contatos/:id', deletarContato);
 router.put('/contatos/:id/atualizar', atualizarCamposContato);
 
 router.post('/users', createUser);
+router.get("/users",listarUser);
 router.put('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
 router.post('/login', loginUser);
