@@ -14,9 +14,9 @@ export async function sendEmailMessage(contact, message) {
 
     let ccList = [];
 
-    // 📌 1. Adicionar quem modificou por último (lastUserModified)
-    if (contact.lastUserModified) {
-      const user = await User.findByPk(contact.lastUserModified);
+    // 📌 1. Adicionar quem modificou por último (userId)
+    if (contact.userId) {
+      const user = await User.findByPk(contact.userId);
       if (user?.userEmail) {
         ccList.push(user.userEmail);
       }
