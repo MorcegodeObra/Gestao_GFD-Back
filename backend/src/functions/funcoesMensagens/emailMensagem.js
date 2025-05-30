@@ -1,5 +1,13 @@
 import nodemailer from 'nodemailer';
-import { User } from '../../models/users.js'; // Ajuste o caminho se necessário
+import { User } from '../../models/users.js';
+
+function formatarData(data) {
+  const dia = String(data.getDate()).padStart(2, '0');
+  const mes = String(data.getMonth() + 1).padStart(2, '0'); // Mês em JavaScript é 0-indexed
+  const ano = data.getFullYear();
+
+  return `${dia}/${mes}/${ano}`;
+}
 
 export async function sendEmailMessage(contact, message) {
   try {
@@ -11,6 +19,8 @@ export async function sendEmailMessage(contact, message) {
       },
     });
 
+    const dataAtual = new Date();
+    const dataFormatada = formatarData(dataAtual);
 
     let ccList = [];
 
@@ -42,12 +52,9 @@ export async function sendEmailMessage(contact, message) {
       from: `"Contato Smart" <${process.env.EMAIL_USER}>`,
       to: contact.email,
       cc: ccList.length > 0 ? ccList : undefined,
-      subject: 'Notificação de Solicitação',
+      subject: `Notificação de Solicitação - ${dataFormatada}`,
       html: `
     <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
-      <div style="text-align: center; margin-bottom: 20px;">
-        <img src="https://ugc.production.linktr.ee/zoq1ZNlTSh6rCiujRNiH_TS60XRyZvG2R21Rg?io=true&size=avatar-v3_0" alt="Logo" style="max-width: 200px;" />
-      </div>    
       <p>${message.replace(/\n/g, '<br>')}</p>
     </div>
   `,

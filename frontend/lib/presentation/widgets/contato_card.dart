@@ -30,7 +30,7 @@ class ContatoCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    contato['name'] ?? 'Sem nome',
+                    contato['processoSider'] ?? 'Sem processo',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -41,6 +41,8 @@ class ContatoCard extends StatelessWidget {
                     TextSpan(
                       children: [
                         ...gerarTextSpan({
+                          "Protocolo": contato['protocolo'],
+                          'Nome': contato['name'],
                           'Telefone': contato['number'],
                           'Assunto': contato['subject'],
                           'Email': contato['email'],

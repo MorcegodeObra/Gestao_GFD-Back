@@ -40,23 +40,19 @@ export const criarContato = async (req, res) => {
 
 export const listarContato = async (req, res) => {
   const { userId, notUserId } = req.query;
-
   let whereClause = {};
 
   if (userId) {
     whereClause.userId = userId;
   }
-
   if (notUserId) {
     whereClause.userId = { [Op.ne]: notUserId }; // Sequelize operador "not equal"
   }
-
   try {
     const contatos = await Contact.findAll({
       where: whereClause,
       order: [['updatedAt', 'DESC']],
     });
-
     res.json(contatos);
   } catch (error) {
     res.status(500).json({ error: error.message });
