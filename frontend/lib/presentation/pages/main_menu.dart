@@ -17,6 +17,8 @@ class _MainMenuState extends State<MainMenu> {
   List<dynamic> contatos = [];
   int? userId;
   bool isLoading = true;
+  final TextEditingController _searchController = TextEditingController();
+  String termoBusca = '';
 
   @override
   void initState() {
@@ -121,6 +123,11 @@ class _MainMenuState extends State<MainMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final contatosFiltrados = contatos.where((contato) {
+      final nome = contato['name']?.toString().toLowerCase() ?? '';
+      return nome.contains(termoBusca);
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Meus Processos'),
@@ -148,38 +155,67 @@ class _MainMenuState extends State<MainMenu> {
         padding: const EdgeInsets.all(16),
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : contatos.isEmpty
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.folder_off, size: 64, color: Colors.grey),
-                    SizedBox(height: 16),
-                    Text(
-                      "Sem processos na sua carga!",
-                      style: TextStyle(fontSize: 18, color: Colors.black54),
-                    ),
-                  ],
-                ),
-              )
-            : ListView(
-                children: contatos.map((contato) {
-                  return ContatoCard(
-                    contato: contato,
-                    onEdit: () => abrirFormulario(contato: contato),
-                    onDelete: () => showDialog(
-                      context: context,
-                      builder: (context) => ConfirmDeleteDialog(
-                        titulo: 'Confirmar Exclusão',
-                        mensagem:
-                            'Tem certeza que deseja deletar este contato?',
-                        onConfirm: () {
-                          deletarContato(contato['id']);
-                        },
+            : Column(
+                children: [
+                  TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: "Buscar por processo",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                  );
-                }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        termoBusca = value.toLowerCase();
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: contatosFiltrados.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(
+                                  Icons.folder_off,
+                                  size: 64,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  "Nenhum processo encontrado!",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView(
+                            children: contatosFiltrados.map((contato) {
+                              return ContatoCard(
+                                contato: contato,
+                                onEdit: () => abrirFormulario(contato: contato),
+                                onDelete: () => showDialog(
+                                  context: context,
+                                  builder: (context) => ConfirmDeleteDialog(
+                                    titulo: 'Confirmar Exclusão',
+                                    mensagem:
+                                        'Tem certeza que deseja deletar este contato?',
+                                    onConfirm: () {
+                                      deletarContato(contato['id']);
+                                    },
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                  ),
+                ],
               ),
       ),
       floatingActionButton: FloatingActionButton(

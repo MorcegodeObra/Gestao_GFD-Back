@@ -43,7 +43,14 @@ export async function sendEmailMessage(contact, message) {
       to: contact.email,
       cc: ccList.length > 0 ? ccList : undefined,
       subject: 'Notificação de Solicitação',
-      text: message,
+      html: `
+    <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
+      <div style="text-align: center; margin-bottom: 20px;">
+        <img src="https://ugc.production.linktr.ee/zoq1ZNlTSh6rCiujRNiH_TS60XRyZvG2R21Rg?io=true&size=avatar-v3_0" alt="Logo" style="max-width: 200px;" />
+      </div>    
+      <p>${message.replace(/\n/g, '<br>')}</p>
+    </div>
+  `,
     };
 
     const info = await transporter.sendMail(mailOptions);

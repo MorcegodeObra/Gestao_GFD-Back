@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/modular_form.dart';
 import '../../data/contato_repository.dart';
 import '../widgets/contato_card.dart';
-import '../../core/delete_dialog.dart';
 import '../../data/salvar_dados.dart';
 
 class Todosprocessos extends StatefulWidget {
@@ -17,6 +15,8 @@ class _TodosprocessosState extends State<Todosprocessos> {
   List<dynamic> contatos = [];
   int? userId;
   bool isLoading = true;
+  final TextEditingController _searchController = TextEditingController();
+  String termoBusca = '';
 
   @override
   void initState() {
@@ -53,133 +53,123 @@ class _TodosprocessosState extends State<Todosprocessos> {
     }
   }
 
-  Future<void> deletarContato(int id) async {
-    await repo.deletar(id);
-    carregarContatos();
-  }
-
-  void abrirFormulario({Map<String, dynamic>? contato}) {
-    showDialog(
-      context: context,
-      builder: (context) => ModularFormDialog(
-        titulo: contato == null ? 'Novo Contato' : 'Editar Contato',
-        dataInicial: contato,
-        camposTexto: [
-          {'label': 'Nome', 'key': 'name'},
-          {'label': 'Telefone', 'key': 'number'},
-          {'label': 'Email', 'key': 'email'},
-          {'label': 'Assunto', 'key': 'subject'},
-          {'label': 'Ultimo contato', 'key': 'lastSent', "type": "date"},
-          {'label': 'Processo Sider', 'key': 'processoSider'},
-          {'label': 'Protocolo', 'key': 'protocolo'},
-        ],
-        camposDropdown: [
-          {
-            'label': 'Prioridade',
-            'key': 'priority',
-            'itens': [
-              {'label': 'Baixo', 'value': 'BAIXO'},
-              {'label': 'Médio', 'value': 'MEDIO'},
-              {'label': 'Alto', 'value': 'ALTO'},
-              {'label': 'Urgente', 'value': 'URGENTE'},
-            ],
-          },
-          {
-            'label': 'Area',
-            'key': 'area',
-            'itens': [
-              {'label': 'AREA 1', 'value': 'AREA 1'},
-              {'label': 'AREA 2', 'value': 'AREA 2'},
-              {'label': 'AREA 3', 'value': 'AREA 3'},
-              {'label': 'AREA 4', 'value': 'AREA 4'},
-              {'label': 'AREA 5', 'value': 'AREA 5'},
-            ],
-          },
-          {
-            'label': 'Status',
-            'key': 'contatoStatus',
-            'itens': [
-              {'label': 'REVISÃO DE PROJETO', 'value': 'REVISÃO DE PROJETO'},
-              {'label': 'IMPLANTAÇÃO', 'value': 'IMPLANTAÇÃO'},
-              {'label': 'VISTORIA INICIAL', 'value': 'VISTORIA INICIAL'},
-              {'label': 'VISTORIA FINAL', 'value': 'VISTORIA FINAL'},
-            ],
-          },
-        ],
-        onSubmit: (data) async {
-          data['userId'] = userId;
-          if (contato == null) {
-            await repo.criar(data);
-          } else {
-            await repo.atualizar(contato['id'], data);
-          }
-          carregarContatos();
-        },
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final contatosFiltrados = contatos.where((contato) {
+      final nome = contato['name']?.toString().toLowerCase() ?? '';
+      return nome.contains(termoBusca);
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Meus Processos'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text('Todos Processos'),
         automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => ConfirmDeleteDialog(
-                  titulo: 'Confirmar Logout',
-                  mensagem: 'Deseja realmente sair?',
-                  onConfirm: () async {
-                    await logout();
-                    Navigator.pushReplacementNamed(context, '/');
-                  },
-                ),
-              );
-            },
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : contatos.isEmpty
-            ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Icons.folder_off, size: 64, color: Colors.grey),
-                    SizedBox(height: 16),
-                    Text(
-                      "Sem processos na sua carga!",
-                      style: TextStyle(fontSize: 18, color: Colors.black54),
-                    ),
-                  ],
-                ),
-              )
-            : ListView(
-                children: contatos.map((contato) {
-                  return ContatoCard(
-                    contato: contato,
-                    onEdit: () => abrirFormulario(contato: contato),
-                    onDelete: () => showDialog(
-                      context: context,
-                      builder: (context) => ConfirmDeleteDialog(
-                        titulo: 'Confirmar Exclusão',
-                        mensagem:
-                            'Tem certeza que deseja deletar este contato?',
-                        onConfirm: () {
-                          deletarContato(contato['id']);
-                        },
+            : Column(
+                children: [
+                  TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: "Buscar por processo",
+                      prefixIcon: Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                  );
-                }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        termoBusca = value.toLowerCase();
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(
+                    child: contatosFiltrados.isEmpty
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: const [
+                                Icon(
+                                  Icons.folder_off,
+                                  size: 64,
+                                  color: Colors.grey,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  "Nenhum processo encontrado!",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView(
+                            children: contatosFiltrados.map((contato) {
+                              return ContatoCard(
+                                contato: contato,
+                                editIcon: Icons.work,
+                                onEdit: () async {
+                                  try {
+                                    final dataAtualizada =
+                                        Map<String, dynamic>.from(contato);
+                                    dataAtualizada["userId"] = userId;
+                                    await repo.atualizar(
+                                      contato["id"],
+                                      dataAtualizada,
+                                    );
+                                    carregarContatos();
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text('Sucesso'),
+                                        content: const Text(
+                                          'Processo foi para sua carga!',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: const Text('OK'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  } catch (e) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        title: const Text(
+                                          'Erro ao puxar o processo',
+                                        ),
+                                        content: Text(e.toString()),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(),
+                                            child: const Text('OK'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+                                },
+                              );
+                            }).toList(),
+                          ),
+                  ),
+                ],
               ),
       ),
     );

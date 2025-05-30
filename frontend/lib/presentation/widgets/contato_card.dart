@@ -5,13 +5,15 @@ import '../../core/lista_textos.dart';
 class ContatoCard extends StatelessWidget {
   final Map<String, dynamic> contato;
   final VoidCallback onEdit;
-  final VoidCallback onDelete;
+  final VoidCallback? onDelete;
+  final IconData? editIcon;
 
   const ContatoCard({
     super.key,
     required this.contato,
     required this.onEdit,
-    required this.onDelete,
+    this.onDelete,
+    this.editIcon,
   });
 
   @override
@@ -42,9 +44,7 @@ class ContatoCard extends StatelessWidget {
                           'Telefone': contato['number'],
                           'Assunto': contato['subject'],
                           'Email': contato['email'],
-                          'Ultimo contato': formatarData(
-                            contato['lastSent'],
-                          ),
+                          'Ultimo contato': formatarData(contato['lastSent']),
                         }),
                       ],
                     ),
@@ -59,13 +59,14 @@ class ContatoCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.blue),
+                    icon: Icon(editIcon ?? Icons.edit, color: Colors.blue),
                     onPressed: onEdit,
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: onDelete,
-                  ),
+                  if (onDelete != null)
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: onDelete,
+                    ),
                 ],
               ),
             ),

@@ -52,8 +52,6 @@ class _CadastroPageState extends State<CadastroPage> {
         ),
       );
     } catch (e) {
-      print(areaSelecionada);
-      print(cargoSelecionado);
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
