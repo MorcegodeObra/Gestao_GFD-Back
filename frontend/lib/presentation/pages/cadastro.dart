@@ -31,8 +31,8 @@ class _CadastroPageState extends State<CadastroPage> {
         'userNumber': numeroController.text.trim(),
         'userEmail': emailController.text.trim(),
         'password': senhaController.text.trim(),
-        'area': areaSelecionada,
-        'cargo': cargoSelecionado,
+        'userArea': areaSelecionada,
+        'userCargo': cargoSelecionado,
       });
 
       showDialog(
@@ -52,6 +52,8 @@ class _CadastroPageState extends State<CadastroPage> {
         ),
       );
     } catch (e) {
+      print(areaSelecionada);
+      print(cargoSelecionado);
       showDialog(
         context: context,
         builder: (context) => AlertDialog(

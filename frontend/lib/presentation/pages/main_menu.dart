@@ -70,6 +70,8 @@ class _MainMenuState extends State<MainMenu> {
           {'label': 'Email', 'key': 'email'},
           {'label': 'Assunto', 'key': 'subject'},
           {'label': 'Ultimo contato', 'key': 'lastSent', "type": "date"},
+          {'label': 'Processo Sider', 'key': 'processoSider'},
+          {'label': 'Protocolo', 'key': 'protocolo'},
         ],
         camposDropdown: [
           {
@@ -82,9 +84,30 @@ class _MainMenuState extends State<MainMenu> {
               {'label': 'Urgente', 'value': 'URGENTE'},
             ],
           },
+          {
+            'label': 'Area',
+            'key': 'area',
+            'itens': [
+              {'label': 'AREA 1', 'value': 'AREA 1'},
+              {'label': 'AREA 2', 'value': 'AREA 2'},
+              {'label': 'AREA 3', 'value': 'AREA 3'},
+              {'label': 'AREA 4', 'value': 'AREA 4'},
+              {'label': 'AREA 5', 'value': 'AREA 5'},
+            ],
+          },
+          {
+            'label': 'Status',
+            'key': 'contatoStatus',
+            'itens': [
+              {'label': 'REVISÃO DE PROJETO', 'value': 'REVISÃO DE PROJETO'},
+              {'label': 'IMPLANTAÇÃO', 'value': 'IMPLANTAÇÃO'},
+              {'label': 'VISTORIA INICIAL', 'value': 'VISTORIA INICIAL'},
+              {'label': 'VISTORIA FINAL', 'value': 'VISTORIA FINAL'},
+            ],
+          },
         ],
         onSubmit: (data) async {
-          data['lastUserModified'] = userId;
+          data['userId'] = userId;
           if (contato == null) {
             await repo.criar(data);
           } else {
@@ -160,7 +183,7 @@ class _MainMenuState extends State<MainMenu> {
               ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF9C27B0),
+        backgroundColor: const Color(0xFF28582E),
         onPressed: () => abrirFormulario(),
         child: const Icon(Icons.add, color: Colors.white),
       ),

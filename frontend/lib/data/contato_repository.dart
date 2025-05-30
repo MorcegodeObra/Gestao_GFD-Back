@@ -3,8 +3,8 @@ import '../core/api_service.dart';
 class ContatoRepository {
   final api = ApiService();
 
-  Future<List<dynamic>> getContatos({int? userId}) {
-    return api.getContatos(userId: userId);
+  Future<List<dynamic>> getContatos({int? userId, int? notUserId}) {
+    return api.getContatos(userId: userId, notUserId: notUserId);
   }
 
   Future<void> criar(Map<String, dynamic> data) {

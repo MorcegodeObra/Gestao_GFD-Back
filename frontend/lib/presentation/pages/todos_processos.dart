@@ -16,6 +16,7 @@ class _TodosprocessosState extends State<Todosprocessos> {
   final repo = ContatoRepository();
   List<dynamic> contatos = [];
   int? userId;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -28,15 +29,28 @@ class _TodosprocessosState extends State<Todosprocessos> {
     setState(() {
       userId = userData['userId'];
     });
-    carregarContatos();
+    await carregarContatos();
   }
 
   Future<void> carregarContatos() async {
     if (userId == null) return;
-    final data = await repo.getContatos();
+
     setState(() {
-      contatos = data;
+      isLoading = true;
     });
+
+    try {
+      final data = await repo.getContatos(notUserId: userId!);
+      setState(() {
+        contatos = data;
+      });
+    } catch (e) {
+      debugPrint('Erro ao carregar contatos: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> deletarContato(int id) async {
@@ -55,6 +69,9 @@ class _TodosprocessosState extends State<Todosprocessos> {
           {'label': 'Telefone', 'key': 'number'},
           {'label': 'Email', 'key': 'email'},
           {'label': 'Assunto', 'key': 'subject'},
+          {'label': 'Ultimo contato', 'key': 'lastSent', "type": "date"},
+          {'label': 'Processo Sider', 'key': 'processoSider'},
+          {'label': 'Protocolo', 'key': 'protocolo'},
         ],
         camposDropdown: [
           {
@@ -67,9 +84,30 @@ class _TodosprocessosState extends State<Todosprocessos> {
               {'label': 'Urgente', 'value': 'URGENTE'},
             ],
           },
+          {
+            'label': 'Area',
+            'key': 'area',
+            'itens': [
+              {'label': 'AREA 1', 'value': 'AREA 1'},
+              {'label': 'AREA 2', 'value': 'AREA 2'},
+              {'label': 'AREA 3', 'value': 'AREA 3'},
+              {'label': 'AREA 4', 'value': 'AREA 4'},
+              {'label': 'AREA 5', 'value': 'AREA 5'},
+            ],
+          },
+          {
+            'label': 'Status',
+            'key': 'contatoStatus',
+            'itens': [
+              {'label': 'REVISÃO DE PROJETO', 'value': 'REVISÃO DE PROJETO'},
+              {'label': 'IMPLANTAÇÃO', 'value': 'IMPLANTAÇÃO'},
+              {'label': 'VISTORIA INICIAL', 'value': 'VISTORIA INICIAL'},
+              {'label': 'VISTORIA FINAL', 'value': 'VISTORIA FINAL'},
+            ],
+          },
         ],
         onSubmit: (data) async {
-          data['lastUserModified'] = userId;
+          data['userId'] = userId;
           if (contato == null) {
             await repo.criar(data);
           } else {
@@ -84,14 +122,44 @@ class _TodosprocessosState extends State<Todosprocessos> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Contatos')),
+      appBar: AppBar(
+        title: const Text('Meus Processos'),
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => ConfirmDeleteDialog(
+                  titulo: 'Confirmar Logout',
+                  mensagem: 'Deseja realmente sair?',
+                  onConfirm: () async {
+                    await logout();
+                    Navigator.pushReplacementNamed(context, '/');
+                  },
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: contatos.isEmpty
-            ? const Center(
-                child: Text(
-                  'Nenhum processo encontrado.',
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : contatos.isEmpty
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Icon(Icons.folder_off, size: 64, color: Colors.grey),
+                    SizedBox(height: 16),
+                    Text(
+                      "Sem processos na sua carga!",
+                      style: TextStyle(fontSize: 18, color: Colors.black54),
+                    ),
+                  ],
                 ),
               )
             : ListView(

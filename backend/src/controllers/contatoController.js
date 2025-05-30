@@ -1,4 +1,5 @@
 import { Contact } from '../models/contato.js';
+import { Op } from 'sequelize';
 
 export const criarContato = async (req, res) => {
   try {
@@ -37,13 +38,20 @@ export const criarContato = async (req, res) => {
   }
 };
 
-
 export const listarContato = async (req, res) => {
-  const { userId } = req.query;
+  const { userId, notUserId } = req.query;
+
+  let whereClause = {};
+
+  if (userId) {
+    whereClause.userId = userId;
+  }
+
+  if (notUserId) {
+    whereClause.userId = { [Op.ne]: notUserId }; // Sequelize operador "not equal"
+  }
 
   try {
-    const whereClause = userId ? { userId } : {};
-
     const contatos = await Contact.findAll({
       where: whereClause,
       order: [['updatedAt', 'DESC']],
@@ -54,8 +62,6 @@ export const listarContato = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
-
 
 export const listarId = async (req, res) => {
   try {
