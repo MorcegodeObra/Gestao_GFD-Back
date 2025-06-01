@@ -22,6 +22,10 @@ export const Contact = sequelize.define('Contact', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
+  lastInteration: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  },
   userId: {
     type: DataTypes.INTEGER,
     references: {

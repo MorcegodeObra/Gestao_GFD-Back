@@ -35,7 +35,7 @@ export const listarUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
   const { id } = req.params;
-  const { userName, userNumber, userEmail, password, userArea, userCargo } = req.body;
+  const { userName, userNumber, userEmail, password, userArea, userCargo,userResumo } = req.body;
 
   try {
     const user = await User.findByPk(id);
@@ -46,7 +46,7 @@ export const updateUser = async (req, res) => {
     user.userEmail = userEmail || user.userEmail;
     user.userArea = userArea || user.userArea;
     user.userCargo = userCargo || user.userCargo;
-
+    user.userResumo = userResumo || user.userResumo;
     if (password) {
       const saltRounds = 10;
       user.password = await bcrypt.hash(password, saltRounds);

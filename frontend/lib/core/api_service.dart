@@ -4,8 +4,8 @@ class ApiService {
   final Dio dio = Dio(
     BaseOptions(
       baseUrl: 'https://chatbotwhatsapp-z0bc.onrender.com',
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
+      connectTimeout: Duration(seconds: 10),
+      receiveTimeout: Duration(seconds: 10),
     ),
   );
 
@@ -42,21 +42,14 @@ class ApiService {
   Future<void> criarUsuario(Map<String, dynamic> data) async {
     try {
       final response = await dio.post('/users', data: data);
-      print('Usuário criado: ${response.data}');
     } on DioException catch (e) {
       if (e.response != null) {
-        // Erro HTTP com resposta do servidor (ex: 400, 500 etc.)
-        print('Erro ${e.response?.statusCode}: ${e.response?.data}');
         throw Exception(e.response?.data['message'] ?? 'Erro ao criar usuário');
       } else {
-        // Erro de conexão ou outro erro que não retornou resposta do servidor
-        print('Erro de conexão: ${e.message}');
         throw Exception('Erro de conexão: ${e.message}');
       }
     } catch (e) {
-      // Qualquer outro tipo de erro não relacionado ao Dio
-      print('Erro inesperado: $e');
-      throw Exception('Erro inesperado: $e');
+throw Exception('Erro inesperado: $e');
     }
   }
 

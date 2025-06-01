@@ -9,7 +9,7 @@ function formatarData(data) {
   return `${dia}/${mes}/${ano}`;
 }
 
-export async function sendEmailMessage(contact, message) {
+export async function sendResumo(contact, message) {
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -52,7 +52,7 @@ export async function sendEmailMessage(contact, message) {
       from: `"Contato Smart" <${process.env.EMAIL_USER}>`,
       to: contact.email,
       cc: ccList.length > 0 ? ccList : undefined,
-      subject: `Notificação de Solicitação - ${dataFormatada}`,
+      subject: `Resumo Semanal - ${dataFormatada}`,
       html: `
     <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
       <p>${message.replace(/\n/g, '<br>')}</p>

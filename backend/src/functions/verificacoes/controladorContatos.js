@@ -1,0 +1,48 @@
+import { shouldNotify } from './shouldNotify.js';
+import { checkEmailReply } from './checkEmailReply.js';
+import { sendWhatsAppMessage } from '../whatsMensagem.js';
+import { sendEmailMessage } from '../emailsConfig/emailMensagem.js';
+
+async function enviarMensagem(contact, now, mensagem) {
+  await sendWhatsAppMessage(contact.number, mensagem);
+  await sendEmailMessage(contact, mensagem);
+  contact.lastSent = now;
+  await contact.save();
+}
+
+export async function handleContact(contact, now, userLogs) {
+  const userId = contact.userId;
+  const lastInteration = contact.lastInteration ? new Date(contact.lastInteration) : null;
+
+  if (!userLogs[userId]) userLogs[userId] = [];
+
+  const emailRespondido = await checkEmailReply(contact);
+  if (emailRespondido || contact.answer == true) {
+    contact.answer = true;
+    contact.lastInteration = now;
+    await contact.save();
+    userLogs[userId].push(`📧 ${contact.processoSider} respondeu por e-mail. Marcado como respondido.`);
+    return;
+  }
+
+  if (lastInteration && !contact.answer) {
+    const diasSemAtualizacao = Math.floor((now - lastInteration) / (1000 * 60 * 60 * 24));
+
+    if (diasSemAtualizacao >= 30) {
+      const mensagem = `Não houve resposta do processo ${contact.processoSider} no email ${contact.email} após 30 dias desde o primeiro contato.`;
+      await enviarMensagem(contact, now, mensagem);
+      userLogs[userId].push(`❌ ${contact.processoSider} não respondeu após 30 dias desde o primeiro envio. Aviso reenviado.`);
+      return;
+    } else {
+      userLogs[userId].push(`🕒 ${contact.processoSider} ainda dentro dos 30 dias desde o primeiro envio.`);
+    }
+
+    const deveNotificar = shouldNotify(contact, now);
+    if (deveNotificar) {
+      const mensagem = `Olá, ${contact.name}, tudo bem? - ${contact.subject}`;
+      await enviarMensagem(contact, now, mensagem);
+      userLogs[userId].push(`✅ Mensagem enviada para ${contact.processoSider} (prioridade/status).`);
+      return;
+    }
+  }
+}

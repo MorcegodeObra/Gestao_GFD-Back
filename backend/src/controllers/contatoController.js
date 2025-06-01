@@ -29,6 +29,7 @@ export const criarContato = async (req, res) => {
       protocolo,
       area,
       lastSent,
+      lastInteration: lastSent,
     });
 
     res.status(201).json(contact);
@@ -90,6 +91,7 @@ export const editarContato = async (req, res) => {
       processoSider,
       protocolo,
       area,
+      answer,
     } = req.body;
 
     await contact.update({
@@ -100,10 +102,12 @@ export const editarContato = async (req, res) => {
       priority,
       userId,
       lastSent,
+      lastInteration: lastSent,
       contatoStatus,
       processoSider,
       protocolo,
       area,
+      answer,
     });
 
     res.json(contact);
