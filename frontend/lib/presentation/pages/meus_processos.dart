@@ -63,11 +63,12 @@ class _MainMenuState extends State<MainMenu> {
   void abrirFormulario({Map<String, dynamic>? contato}) {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => ModularFormDialog(
         titulo: contato == null ? 'Novo Contato' : 'Editar Contato',
         dataInicial: contato,
         camposTexto: [
-          {'label': 'processo', 'key': 'name'},
+          {'label': 'Nome', 'key': 'name'},
           {'label': 'Telefone', 'key': 'number'},
           {'label': 'Email', 'key': 'email'},
           {'label': 'Assunto', 'key': 'subject'},
@@ -107,6 +108,14 @@ class _MainMenuState extends State<MainMenu> {
               {'label': 'VISTORIA FINAL', 'value': 'VISTORIA FINAL'},
             ],
           },
+          {
+            "label":"Respondido",
+            "key":"answer",
+            "itens":[
+              {"label":"Sim","value":"true"},
+              {"label":"Não","value":"false"}
+            ]
+          }
         ],
         onSubmit: (data) async {
           data['userId'] = userId;

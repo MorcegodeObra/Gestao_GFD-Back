@@ -27,8 +27,13 @@ export async function handleContact(contact, now, userLogs) {
 
   if (lastInteration && !contact.answer) {
     const diasSemAtualizacao = Math.floor((now - lastInteration) / (1000 * 60 * 60 * 24));
+    const lastSent = contact.lastSent ? new Date(contact.lastSent) : null;
+    const mesmoDia = lastSent &&
+      lastSent.getFullYear() === now.getFullYear() &&
+      lastSent.getMonth() === now.getMonth() &&
+      lastSent.getDate() === now.getDate();
 
-    if (diasSemAtualizacao >= 30) {
+    if (diasSemAtualizacao >= 30 && !mesmoDia) {
       const mensagem = `Não houve resposta do processo ${contact.processoSider} no email ${contact.email} após 30 dias desde o primeiro contato.`;
       await enviarMensagem(contact, now, mensagem);
       userLogs[userId].push(`❌ ${contact.processoSider} não respondeu após 30 dias desde o primeiro envio. Aviso reenviado.`);

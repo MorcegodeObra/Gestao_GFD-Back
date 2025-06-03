@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../core/formatar_data.dart';
 import '../../core/lista_textos.dart';
 
-class ContatoCard extends StatelessWidget {
+class ContatoCard extends StatefulWidget {
   final Map<String, dynamic> contato;
   final VoidCallback onEdit;
   final VoidCallback? onDelete;
@@ -15,6 +14,19 @@ class ContatoCard extends StatelessWidget {
     this.onDelete,
     this.editIcon,
   });
+
+  @override
+  State<ContatoCard> createState() => _ContatoCardState();
+}
+
+class _ContatoCardState extends State<ContatoCard> {
+  bool _mostrarDetalhes = false;
+
+  void _alternarDetalhes() {
+    setState(() {
+      _mostrarDetalhes = !_mostrarDetalhes;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,26 +42,39 @@ class ContatoCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    contato['processoSider'] ?? 'Sem processo',
+                    widget.contato['processoSider'] ?? 'Sem processo',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        ...gerarTextSpan({
-                          "Protocolo": contato['protocolo'],
-                          'Nome': contato['name'],
-                          'Assunto': contato['subject'],
-                          'Area': contato['area'],
-                          'Status': contato['contatoStatus'],
-                        }),
-                      ],
+
+                  // Botão mostrar/ocultar
+                  TextButton.icon(
+                    onPressed: _alternarDetalhes,
+                    icon: Icon(
+                      _mostrarDetalhes
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
                     ),
+                    label: Text(_mostrarDetalhes ? 'Ocultar detalhes' : 'Mostrar detalhes'),
                   ),
+
+                  if (_mostrarDetalhes)
+                    Text.rich(
+                      TextSpan(
+                        children: [
+                          ...gerarTextSpan({
+                            "Protocolo": widget.contato['protocolo'],
+                            'Nome': widget.contato['name'],
+                            'Assunto': widget.contato['subject'],
+                            'Area': widget.contato['area'],
+                            'Status': widget.contato['contatoStatus'],
+                          }),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -60,13 +85,13 @@ class ContatoCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   IconButton(
-                    icon: Icon(editIcon ?? Icons.edit, color: Colors.blue),
-                    onPressed: onEdit,
+                    icon: Icon(widget.editIcon ?? Icons.edit, color: Colors.blue),
+                    onPressed: widget.onEdit,
                   ),
-                  if (onDelete != null)
+                  if (widget.onDelete != null)
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: onDelete,
+                      onPressed: widget.onDelete,
                     ),
                 ],
               ),

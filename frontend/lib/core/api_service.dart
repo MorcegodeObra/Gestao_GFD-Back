@@ -1,5 +1,14 @@
 import 'package:dio/dio.dart';
 
+class CustomException implements Exception {
+  final String message;
+
+  CustomException(this.message);
+
+  @override
+  String toString() => message;
+}
+
 class ApiService {
   final Dio dio = Dio(
     BaseOptions(
@@ -10,55 +19,87 @@ class ApiService {
   );
 
   Future<List<dynamic>> getContatos({int? userId, int? notUserId}) async {
-    final Map<String, dynamic> queryParams = {};
+    try {
+      final Map<String, dynamic> queryParams = {};
 
-    if (userId != null) {
-      queryParams['userId'] = userId;
+      if (userId != null) queryParams['userId'] = userId;
+      if (notUserId != null) queryParams['notUserId'] = notUserId;
+
+      final response = await dio.get(
+        '/contatos',
+        queryParameters: queryParams.isNotEmpty ? queryParams : null,
+      );
+
+      return response.data;
+    } on DioException catch (e) {
+      throw CustomException(_handleDioError(e));
     }
-    if (notUserId != null) {
-      queryParams['notUserId'] = notUserId;
-    }
-
-    final response = await dio.get(
-      '/contatos',
-      queryParameters: queryParams.isNotEmpty ? queryParams : null,
-    );
-
-    return response.data;
   }
 
   Future<void> criarContato(Map<String, dynamic> data) async {
-    await dio.post('/contatos', data: data);
+    try {
+      await dio.post('/contatos', data: data);
+    } on DioException catch (e) {
+      throw CustomException(_handleDioError(e));
+    }
   }
 
   Future<void> atualizarContato(int id, Map<String, dynamic> data) async {
-    await dio.put('/contatos/$id', data: data);
+    try {
+      await dio.put('/contatos/$id', data: data);
+    } on DioException catch (e) {
+      throw CustomException(_handleDioError(e));
+    }
   }
 
   Future<void> deletarContato(int id) async {
-    await dio.delete('/contatos/$id');
+    try {
+      await dio.delete('/contatos/$id');
+    } on DioException catch (e) {
+      throw CustomException(_handleDioError(e));
+    }
   }
 
   Future<void> criarUsuario(Map<String, dynamic> data) async {
     try {
-      final response = await dio.post('/users', data: data);
+      await dio.post('/users', data: data);
     } on DioException catch (e) {
-      if (e.response != null) {
-        throw Exception(e.response?.data['message'] ?? 'Erro ao criar usuário');
-      } else {
-        throw Exception('Erro de conexão: ${e.message}');
-      }
-    } catch (e) {
-throw Exception('Erro inesperado: $e');
+      throw CustomException(_handleDioError(e));
     }
   }
 
   Future<void> atualizarUsuario(int id, Map<String, dynamic> data) async {
-    await dio.put('/users/$id', data: data);
+    try {
+      await dio.put('/users/$id', data: data);
+    } on DioException catch (e) {
+      throw CustomException(_handleDioError(e));
+    }
   }
 
   Future<Map<String, dynamic>> login(Map<String, dynamic> data) async {
-    final response = await dio.post('/login', data: data);
-    return response.data;
+    try {
+      final response = await dio.post('/login', data: data);
+      return response.data;
+    } on DioException catch (e) {
+      throw CustomException(_handleDioError(e));
+    }
+  }
+
+  String _handleDioError(DioException e) {
+    if (e.response != null) {
+      final data = e.response?.data;
+
+      if (data is Map<String, dynamic>) {
+        if (data.containsKey('error')) {
+          return data['error'];
+        } else if (data.containsKey('message')) {
+          return data['message'];
+        }
+      }
+
+      return 'Erro do servidor: ${e.response?.statusCode}';
+    } else {
+      return 'Erro de conexão: ${e.message}';
+    }
   }
 }
