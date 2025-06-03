@@ -34,7 +34,7 @@ export async function handleContact(contact, now, userLogs) {
       lastSent.getDate() === now.getDate();
 
     if (diasSemAtualizacao >= 30 && !mesmoDia) {
-      const mensagem = `Não houve resposta do processo ${contact.processoSider} no email ${contact.email} após 30 dias desde o primeiro contato.`;
+      const mensagem = `Contato Automático: Não houve resposta do processo ${contact.processoSider} no email ${contact.email} após 30 dias desde o primeiro contato, algum retorno sobre o processo??`;
       await enviarMensagem(contact, now, mensagem);
       userLogs[userId].push(`❌ ${contact.processoSider} não respondeu após 30 dias desde o primeiro envio. Aviso reenviado.`);
       return;
@@ -44,7 +44,7 @@ export async function handleContact(contact, now, userLogs) {
 
     const deveNotificar = shouldNotify(contact, now);
     if (deveNotificar) {
-      const mensagem = `Olá, ${contact.name}, tudo bem? - ${contact.subject}`;
+      const mensagem = `Contato Automático: Olá, ${contact.name}, tudo bem? - Essa é uma mensagem sobre uma ocupação de faixa de dominio: ${contact.subject}`;
       await enviarMensagem(contact, now, mensagem);
       userLogs[userId].push(`✅ Mensagem enviada para ${contact.processoSider} (prioridade/status).`);
       return;
