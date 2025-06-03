@@ -56,8 +56,8 @@ class _TodosprocessosState extends State<Todosprocessos> {
   @override
   Widget build(BuildContext context) {
     final contatosFiltrados = contatos.where((contato) {
-      final nome = contato['name']?.toString().toLowerCase() ?? '';
-      return nome.contains(termoBusca);
+      final processo = contato['processoSider']?.toString().toLowerCase() ?? '';
+      return processo.contains(termoBusca);
     }).toList();
 
     return Scaffold(

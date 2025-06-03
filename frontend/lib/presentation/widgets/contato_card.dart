@@ -43,10 +43,9 @@ class ContatoCard extends StatelessWidget {
                         ...gerarTextSpan({
                           "Protocolo": contato['protocolo'],
                           'Nome': contato['name'],
-                          'Telefone': contato['number'],
                           'Assunto': contato['subject'],
-                          'Email': contato['email'],
-                          'Ultimo contato': formatarData(contato['lastSent']),
+                          'Area': contato['area'],
+                          'Status': contato['contatoStatus'],
                         }),
                       ],
                     ),

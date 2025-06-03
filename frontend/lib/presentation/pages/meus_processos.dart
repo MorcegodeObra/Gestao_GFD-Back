@@ -67,7 +67,7 @@ class _MainMenuState extends State<MainMenu> {
         titulo: contato == null ? 'Novo Contato' : 'Editar Contato',
         dataInicial: contato,
         camposTexto: [
-          {'label': 'Nome', 'key': 'name'},
+          {'label': 'processo', 'key': 'name'},
           {'label': 'Telefone', 'key': 'number'},
           {'label': 'Email', 'key': 'email'},
           {'label': 'Assunto', 'key': 'subject'},
@@ -81,7 +81,7 @@ class _MainMenuState extends State<MainMenu> {
             'key': 'priority',
             'itens': [
               {'label': 'Baixo', 'value': 'BAIXO'},
-              {'label': 'Médio', 'value': 'MEDIO'},
+              {'label': 'Médio', 'value': 'MÉDIO'},
               {'label': 'Alto', 'value': 'ALTO'},
               {'label': 'Urgente', 'value': 'URGENTE'},
             ],
@@ -124,32 +124,21 @@ class _MainMenuState extends State<MainMenu> {
   @override
   Widget build(BuildContext context) {
     final contatosFiltrados = contatos.where((contato) {
-      final nome = contato['name']?.toString().toLowerCase() ?? '';
-      return nome.contains(termoBusca);
+      final processo = contato['processoSider']?.toString().toLowerCase() ?? '';
+      return processo.contains(termoBusca);
     }).toList();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Meus Processos'),
+        title: const Text("Meus processos"),
         automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => ConfirmDeleteDialog(
-                  titulo: 'Confirmar Logout',
-                  mensagem: 'Deseja realmente sair?',
-                  onConfirm: () async {
-                    await logout();
-                    Navigator.pushReplacementNamed(context, '/');
-                  },
-                ),
-              );
-            },
-          ),
-        ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Ir para graficos',
+          onPressed: () {
+            Navigator.pushReplacementNamed(context, '/mainPage');
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
