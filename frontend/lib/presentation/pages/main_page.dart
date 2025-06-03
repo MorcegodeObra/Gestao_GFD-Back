@@ -16,6 +16,8 @@ class _GraficoContatosPageState extends State<GraficoContatosPage> {
   bool isLoading = true;
   List<dynamic> contatos = [];
   int? userId;
+  int acima30Dias = 0;
+  int abaixo30Dias = 0;
 
   @override
   void initState() {
@@ -32,8 +34,26 @@ class _GraficoContatosPageState extends State<GraficoContatosPage> {
     if (userId != null) {
       try {
         final data = await repo.getContatos(userId: userId!);
+        final agora = DateTime.now();
+
+        for (var contato in data) {
+          final last = contato['lastInteration'];
+          if (last != null) {
+            final lastDate = DateTime.tryParse(last.toString());
+            if (lastDate != null) {
+              final diff = agora.difference(lastDate).inDays;
+              if (diff >= 30) {
+                acima30Dias++;
+              } else {
+                abaixo30Dias++;
+              }
+            }
+          }
+        }
         setState(() {
           contatos = data;
+          acima30Dias = acima30Dias;
+          abaixo30Dias = abaixo30Dias;
         });
       } catch (e) {
         debugPrint('Erro ao carregar contatos: $e');
@@ -92,7 +112,6 @@ class _GraficoContatosPageState extends State<GraficoContatosPage> {
           ),
         ],
       ),
-
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -101,17 +120,24 @@ class _GraficoContatosPageState extends State<GraficoContatosPage> {
                 children: [
                   const Text(
                     'Respondidos',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   Expanded(child: buildPieChart(dadosTrue)),
-                  const SizedBox(height: 12),
                   const Text(
                     'Sem resposta',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   Expanded(child: buildPieChart(dadosFalse)),
+                  Text(
+                    '$acima30Dias processos com mais de 30 dias',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  Text(
+                    '$abaixo30Dias processos dentro do prazo',
+                    style: TextStyle(fontSize: 14),
+                  ),
                 ],
               ),
             ),
@@ -153,10 +179,10 @@ class _GraficoContatosPageState extends State<GraficoContatosPage> {
       final section = PieChartSectionData(
         color: cor,
         value: entry.value.toDouble(),
-        title: "${entry.key}\n${entry.value}", // Mostra a quantidade
+        title: "${entry.value}", // Mostra a quantidade
         radius: 80,
         titleStyle: const TextStyle(
-          fontSize: 12,
+          fontSize: 14,
           fontWeight: FontWeight.bold,
           color: Colors.black, // Texto preto
         ),

@@ -49,7 +49,7 @@ class _ContatoCardState extends State<ContatoCard> {
                     ),
                   ),
                   const SizedBox(height: 8),
-
+                  Text(widget.contato['answer'] == true ? 'Respondido' : 'Sem resposta'),
                   // Botão mostrar/ocultar
                   TextButton.icon(
                     onPressed: _alternarDetalhes,
@@ -58,7 +58,11 @@ class _ContatoCardState extends State<ContatoCard> {
                           ? Icons.keyboard_arrow_up
                           : Icons.keyboard_arrow_down,
                     ),
-                    label: Text(_mostrarDetalhes ? 'Ocultar detalhes' : 'Mostrar detalhes'),
+                    label: Text(
+                      _mostrarDetalhes
+                          ? 'Ocultar detalhes'
+                          : 'Mostrar detalhes',
+                    ),
                   ),
 
                   if (_mostrarDetalhes)
@@ -85,7 +89,10 @@ class _ContatoCardState extends State<ContatoCard> {
                 mainAxisSize: MainAxisSize.max,
                 children: [
                   IconButton(
-                    icon: Icon(widget.editIcon ?? Icons.edit, color: Colors.blue),
+                    icon: Icon(
+                      widget.editIcon ?? Icons.edit,
+                      color: Colors.blue,
+                    ),
                     onPressed: widget.onEdit,
                   ),
                   if (widget.onDelete != null)

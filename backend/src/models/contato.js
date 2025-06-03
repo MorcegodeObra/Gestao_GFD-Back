@@ -51,7 +51,7 @@ export const Contact = sequelize.define('Contact', {
     defaultValue: false
   },
   contatoStatus: {
-    type: DataTypes.ENUM("REVISÃO DE PROJETO", "IMPLANTAÇÃO", "VISTORIA INICIAL", "VISTORIA FINAL", "SEM STATUS"),
+    type: DataTypes.ENUM("REVISÃO DE PROJETO", "IMPLANTAÇÃO", "VISTORIA INICIAL", "VISTORIA FINAL","ASSINATURAS", "SEM STATUS"),
     defaultValue: "SEM STATUS"
   },
   processoSider: {
