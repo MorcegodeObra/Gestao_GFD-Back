@@ -52,6 +52,7 @@ export async function checkEmailReply(contact) {
 
                   const answerText = mail.text || mail.html || null;
                   if (answerText) {
+                    contact.answerDate = new Date();
                     contact.answer = true;
                     contact.answerMsg = answerText;
                     await contact.save(); // salva direto no banco
