@@ -50,9 +50,9 @@ export const Contact = sequelize.define('Contact', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
-  sentToday: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+  answerMsg : {
+    type: DataTypes.STRING,
+    allowNull: true
   },
   lastInteration: {
     type: DataTypes.DATE,

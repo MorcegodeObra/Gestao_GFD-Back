@@ -13,7 +13,6 @@ async function enviarMensagem(contact, now, mensagem) {
 export async function handleContact(contact, now, userLogs) {
   const userId = contact.userId;
   const lastInteration = contact.lastInteration ? new Date(contact.lastInteration) : null;
-  const sentToday = contact.sentToday
 
   if (!userLogs[userId]) userLogs[userId] = [];
 

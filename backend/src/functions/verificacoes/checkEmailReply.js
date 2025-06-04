@@ -44,13 +44,20 @@ export async function checkEmailReply(contact) {
 
           f.on('message', (msg) => {
             msg.on('body', (stream) => {
-              simpleParser(stream, (err, mail) => {
+              simpleParser(stream, async (err, mail) => {
                 messagesProcessed++;
+
                 if (!found && mail.subject && mail.subject.includes(subjectQuery)) {
                   found = true;
+
+                  const answerText = mail.text || mail.html || null;
+                  if (answerText) {
+                    contact.answer = true;
+                    contact.answerMsg = answerText;
+                    await contact.save(); // salva direto no banco
+                  }
                 }
 
-                // Quando todos os emails forem processados, resolve
                 if (messagesProcessed === results.length) {
                   imap.end();
                   resolve(found);
@@ -59,7 +66,6 @@ export async function checkEmailReply(contact) {
             });
           });
 
-          // Caso não venha nenhuma mensagem (proteção extra)
           f.once('end', () => {
             if (results.length === 0) {
               imap.end();
@@ -74,4 +80,3 @@ export async function checkEmailReply(contact) {
     imap.connect();
   });
 }
-
