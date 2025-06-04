@@ -110,13 +110,13 @@ class _MainMenuState extends State<MainMenu> {
             ],
           },
           {
-            "label":"Respondido",
-            "key":"answer",
-            "itens":[
-              {"label":"Sim","value":"true"},
-              {"label":"Não","value":"false"}
-            ]
-          }
+            "label": "Respondido",
+            "key": "answer",
+            "itens": [
+              {"label": "Sim", "value": "true"},
+              {"label": "Não", "value": "false"},
+            ],
+          },
         ],
         onSubmit: (data) async {
           data['userId'] = userId;

@@ -36,10 +36,11 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
       textControllers[key] = TextEditingController(
         text: widget.dataInicial?[key] != null
             ? FormUtils.isDateField(campo)
-                ? FormUtils.formatDateToDisplay(
-                    DateTime.tryParse(widget.dataInicial![key]) ??
-                        DateTime.now())
-                : widget.dataInicial![key].toString()
+                  ? FormUtils.formatDateToDisplay(
+                      DateTime.tryParse(widget.dataInicial![key]) ??
+                          DateTime.now(),
+                    )
+                  : widget.dataInicial![key].toString()
             : '',
       );
     }
@@ -47,7 +48,14 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
     // Inicializar dropdowns
     for (var drop in widget.camposDropdown) {
       final chave = drop['key'];
-      dropdownSelecionados[chave] = widget.dataInicial?[chave];
+      var valorInicial = widget.dataInicial?[chave];
+
+      // Se o campo for "answer" e o valor for bool, converte para string
+      if (chave == 'answer' && valorInicial is bool) {
+        valorInicial = valorInicial ? 'true' : 'false';
+      }
+
+      dropdownSelecionados[chave] = valorInicial;
     }
   }
 
@@ -77,9 +85,9 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
                 child: GestureDetector(
                   onTap: isDate
                       ? () => FormUtils.pickDate(
-                            context: context,
-                            controller: controller,
-                          )
+                          context: context,
+                          controller: controller,
+                        )
                       : null,
                   child: AbsorbPointer(
                     absorbing: isDate,
@@ -145,7 +153,13 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
 
             // Dados dos dropdowns
             dropdownSelecionados.forEach((key, valor) {
-              data[key] = valor ?? '';
+              if (valor == "true") {
+                data[key] = true;
+              } else if (valor == "false") {
+                data[key] = false;
+              } else {
+                data[key] = valor ?? '';
+              }
             });
 
             try {

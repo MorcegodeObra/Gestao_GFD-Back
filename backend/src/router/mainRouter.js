@@ -14,6 +14,13 @@ import {
   loginUser
 } from "../controllers/userControllers.js";
 
+import {
+  criarProcesso,
+  listarProcesso,
+  editarProcesso,
+  deletarProcesso,
+  listarIdProcesso,
+} from "../controllers/processosController.js"
 const router = Router();
 
 router.post('/contatos', criarContato);
@@ -23,9 +30,14 @@ router.put('/contatos/:id', editarContato);
 router.delete('/contatos/:id', deletarContato);
 
 router.post('/users', createUser);
-router.get("/users",listarUser);
 router.put('/users/:id', updateUser);
 router.delete('/users/:id', deleteUser);
 router.post('/login', loginUser);
+
+router.post('/processos', criarProcesso);
+router.get('/processos', listarProcesso);
+router.get('/processos/:id', listarIdProcesso);
+router.put('/processos/:id', editarProcesso);
+router.delete('/processos/:id', deletarProcesso);
 
 export default router;
