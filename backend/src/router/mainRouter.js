@@ -5,7 +5,6 @@ import {
   listarId,
   editarContato,
   deletarContato,
-  atualizarCamposContato,
 } from '../controllers/contatoController.js';
 import {
   createUser,
@@ -22,7 +21,6 @@ router.get('/contatos', listarContato);
 router.get('/contatos/:id', listarId);
 router.put('/contatos/:id', editarContato);
 router.delete('/contatos/:id', deletarContato);
-router.put('/contatos/:id/atualizar', atualizarCamposContato);
 
 router.post('/users', createUser);
 router.get("/users",listarUser);

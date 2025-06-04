@@ -18,13 +18,9 @@ export const Contact = sequelize.define('Contact', {
     type: DataTypes.TEXT,
     allowNull: false,
   },
-  lastSent: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  lastInteration: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
+  priority: {
+    type: DataTypes.ENUM("BAIXO", "MÉDIO", "ALTO", "URGENTE"),
+    defaultValue: "BAIXO"
   },
   userId: {
     type: DataTypes.INTEGER,
@@ -34,24 +30,8 @@ export const Contact = sequelize.define('Contact', {
     },
     allowNull: true
   },
-  priority: {
-    type: DataTypes.ENUM("BAIXO", "MÉDIO", "ALTO", "URGENTE"),
-    defaultValue: "BAIXO"
-  },
-  answer: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  check: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  executed: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
   contatoStatus: {
-    type: DataTypes.ENUM("REVISÃO DE PROJETO", "IMPLANTAÇÃO", "VISTORIA INICIAL", "VISTORIA FINAL","ASSINATURAS", "SEM STATUS"),
+    type: DataTypes.ENUM("REVISÃO DE PROJETO", "IMPLANTAÇÃO", "VISTORIA INICIAL", "VISTORIA FINAL", "ASSINATURAS", "SEM STATUS"),
     defaultValue: "SEM STATUS"
   },
   processoSider: {
@@ -65,5 +45,29 @@ export const Contact = sequelize.define('Contact', {
   area: {
     type: DataTypes.ENUM("AREA 1", "AREA 2", "AREA 3", "AREA 4", "AREA 5", "SEM AREA"),
     defaultValue: "SEM AREA"
+  },
+  lastSent: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
+  sentToday: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  lastInteration: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW
+  },
+  answer: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  check: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  executed: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   },
 });

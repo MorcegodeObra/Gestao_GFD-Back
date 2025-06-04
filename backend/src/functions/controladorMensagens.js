@@ -3,7 +3,7 @@ import { handleContact } from './verificacoes/controladorContatos.js';
 import { sendWeeklySummaries } from './emailsConfig/resumoSemanal.js';
 import { Contact } from '../models/contato.js';
 
-export const runCronJob = cron.schedule('* * * * *', async () => {
+export const runCronJob = cron.schedule('*/10 * * * *', async () => {
   console.log("Cron rodando!");
   try {
     const userLogs = {};

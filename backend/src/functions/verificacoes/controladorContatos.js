@@ -13,12 +13,14 @@ async function enviarMensagem(contact, now, mensagem) {
 export async function handleContact(contact, now, userLogs) {
   const userId = contact.userId;
   const lastInteration = contact.lastInteration ? new Date(contact.lastInteration) : null;
+  const sentToday = contact.sentToday
 
   if (!userLogs[userId]) userLogs[userId] = [];
 
   const emailRespondido = await checkEmailReply(contact);
   if (emailRespondido || contact.answer == true) {
     contact.answer = true;
+    contact.sentToday = true
     contact.lastInteration = now;
     await contact.save();
     userLogs[userId].push(`📧 ${contact.processoSider} respondeu por e-mail. Marcado como respondido.`);

@@ -106,6 +106,7 @@ class _MainMenuState extends State<MainMenu> {
               {'label': 'IMPLANTAÇÃO', 'value': 'IMPLANTAÇÃO'},
               {'label': 'VISTORIA INICIAL', 'value': 'VISTORIA INICIAL'},
               {'label': 'VISTORIA FINAL', 'value': 'VISTORIA FINAL'},
+              {'label': 'ASSINATURAS', 'value': 'ASSINATURAS'},
             ],
           },
           {
