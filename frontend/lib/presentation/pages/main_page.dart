@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
-import '../../data/processos_repository.dart';
-import '../../data/salvar_dados.dart';
-import '../../core/delete_dialog.dart';
+import '../widgets/app_graphic.dart';
+import '../../core/API/api_controller.dart';
+import '../../core/UTILS/salvar_dados.dart';
+import '../widgets/app_drawer.dart';
 
 class GraficoProcessosPage extends StatefulWidget {
   const GraficoProcessosPage({super.key});
@@ -12,7 +12,7 @@ class GraficoProcessosPage extends StatefulWidget {
 }
 
 class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
-  final repo = ProcessosRepository();
+  final repo = ApiService();
   bool isLoading = true;
   List<dynamic> processoss = [];
   int? userId;
@@ -33,7 +33,7 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
 
     if (userId != null) {
       try {
-        final data = await repo.getProcessos(userId: userId!);
+        final data = await repo.processos.getProcessos(userId: userId!);
         final agora = DateTime.now();
 
         for (var processos in data) {
@@ -90,26 +90,11 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
     final dadosFalse = agruparPorStatus(processossFalse);
 
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
         title: const Text('Analise de processos'),
-        automaticallyImplyLeading: false,
+        automaticallyImplyLeading: true,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => ConfirmDeleteDialog(
-                  titulo: 'Confirmar Logout',
-                  mensagem: 'Deseja realmente sair?',
-                  onConfirm: () async {
-                    await logout();
-                    Navigator.pushReplacementNamed(context, '/');
-                  },
-                ),
-              );
-            },
-          ),
         ],
       ),
       body: isLoading
@@ -123,13 +108,13 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
-                  Expanded(child: buildPieChart(dadosTrue)),
+                  Expanded(child: GraficoPadrao(dados: dadosTrue)),
                   const Text(
                     'Sem resposta',
                     style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
-                  Expanded(child: buildPieChart(dadosFalse)),
+                  Expanded(child: GraficoPadrao(dados: dadosFalse)),
                   Text(
                     '$acima30Dias processos com mais de 30 dias',
                     style: TextStyle(fontSize: 14),
@@ -141,97 +126,6 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
                 ],
               ),
             ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(12),
-        child: ElevatedButton.icon(
-          onPressed: () async {
-            await Navigator.pushNamed(context, '/meusProcessos');
-          },
-          icon: const Icon(Icons.folder_copy),
-          label: const Text('Acessar Meus Processos'),
-        ),
-      ),
-    );
-  }
-
-  Widget buildPieChart(Map<String, int> dados) {
-    if (dados.isEmpty) {
-      return const Center(child: Text("Sem dados para exibir"));
-    }
-
-    final List<Color> cores = [
-      Colors.blue,
-      Colors.green,
-      Colors.orange,
-      Colors.purple,
-      Colors.red,
-      Colors.teal,
-      Colors.brown,
-      Colors.cyan,
-    ];
-
-    final total = dados.values.fold<int>(0, (sum, value) => sum + value);
-
-    int index = 0;
-
-    final sections = dados.entries.map((entry) {
-      final cor = cores[index % cores.length];
-      final section = PieChartSectionData(
-        color: cor,
-        value: entry.value.toDouble(),
-        title: "${entry.value}", // Mostra a quantidade
-        radius: 80,
-        titleStyle: const TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.bold,
-          color: Colors.black, // Texto preto
-        ),
-      );
-      index++;
-      return section;
-    }).toList();
-
-    // Resetar índice para montar legenda
-    index = 0;
-
-    final legendas = dados.entries.map((entry) {
-      final cor = cores[index % cores.length];
-      final percentual = (entry.value / total * 100).toStringAsFixed(1);
-      index++;
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Row(
-          children: [
-            Container(
-              width: 12,
-              height: 12,
-              margin: const EdgeInsets.only(right: 8),
-              decoration: BoxDecoration(color: cor, shape: BoxShape.circle),
-            ),
-            Text(
-              "${entry.key}: $percentual%",
-              style: const TextStyle(fontSize: 14),
-            ),
-          ],
-        ),
-      );
-    }).toList();
-
-    return Column(
-      children: [
-        SizedBox(
-          height: 200,
-          child: PieChart(
-            PieChartData(
-              sections: sections,
-              sectionsSpace: 2,
-              centerSpaceRadius: 30,
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        ...legendas,
-      ],
     );
   }
 }

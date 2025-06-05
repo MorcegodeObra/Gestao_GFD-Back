@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../data/processos_repository.dart';
-import '../widgets/contato_card.dart';
-import '../../data/salvar_dados.dart';
+import 'package:frontend/presentation/widgets/app_drawer.dart';
+import '../../core/API/api_controller.dart';
+import '../widgets/processo_card.dart';
+import '../../core/UTILS/salvar_dados.dart';
 
 class Todosprocessos extends StatefulWidget {
   const Todosprocessos({super.key});
@@ -11,7 +12,7 @@ class Todosprocessos extends StatefulWidget {
 }
 
 class _Todosproprocessostate extends State<Todosprocessos> {
-  final repo = ProcessosRepository();
+  final repo = ApiService();
   List<dynamic> processos = [];
   int? userId;
   bool isLoading = true;
@@ -40,7 +41,7 @@ class _Todosproprocessostate extends State<Todosprocessos> {
     });
 
     try {
-      final data = await repo.getProcessos(notUserId: userId!);
+      final data = await repo.processos.getProcessos(notUserId: userId!);
       setState(() {
         processos = data;
       });
@@ -55,21 +56,19 @@ class _Todosproprocessostate extends State<Todosprocessos> {
 
   @override
   Widget build(BuildContext context) {
-    final ProcessosFiltrados =processos.where((Processos) {
-      final processo = Processos['processoSider']?.toString().toLowerCase() ?? '';
+    final processosFiltrados = processos.where((processos) {
+      final processo =
+          processos['processoSider']?.toString().toLowerCase() ?? '';
       return processo.contains(termoBusca);
     }).toList();
 
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: const Text('Todos Processos'),
-        automaticallyImplyLeading: false,
+        title: const Text('Todos os processos'),
+        automaticallyImplyLeading: true,
+        actions: [
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -94,7 +93,7 @@ class _Todosproprocessostate extends State<Todosprocessos> {
                   ),
                   const SizedBox(height: 16),
                   Expanded(
-                    child:ProcessosFiltrados.isEmpty
+                    child: processosFiltrados.isEmpty
                         ? Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -116,8 +115,8 @@ class _Todosproprocessostate extends State<Todosprocessos> {
                             ),
                           )
                         : ListView(
-                            children:ProcessosFiltrados.map((processos) {
-                              return ContatoCard(
+                            children: processosFiltrados.map((processos) {
+                              return ProcessoCard(
                                 contato: processos,
                                 editIcon: Icons.work,
                                 onEdit: () async {
@@ -125,7 +124,7 @@ class _Todosproprocessostate extends State<Todosprocessos> {
                                     final dataAtualizada =
                                         Map<String, dynamic>.from(processos);
                                     dataAtualizada["userId"] = userId;
-                                    await repo.atualizar(
+                                    await repo.processos.atualizarProcessos(
                                       processos["id"],
                                       dataAtualizada,
                                     );

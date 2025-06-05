@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../core/UTILS/lista_textos.dart';
 
-class ContatoCard extends StatefulWidget {
+class ProcessoCard extends StatefulWidget {
   final Map<String, dynamic> contato;
   final VoidCallback onEdit;
   final VoidCallback? onDelete;
   final IconData? editIcon;
 
-  const ContatoCard({
+  const ProcessoCard({
     super.key,
     required this.contato,
     required this.onEdit,
@@ -16,10 +16,10 @@ class ContatoCard extends StatefulWidget {
   });
 
   @override
-  State<ContatoCard> createState() => _ContatoCardState();
+  State<ProcessoCard> createState() => _ProcessoCardState();
 }
 
-class _ContatoCardState extends State<ContatoCard> {
+class _ProcessoCardState extends State<ProcessoCard> {
   bool _mostrarDetalhes = false;
 
   void _alternarDetalhes() {
@@ -42,18 +42,38 @@ class _ContatoCardState extends State<ContatoCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.contato['name'] ?? 'Sem processo',
+                    widget.contato['processoSider'] ?? 'Sem processo',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  Text(widget.contato['answer'] == true ? 'Respondido' : 'Sem resposta'),
+                  // Botão mostrar/ocultar
+                  TextButton.icon(
+                    onPressed: _alternarDetalhes,
+                    icon: Icon(
+                      _mostrarDetalhes
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                    ),
+                    label: Text(
+                      _mostrarDetalhes
+                          ? 'Ocultar detalhes'
+                          : 'Mostrar detalhes',
+                    ),
+                  ),
+
+                  if (_mostrarDetalhes)
                     Text.rich(
                       TextSpan(
                         children: [
                           ...gerarTextSpan({
-                            "Email": widget.contato['email'],
-                            'Numero': widget.contato['number'],
+                            "Protocolo": widget.contato['protocolo'],
+                            'Assunto': widget.contato['subject'],
+                            'Area': widget.contato['area'],
+                            'Status': widget.contato['contatoStatus'],
                           }),
                         ],
                       ),

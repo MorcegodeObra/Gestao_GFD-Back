@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../presentation/widgets/dropdown_padrao.dart';
-import '../utils/forms_utils.dart';
+import 'dropdown_padrao.dart';
+import '../../core/UTILS/forms_utils.dart';
 
 class ModularFormDialog extends StatefulWidget {
   final String titulo;
@@ -25,6 +25,8 @@ class ModularFormDialog extends StatefulWidget {
 class _ModularFormDialogState extends State<ModularFormDialog> {
   final Map<String, TextEditingController> textControllers = {};
   final Map<String, String?> dropdownSelecionados = {};
+  int _currentStep = 0;
+  Map<String, dynamic> contatoSelecionado = {};
 
   @override
   void initState() {
@@ -53,6 +55,9 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
       // Se o campo for "answer" e o valor for bool, converte para string
       if (chave == 'answer' && valorInicial is bool) {
         valorInicial = valorInicial ? 'true' : 'false';
+      } else if (valorInicial != null) {
+        // Converte qualquer outro valor para string (se não for nulo)
+        valorInicial = valorInicial.toString();
       }
 
       dropdownSelecionados[chave] = valorInicial;
@@ -72,57 +77,70 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
     return AlertDialog(
       title: Text(widget.titulo),
       content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: IndexedStack(
+          index: _currentStep,
           children: [
-            // Campos de texto e data
-            ...widget.camposTexto.map((campo) {
-              final isDate = FormUtils.isDateField(campo);
-              final controller = textControllers[campo['key']]!;
+            Column(
+              children: [
+                ...widget.camposTexto.map((campo) {
+                  final isDate = FormUtils.isDateField(campo);
+                  final controller = textControllers[campo['key']]!;
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: GestureDetector(
-                  onTap: isDate
-                      ? () => FormUtils.pickDate(
-                          context: context,
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: GestureDetector(
+                      onTap: isDate
+                          ? () => FormUtils.pickDate(
+                              context: context,
+                              controller: controller,
+                            )
+                          : null,
+                      child: AbsorbPointer(
+                        absorbing: isDate,
+                        child: TextField(
                           controller: controller,
-                        )
-                      : null,
-                  child: AbsorbPointer(
-                    absorbing: isDate,
-                    child: TextField(
-                      controller: controller,
-                      decoration: InputDecoration(
-                        labelText: campo['label'],
-                        border: const OutlineInputBorder(),
-                        filled: true,
-                        fillColor: Colors.white,
-                        suffixIcon: isDate
-                            ? const Icon(Icons.calendar_today)
-                            : null,
+                          decoration: InputDecoration(
+                            labelText: campo['label'],
+                            border: const OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Colors.white,
+                            suffixIcon: isDate
+                                ? const Icon(Icons.calendar_today)
+                                : null,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+
+                // Campos dropdown
+                if (widget.camposDropdown.isNotEmpty) ...[
+                  ...widget.camposDropdown.map(
+                    (drop) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: DropdownPadrao(
+                        label: drop['label'],
+                        itens: (drop['itens'] as List)
+                            .map((item) {
+                              return {
+                                'label': item['label'].toString(),
+                                'value': item['value'].toString(),
+                              };
+                            })
+                            .toList()
+                            .cast<Map<String, String>>(),
+                        valorSelecionado: dropdownSelecionados[drop['key']],
+                        onChanged: (valor) {
+                          setState(() {
+                            dropdownSelecionados[drop['key']] = valor;
+                          });
+                        },
                       ),
                     ),
                   ),
-                ),
-              );
-            }),
-
-            // Campos dropdown
-            ...widget.camposDropdown.map(
-              (drop) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: DropdownPadrao(
-                  label: drop['label'],
-                  itens: List<Map<String, String>>.from(drop['itens']),
-                  valorSelecionado: dropdownSelecionados[drop['key']],
-                  onChanged: (valor) {
-                    setState(() {
-                      dropdownSelecionados[drop['key']] = valor;
-                    });
-                  },
-                ),
-              ),
+                ],
+              ],
             ),
           ],
         ),

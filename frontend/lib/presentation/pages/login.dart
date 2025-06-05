@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/api_service.dart';
-import '../../data/salvar_dados.dart';
+import '../../core/API/api_controller.dart';
+import '../../core/UTILS/salvar_dados.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -21,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => isLoading = true);
 
     try {
-      final response = await apiService.login({
+      final response = await apiService.users.login({
         'userEmail': emailController.text.trim(),
         'password': senhaController.text.trim(),
       });

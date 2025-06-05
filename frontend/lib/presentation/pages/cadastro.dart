@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/api_service.dart';
+import '../../core/API/api_controller.dart';
 
 class CadastroPage extends StatefulWidget {
   const CadastroPage({super.key});
@@ -26,7 +26,7 @@ class _CadastroPageState extends State<CadastroPage> {
     setState(() => isLoading = true);
 
     try {
-      await apiService.criarUsuario({
+      await apiService.users.criarUsuario({
         'userName': nomeController.text.trim(),
         'userNumber': numeroController.text.trim(),
         'userEmail': emailController.text.trim(),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/presentation/pages/contatos_page.dart';
 import './presentation/pages/login.dart';
 import './presentation/pages/cadastro.dart';
 import "./presentation/pages/meus_processos.dart";
@@ -55,7 +56,8 @@ class MyApp extends StatelessWidget {
         "/cadastro": (context) => const CadastroPage(),
         "/meusProcessos": (context) => const MainMenu(),
         "/todosProcessos": (context) => const Todosprocessos(),
-        "/mainPage": (context) => const GraficoProcessosPage()
+        "/mainPage": (context) => const GraficoProcessosPage(),
+        "/contatos":(context)=> const Contatos()
       },
     );
   }
