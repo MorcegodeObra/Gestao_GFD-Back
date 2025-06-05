@@ -1,17 +1,17 @@
 import cron from 'node-cron';
-import { handleContact } from './verificacoes/controladorContatos.js';
+import { handleContact } from './verificacoes/controladorProcessos.js';
 import { sendWeeklySummaries } from './emailsConfig/resumoSemanal.js';
-import { Contact } from '../models/contato.js';
+import { Process } from '../models/processo.js';
 
-export const runCronJob = cron.schedule('*/10 * * * *', async () => {
+export const runCronJob = cron.schedule('* * * * *', async () => {
   console.log("Cron rodando!");
   try {
     const userLogs = {};
     const now = new Date();
-    const contacts = await Contact.findAll();
+    const process = await Process.findAll();
 
-    for (const contact of contacts) {
-      await handleContact(contact, now, userLogs);
+    for (const proces of process) {
+      await handleContact(proces, now, userLogs);
     }
 
     await sendWeeklySummaries(userLogs);

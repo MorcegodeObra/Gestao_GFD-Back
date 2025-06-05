@@ -9,7 +9,7 @@ function formatarData(data) {
   return `${dia}/${mes}/${ano}`;
 }
 
-export async function sendEmailMessage(contact, message) {
+export async function sendEmailMessage(proces, message, contato) {
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -18,26 +18,25 @@ export async function sendEmailMessage(contact, message) {
         pass: process.env.EMAIL_PASS,
       },
     });
-
     const dataAtual = new Date();
     const dataFormatada = formatarData(dataAtual);
 
     let ccList = [];
 
     // 📌 1. Adicionar quem modificou por último (userId)
-    if (contact.userId) {
-      const user = await User.findByPk(contact.userId);
+    if (proces.userId) {
+      const user = await User.findByPk(proces.userId);
       if (user?.userEmail) {
         ccList.push(user.userEmail);
       }
     }
 
     // 📌 2. Adicionar coordenador da área, se diferente do anterior
-    if (contact.area && contact.area !== 'SEM AREA') {
+    if (proces.area && proces.area !== 'SEM AREA') {
       const coordenadores = await User.findAll({
         where: {
           userCargo: 'COORDENADOR',
-          userArea: contact.area,
+          userArea: proces.area,
         },
       });
 
@@ -49,10 +48,10 @@ export async function sendEmailMessage(contact, message) {
     }
 
     const mailOptions = {
-      from: `Solicitação - ${contact.processoSider} <${process.env.EMAIL_USER}>`,
-      to: contact.email,
+      from: `Solicitação - ${proces.processoSider} <${process.env.EMAIL_USER}>`,
+      to: contato.email,
       cc: ccList.length > 0 ? ccList : undefined,
-      subject: `Solicitação - ${contact.processoSider}`,
+      subject: `Solicitação - ${proces.processoSider}`,
       html: `
     <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
       <p>${message.replace(/\n/g, '<br>')}</p>
@@ -61,7 +60,7 @@ export async function sendEmailMessage(contact, message) {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`E-mail enviado para ${contact.email} (CC: ${ccList.join(', ') || 'nenhum'}) -> ${info.response}`);
+    console.log(`E-mail enviado para ${contato.email} (CC: ${ccList.join(', ') || 'nenhum'}) -> ${info.response}`);
   } catch (error) {
     console.error('Erro ao enviar e-mail:', error.message);
   }

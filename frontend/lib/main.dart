@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
         "/cadastro": (context) => const CadastroPage(),
         "/meusProcessos": (context) => const MainMenu(),
         "/todosProcessos": (context) => const Todosprocessos(),
-        "/mainPage": (context) => const GraficoContatosPage()
+        "/mainPage": (context) => const GraficoProcessosPage()
       },
     );
   }

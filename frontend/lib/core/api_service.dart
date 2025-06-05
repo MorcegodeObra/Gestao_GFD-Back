@@ -18,7 +18,7 @@ class ApiService {
     ),
   );
 
-  Future<List<dynamic>> getContatos({int? userId, int? notUserId}) async {
+  Future<List<dynamic>> getProcessos({int? userId, int? notUserId}) async {
     try {
       final Map<String, dynamic> queryParams = {};
 
@@ -26,7 +26,7 @@ class ApiService {
       if (notUserId != null) queryParams['notUserId'] = notUserId;
 
       final response = await dio.get(
-        '/contatos',
+        '/processos',
         queryParameters: queryParams.isNotEmpty ? queryParams : null,
       );
 
@@ -36,25 +36,25 @@ class ApiService {
     }
   }
 
-  Future<void> criarContato(Map<String, dynamic> data) async {
+  Future<void> criarProcessos(Map<String, dynamic> data) async {
     try {
-      await dio.post('/contatos', data: data);
+      await dio.post('/processos', data: data);
     } on DioException catch (e) {
       throw CustomException(_handleDioError(e));
     }
   }
 
-  Future<void> atualizarContato(int id, Map<String, dynamic> data) async {
+  Future<void> atualizarProcessos(int id, Map<String, dynamic> data) async {
     try {
-      await dio.put('/contatos/$id', data: data);
+      await dio.put('/processos/$id', data: data);
     } on DioException catch (e) {
       throw CustomException(_handleDioError(e));
     }
   }
 
-  Future<void> deletarContato(int id) async {
+  Future<void> deletarProcessos(int id) async {
     try {
-      await dio.delete('/contatos/$id');
+      await dio.delete('/processos/$id');
     } on DioException catch (e) {
       throw CustomException(_handleDioError(e));
     }

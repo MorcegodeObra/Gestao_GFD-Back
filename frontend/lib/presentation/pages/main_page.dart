@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../../data/contato_repository.dart';
+import '../../data/processos_repository.dart';
 import '../../data/salvar_dados.dart';
 import '../../core/delete_dialog.dart';
 
-class GraficoContatosPage extends StatefulWidget {
-  const GraficoContatosPage({super.key});
+class GraficoProcessosPage extends StatefulWidget {
+  const GraficoProcessosPage({super.key});
 
   @override
-  State<GraficoContatosPage> createState() => _GraficoContatosPageState();
+  State<GraficoProcessosPage> createState() => _GraficoProcessosPageState();
 }
 
-class _GraficoContatosPageState extends State<GraficoContatosPage> {
-  final repo = ContatoRepository();
+class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
+  final repo = ProcessosRepository();
   bool isLoading = true;
-  List<dynamic> contatos = [];
+  List<dynamic> processoss = [];
   int? userId;
   int acima30Dias = 0;
   int abaixo30Dias = 0;
@@ -33,11 +33,11 @@ class _GraficoContatosPageState extends State<GraficoContatosPage> {
 
     if (userId != null) {
       try {
-        final data = await repo.getContatos(userId: userId!);
+        final data = await repo.getProcessos(userId: userId!);
         final agora = DateTime.now();
 
-        for (var contato in data) {
-          final last = contato['lastInteration'];
+        for (var processos in data) {
+          final last = processos['lastInteration'];
           if (last != null) {
             final lastDate = DateTime.tryParse(last.toString());
             if (lastDate != null) {
@@ -51,12 +51,12 @@ class _GraficoContatosPageState extends State<GraficoContatosPage> {
           }
         }
         setState(() {
-          contatos = data;
+          processoss = data;
           acima30Dias = acima30Dias;
           abaixo30Dias = abaixo30Dias;
         });
       } catch (e) {
-        debugPrint('Erro ao carregar contatos: $e');
+        debugPrint('Erro ao carregar Processoss: $e');
       } finally {
         setState(() {
           isLoading = false;
@@ -67,8 +67,8 @@ class _GraficoContatosPageState extends State<GraficoContatosPage> {
 
   Map<String, int> agruparPorStatus(List<Map<String, dynamic>> lista) {
     final Map<String, int> resultado = {};
-    for (var contato in lista) {
-      final status = contato['contatoStatus'] ?? 'Sem status';
+    for (var processos in lista) {
+      final status = processos['ProcessosStatus'] ?? 'Sem status';
       resultado[status] = (resultado[status] ?? 0) + 1;
     }
     return resultado;
@@ -76,18 +76,18 @@ class _GraficoContatosPageState extends State<GraficoContatosPage> {
 
   @override
   Widget build(BuildContext context) {
-    final contatosTrue = contatos
+    final processossTrue = processoss
         .where((c) => c['answer'] == true && c['lastInteration'] != null)
         .cast<Map<String, dynamic>>()
         .toList();
 
-    final contatosFalse = contatos
+    final processossFalse = processoss
         .where((c) => c['answer'] == false && c['lastInteration'] != null)
         .cast<Map<String, dynamic>>()
         .toList();
 
-    final dadosTrue = agruparPorStatus(contatosTrue);
-    final dadosFalse = agruparPorStatus(contatosFalse);
+    final dadosTrue = agruparPorStatus(processossTrue);
+    final dadosFalse = agruparPorStatus(processossFalse);
 
     return Scaffold(
       appBar: AppBar(

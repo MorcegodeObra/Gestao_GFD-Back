@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/modular_form.dart';
-import '../../data/contato_repository.dart';
+import '../../data/processos_repository.dart';
 import '../widgets/contato_card.dart';
 import '../../core/delete_dialog.dart';
 import '../../data/salvar_dados.dart';
@@ -13,10 +13,10 @@ class MainMenu extends StatefulWidget {
 }
 
 class _MainMenuState extends State<MainMenu> {
-  final repo = ContatoRepository();
-  List<dynamic> contatos = [];
+  final repo = ProcessosRepository();
+  List<dynamic> processos = [];
   int? userId;
-  bool isLoading = true;
+ bool isLoading = true;
   final TextEditingController _searchController = TextEditingController();
   String termoBusca = '';
 
@@ -31,48 +31,45 @@ class _MainMenuState extends State<MainMenu> {
     setState(() {
       userId = userData['userId'];
     });
-    await carregarContatos();
+    await carregarProcessoss();
   }
-
-  Future<void> carregarContatos() async {
+  Future<void> carregarProcessoss() async {
     if (userId == null) return;
-
     setState(() {
       isLoading = true;
     });
 
     try {
-      final data = await repo.getContatos(userId: userId!);
+      final data = await repo.getProcessos(userId: userId!);
       setState(() {
-        contatos = data;
+       processos = data;
       });
-    } catch (e) {
-      debugPrint('Erro ao carregar contatos: $e');
+   } catch (e) {
+      debugPrint('Erro ao carregar Processoss: $e');
     } finally {
-      setState(() {
+     setState(() {
         isLoading = false;
       });
     }
   }
 
-  Future<void> deletarContato(int id) async {
+  Future<void> deletarProcessos(int id) async {
     await repo.deletar(id);
-    carregarContatos();
+   carregarProcessoss();
   }
-
-  void abrirFormulario({Map<String, dynamic>? contato}) {
+  void abrirFormulario({Map<String, dynamic>? processos}) {
     showDialog(
-      context: context,
+     context: context,
       barrierDismissible: false,
       builder: (context) => ModularFormDialog(
-        titulo: contato == null ? 'Novo Contato' : 'Editar Contato',
-        dataInicial: contato,
-        camposTexto: [
-          {'label': 'Nome', 'key': 'name'},
+        titulo: processos == null ? 'Novo Processos' : 'Editar Processos',
+        dataInicial: processos,
+       camposTexto: [
+         {'label': 'Nome', 'key': 'name'},
           {'label': 'Telefone', 'key': 'number'},
           {'label': 'Email', 'key': 'email'},
           {'label': 'Assunto', 'key': 'subject'},
-          {'label': 'Ultimo contato', 'key': 'lastSent', "type": "date"},
+          {'label': 'Ultimo Processos', 'key': 'lastSent', "type": "date"},
           {'label': 'Processo Sider', 'key': 'processoSider'},
           {'label': 'Protocolo', 'key': 'protocolo'},
         ],
@@ -100,9 +97,9 @@ class _MainMenuState extends State<MainMenu> {
           },
           {
             'label': 'Status',
-            'key': 'contatoStatus',
+            'key': 'ProcessosStatus',
             'itens': [
-              {'label': 'REVISÃO DE PROJETO', 'value': 'REVISÃO DE PROJETO'},
+             {'label': 'REVISÃO DE PROJETO', 'value': 'REVISÃO DE PROJETO'},
               {'label': 'IMPLANTAÇÃO', 'value': 'IMPLANTAÇÃO'},
               {'label': 'VISTORIA INICIAL', 'value': 'VISTORIA INICIAL'},
               {'label': 'VISTORIA FINAL', 'value': 'VISTORIA FINAL'},
@@ -120,21 +117,21 @@ class _MainMenuState extends State<MainMenu> {
         ],
         onSubmit: (data) async {
           data['userId'] = userId;
-          if (contato == null) {
+          if (processos == null) {
             await repo.criar(data);
           } else {
-            await repo.atualizar(contato['id'], data);
+            await repo.atualizar(processos['id'], data);
           }
-          carregarContatos();
+         carregarProcessoss();
         },
-      ),
+     ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final contatosFiltrados = contatos.where((contato) {
-      final processo = contato['processoSider']?.toString().toLowerCase() ?? '';
+    final processosFiltrados = processos.where((processos) {
+      final processo= processos['processoider']?.toString().toLowerCase() ?? '';
       return processo.contains(termoBusca);
     }).toList();
 
@@ -173,9 +170,9 @@ class _MainMenuState extends State<MainMenu> {
                   ),
                   const SizedBox(height: 16),
                   Expanded(
-                    child: contatosFiltrados.isEmpty
+                    child: processosFiltrados.isEmpty
                         ? Center(
-                            child: Column(
+                           child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: const [
                                 Icon(
@@ -195,20 +192,20 @@ class _MainMenuState extends State<MainMenu> {
                             ),
                           )
                         : ListView(
-                            children: contatosFiltrados.map((contato) {
+                            children: processosFiltrados.map((processos) {
                               return ContatoCard(
-                                contato: contato,
-                                onEdit: () => abrirFormulario(contato: contato),
+                               contato: processos,
+                                onEdit: ()=> abrirFormulario(processos: processos),
                                 onDelete: () => showDialog(
-                                  context: context,
+                                 context: context,
                                   builder: (context) => ConfirmDeleteDialog(
                                     titulo: 'Confirmar Exclusão',
                                     mensagem:
-                                        'Tem certeza que deseja deletar este contato?',
+                                        'Tem certeza que deseja deletar este Processos?',
                                     onConfirm: () {
-                                      deletarContato(contato['id']);
+                                     deletarProcessos(processos['id']);
                                     },
-                                  ),
+                                 ),
                                 ),
                               );
                             }).toList(),
@@ -227,9 +224,9 @@ class _MainMenuState extends State<MainMenu> {
         child: ElevatedButton.icon(
           onPressed: () async {
             await Navigator.pushNamed(context, '/todosProcessos');
-            carregarContatos();
+            carregarProcessoss();
           },
-          icon: const Icon(Icons.folder_copy),
+         icon: const Icon(Icons.folder_copy),
           label: const Text('Acessar Todos os Processos'),
         ),
       ),

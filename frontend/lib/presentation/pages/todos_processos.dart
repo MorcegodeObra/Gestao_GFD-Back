@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../data/contato_repository.dart';
+import '../../data/processos_repository.dart';
 import '../widgets/contato_card.dart';
 import '../../data/salvar_dados.dart';
 
@@ -7,12 +7,12 @@ class Todosprocessos extends StatefulWidget {
   const Todosprocessos({super.key});
 
   @override
-  State<Todosprocessos> createState() => _TodosprocessosState();
+  State<Todosprocessos> createState() => _Todosproprocessostate();
 }
 
-class _TodosprocessosState extends State<Todosprocessos> {
-  final repo = ContatoRepository();
-  List<dynamic> contatos = [];
+class _Todosproprocessostate extends State<Todosprocessos> {
+  final repo = ProcessosRepository();
+  List<dynamic> processos = [];
   int? userId;
   bool isLoading = true;
   final TextEditingController _searchController = TextEditingController();
@@ -29,10 +29,10 @@ class _TodosprocessosState extends State<Todosprocessos> {
     setState(() {
       userId = userData['userId'];
     });
-    await carregarContatos();
+    await carregarproprocessos();
   }
 
-  Future<void> carregarContatos() async {
+  Future<void> carregarproprocessos() async {
     if (userId == null) return;
 
     setState(() {
@@ -40,12 +40,12 @@ class _TodosprocessosState extends State<Todosprocessos> {
     });
 
     try {
-      final data = await repo.getContatos(notUserId: userId!);
+      final data = await repo.getProcessos(notUserId: userId!);
       setState(() {
-        contatos = data;
+        processos = data;
       });
     } catch (e) {
-      debugPrint('Erro ao carregar contatos: $e');
+      debugPrint('Erro ao carregarprocessos: $e');
     } finally {
       setState(() {
         isLoading = false;
@@ -55,8 +55,8 @@ class _TodosprocessosState extends State<Todosprocessos> {
 
   @override
   Widget build(BuildContext context) {
-    final contatosFiltrados = contatos.where((contato) {
-      final processo = contato['processoSider']?.toString().toLowerCase() ?? '';
+    final ProcessosFiltrados =processos.where((Processos) {
+      final processo = Processos['processoSider']?.toString().toLowerCase() ?? '';
       return processo.contains(termoBusca);
     }).toList();
 
@@ -94,7 +94,7 @@ class _TodosprocessosState extends State<Todosprocessos> {
                   ),
                   const SizedBox(height: 16),
                   Expanded(
-                    child: contatosFiltrados.isEmpty
+                    child:ProcessosFiltrados.isEmpty
                         ? Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -116,20 +116,20 @@ class _TodosprocessosState extends State<Todosprocessos> {
                             ),
                           )
                         : ListView(
-                            children: contatosFiltrados.map((contato) {
+                            children:ProcessosFiltrados.map((processos) {
                               return ContatoCard(
-                                contato: contato,
+                                contato: processos,
                                 editIcon: Icons.work,
                                 onEdit: () async {
                                   try {
                                     final dataAtualizada =
-                                        Map<String, dynamic>.from(contato);
+                                        Map<String, dynamic>.from(processos);
                                     dataAtualizada["userId"] = userId;
                                     await repo.atualizar(
-                                      contato["id"],
+                                      processos["id"],
                                       dataAtualizada,
                                     );
-                                    carregarContatos();
+                                    carregarproprocessos();
                                     showDialog(
                                       context: context,
                                       builder: (context) => AlertDialog(
