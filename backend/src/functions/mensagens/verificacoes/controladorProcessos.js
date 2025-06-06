@@ -4,11 +4,16 @@ import { sendWhatsAppMessage } from '../whatsMensagem.js';
 import { sendEmailMessage } from '../emailsConfig/emailMensagem.js';
 import { Contact } from '../../../models/contato.js';
 
-async function enviarMensagem(proces, now, mensagem,contato) {
-  await sendWhatsAppMessage(proces.number, mensagem,contato);
-  await sendEmailMessage(proces, mensagem,contato);
+function isSameDay(date1, date2) {
+  return date1.toISOString().split('T')[0] === date2.toISOString().split('T')[0];
+}
+
+async function enviarMensagem(proces, now, mensagem, contato) {
+  await sendWhatsAppMessage(proces.number, mensagem, contato);
+  await sendEmailMessage(proces, mensagem, contato);
   proces.lastSent = now;
   await proces.save();
+  console.log(`[SALVO] lastSent atualizado para ${proces.lastSent} do processo ${proces.processoSider}`);
 }
 
 export async function handleContact(proces, now, userLogs) {
@@ -30,14 +35,11 @@ export async function handleContact(proces, now, userLogs) {
   if (lastInteration && !proces.answer) {
     const diasSemAtualizacao = Math.floor((now - lastInteration) / (1000 * 60 * 60 * 24));
     const lastSent = proces.lastSent ? new Date(proces.lastSent) : null;
-    const mesmoDia = lastSent &&
-      lastSent.getFullYear() === now.getFullYear() &&
-      lastSent.getMonth() === now.getMonth() &&
-      lastSent.getDate() === now.getDate();
+    const mesmoDia = lastSent && isSameDay(lastSent, now)
 
     if (diasSemAtualizacao >= 30 && !mesmoDia) {
       const mensagem = `Contato Automático: Não houve resposta do processo ${proces.processoSider} no email ${contato.email} após 30 dias desde o primeiro contato, algum retorno sobre o processo??`;
-      await enviarMensagem(proces, now, mensagem,contato);
+      await enviarMensagem(proces, now, mensagem, contato);
       userLogs[userId].push(`❌ ${proces.processoSider} não respondeu após 30 dias desde o primeiro envio. Aviso reenviado.`);
       return;
     } else {
@@ -47,7 +49,7 @@ export async function handleContact(proces, now, userLogs) {
     const deveNotificar = shouldNotify(proces, now);
     if (deveNotificar) {
       const mensagem = `Contato Automático: Olá, ${contato.name}, tudo bem? - Essa é uma mensagem sobre uma ocupação de faixa de dominio: ${proces.subject}`;
-      await enviarMensagem(proces, now, mensagem,contato);
+      await enviarMensagem(proces, now, mensagem, contato);
       userLogs[userId].push(`✅ Mensagem enviada para ${proces.processoSider} (prioridade/status).`);
       return;
     }

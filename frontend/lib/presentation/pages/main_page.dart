@@ -77,12 +77,12 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
   @override
   Widget build(BuildContext context) {
     final processossTrue = processoss
-        .where((c) => c['answer'] == true && c['lastInteration'] != null)
+        .where((c) => c['answer'] == true && c['contatoStatus'] != null)
         .cast<Map<String, dynamic>>()
         .toList();
 
     final processossFalse = processoss
-        .where((c) => c['answer'] == false && c['lastInteration'] != null)
+        .where((c) => c['answer'] == false && c['contatoStatus'] != null)
         .cast<Map<String, dynamic>>()
         .toList();
 
