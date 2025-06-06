@@ -68,7 +68,7 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
   Map<String, int> agruparPorStatus(List<Map<String, dynamic>> lista) {
     final Map<String, int> resultado = {};
     for (var processos in lista) {
-      final status = processos['ProcessosStatus'] ?? 'Sem status';
+      final status = processos['contatoStatus'] ?? 'Sem status';
       resultado[status] = (resultado[status] ?? 0) + 1;
     }
     return resultado;
@@ -77,12 +77,12 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
   @override
   Widget build(BuildContext context) {
     final processossTrue = processoss
-        .where((c) => c['answer'] == true && c['contatoStatus'] != null)
+        .where((c) => c['answer'] == true && c['lastInteration'] != null)
         .cast<Map<String, dynamic>>()
         .toList();
 
     final processossFalse = processoss
-        .where((c) => c['answer'] == false && c['contatoStatus'] != null)
+        .where((c) => c['answer'] == false && c['lastInteration'] != null)
         .cast<Map<String, dynamic>>()
         .toList();
 
