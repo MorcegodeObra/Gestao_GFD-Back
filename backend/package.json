@@ -10,11 +10,13 @@
     "express": "^5.1.0",
     "imap": "^0.8.19",
     "mailparser": "^3.7.3",
+    "multer": "^2.0.1",
     "node-cron": "^4.0.6",
     "nodemailer": "^7.0.3",
     "pg": "^8.16.0",
     "sequelize": "^6.37.7",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "xlsx": "^0.18.5"
   },
   "type": "module",
   "scripts": {

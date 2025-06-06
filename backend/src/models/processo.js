@@ -4,7 +4,8 @@ import { sequelize } from '../config/sequelize.js';
 export const Process = sequelize.define('Process', {
     processoSider: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        unique: true
     },
     protocolo: {
         type: DataTypes.STRING,

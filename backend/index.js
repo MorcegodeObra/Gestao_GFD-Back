@@ -1,9 +1,9 @@
 import express from 'express';
 import { sequelize } from './src/config/sequelize.js';
-import routerBot from './src/router/mainRouter.js';
+import routerBot from './src/router/router.js';
 import { configDotenv } from 'dotenv';
 import cors from 'cors';
-import {runCronJob} from './src/functions/controladorMensagens.js'; // Importando o cron job
+import {runCronJob} from './src/functions/mensagens/controladorMensagens.js'; // Importando o cron job
 
 const app = express();
 const PORT = 3000;

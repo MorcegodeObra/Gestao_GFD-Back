@@ -2,7 +2,7 @@ import { shouldNotify } from './shouldNotify.js';
 import { checkEmailReply } from './checkEmailReply.js';
 import { sendWhatsAppMessage } from '../whatsMensagem.js';
 import { sendEmailMessage } from '../emailsConfig/emailMensagem.js';
-import { Contact } from '../../models/contato.js';
+import { Contact } from '../../../models/contato.js';
 
 async function enviarMensagem(proces, now, mensagem,contato) {
   await sendWhatsAppMessage(proces.number, mensagem,contato);

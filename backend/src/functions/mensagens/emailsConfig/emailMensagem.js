@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { User } from '../../models/users.js';
+import { User } from '../../../models/users.js';
 
 function formatarData(data) {
   const dia = String(data.getDate()).padStart(2, '0');

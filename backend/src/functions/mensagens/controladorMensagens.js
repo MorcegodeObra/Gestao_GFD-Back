@@ -1,9 +1,9 @@
 import cron from 'node-cron';
 import { handleContact } from './verificacoes/controladorProcessos.js';
 import { sendWeeklySummaries } from './emailsConfig/resumoSemanal.js';
-import { Process } from '../models/processo.js';
+import { Process } from '../../models/processo.js';
 
-export const runCronJob = cron.schedule('* * * * *', async () => {
+export const runCronJob = cron.schedule('*/10 * * * *', async () => {
   console.log("Cron rodando!");
   try {
     const userLogs = {};
