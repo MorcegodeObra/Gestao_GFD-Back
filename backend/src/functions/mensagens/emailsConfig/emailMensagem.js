@@ -18,8 +18,6 @@ export async function sendEmailMessage(proces, message, contato) {
         pass: process.env.EMAIL_PASS,
       },
     });
-    const dataAtual = new Date();
-    const dataFormatada = formatarData(dataAtual);
 
     let ccList = [];
 
@@ -49,7 +47,7 @@ export async function sendEmailMessage(proces, message, contato) {
 
     const mailOptions = {
       from: `Solicitação - ${proces.processoSider} <${process.env.EMAIL_USER}>`,
-      to: contato.email,
+      to: contato.email.join(","),
       cc: ccList.length > 0 ? ccList : undefined,
       subject: `Solicitação - ${proces.processoSider}`,
       html: `

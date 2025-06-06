@@ -23,7 +23,7 @@ class Users {
 
   Future<Map<String, dynamic>> login(Map<String, dynamic> data) async {
     try {
-      final response = await dio.post('/login', data: data);
+      final response = await dio.post('/users/login', data: data);
       return response.data;
     } on DioException catch (e) {
       throw CustomException(handleDioError(e));

@@ -7,11 +7,11 @@ export const Contact = sequelize.define('Contact', {
     allowNull: false,
   },
   number: {
-    type: DataTypes.STRING,
+    type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: false,
   },
   email: {
-    type: DataTypes.STRING,
+    type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: false,
   },
 });

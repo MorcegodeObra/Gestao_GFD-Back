@@ -20,13 +20,6 @@ class ContatoCard extends StatefulWidget {
 }
 
 class _ContatoCardState extends State<ContatoCard> {
-  bool _mostrarDetalhes = false;
-
-  void _alternarDetalhes() {
-    setState(() {
-      _mostrarDetalhes = !_mostrarDetalhes;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
