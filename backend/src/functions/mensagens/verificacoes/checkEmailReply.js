@@ -15,7 +15,7 @@ async function getContatoById(id) {
 export async function checkEmailReply(proces) {
   return new Promise(async (resolve, reject) => {
     const contato = await getContatoById(proces.contatoId);
-    if (!contato?.email) return resolve(false);
+    if (!contato.email) return resolve(false);
 
     const imap = new Imap({
       user: process.env.EMAIL_USER,
@@ -28,7 +28,7 @@ export async function checkEmailReply(proces) {
       },
     });
 
-    const contatoEmail = contato.email.toLowerCase();
+    const emailsContato = (contato.email || []).map(e => e.toLowerCase());
     const subjectQuery = `Solicitação - ${proces.processoSider}`;
     const sinceDate = new Date();
     sinceDate.setDate(sinceDate.getDate() - 30);
@@ -63,7 +63,7 @@ export async function checkEmailReply(proces) {
                 const date = mail.date;
 
                 // Verifica se o e-mail veio do contato e tem o assunto certo
-                if (from === contatoEmail && subject.includes(subjectQuery)) {
+                if (emailsContato.includes(from) && subject.includes(subjectQuery)) {
                   if (!latestMsgDate || date > latestMsgDate) {
                     latestMsgDate = date;
                     latestMsgText = mail.text || mail.html || null;

@@ -73,10 +73,7 @@ class _ProcessoCardState extends State<ProcessoCard> {
                           },
                           child: Text(
                             'Respondido (ver mensagem)',
-                            style: const TextStyle(
-                              color: Colors.blue,
-                              decoration: TextDecoration.underline,
-                            ),
+                            style: const TextStyle(color: Colors.blue),
                           ),
                         )
                       : const Text("Não respondido"),
