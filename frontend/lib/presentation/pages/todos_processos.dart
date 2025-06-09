@@ -14,6 +14,9 @@ class Todosprocessos extends StatefulWidget {
 class _Todosproprocessostate extends State<Todosprocessos> {
   final repo = ApiService();
   List<dynamic> processos = [];
+  List<dynamic> contatos = [];
+  Set<int> abrirDetalhes = {};
+
   int? userId;
   bool isLoading = true;
   final TextEditingController _searchController = TextEditingController();
@@ -31,6 +34,17 @@ class _Todosproprocessostate extends State<Todosprocessos> {
       userId = userData['userId'];
     });
     await carregarproprocessos();
+  }
+
+  Future<void> carregarContatos() async {
+    try {
+      final data = await repo.contatos.getContatos();
+      setState(() {
+        contatos = data;
+      });
+    } catch (e) {
+      debugPrint('Erro ao carregar contatos: $e');
+    }
   }
 
   Future<void> carregarproprocessos() async {
@@ -56,9 +70,13 @@ class _Todosproprocessostate extends State<Todosprocessos> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<int, String> mapaContatos = {
+      for (var contato in contatos)
+        contato["id"] as int: contato['nome'] as String,
+    };
     final processosFiltrados = processos.where((processos) {
       final processo =
-          processos['processoSider']?.toString().toLowerCase() ?? '';
+          processos['processoider']?.toString().toLowerCase() ?? '';
       return processo.contains(termoBusca);
     }).toList();
 
@@ -67,8 +85,7 @@ class _Todosproprocessostate extends State<Todosprocessos> {
       appBar: AppBar(
         title: const Text('Todos os processos'),
         automaticallyImplyLeading: true,
-        actions: [
-        ],
+        actions: [],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -116,8 +133,12 @@ class _Todosproprocessostate extends State<Todosprocessos> {
                           )
                         : ListView(
                             children: processosFiltrados.map((processos) {
+                              final contatoId = processos['contatoId'];
+                              final nomeContato =
+                                  mapaContatos[contatoId] ?? "Desconhecido";
                               return ProcessoCard(
-                                contato: processos,
+                                processo: processos,
+                                contato: nomeContato,
                                 editIcon: Icons.work,
                                 onEdit: () async {
                                   try {

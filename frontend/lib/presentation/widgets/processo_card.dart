@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import '../../core/UTILS/lista_textos.dart';
 
 class ProcessoCard extends StatefulWidget {
-  final Map<String, dynamic> contato;
+  final Map<String, dynamic> processo;
+  final String contato;
   final VoidCallback onEdit;
   final VoidCallback? onDelete;
   final IconData? editIcon;
 
   const ProcessoCard({
     super.key,
+    required this.processo,
     required this.contato,
     required this.onEdit,
     this.onDelete,
@@ -42,14 +44,43 @@ class _ProcessoCardState extends State<ProcessoCard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.contato['processoSider'] ?? 'Sem processo',
+                    widget.processo['processoSider'] ?? 'Sem processo',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(widget.contato['answer'] == true ? 'Respondido' : 'Sem resposta'),
+                  Text(widget.contato),
+                  widget.processo['answer'] == true
+                      ? GestureDetector(
+                          onTap: () {
+                            final mensagem =
+                                widget.processo['answerMsg'] ?? 'Sem mensagem';
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: const Text('Resposta da empresa:'),
+                                content: Text(mensagem),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Fechar'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                          child: Text(
+                            'Respondido (ver mensagem)',
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        )
+                      : const Text("Não respondido"),
+
                   // Botão mostrar/ocultar
                   TextButton.icon(
                     onPressed: _alternarDetalhes,
@@ -70,10 +101,10 @@ class _ProcessoCardState extends State<ProcessoCard> {
                       TextSpan(
                         children: [
                           ...gerarTextSpan({
-                            "Protocolo": widget.contato['protocolo'],
-                            'Assunto': widget.contato['subject'],
-                            'Area': widget.contato['area'],
-                            'Status': widget.contato['contatoStatus'],
+                            "Protocolo": widget.processo['protocolo'],
+                            'Assunto': widget.processo['subject'],
+                            'Area': widget.processo['area'],
+                            'Status': widget.processo['processoStatus'],
                           }),
                         ],
                       ),

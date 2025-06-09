@@ -151,6 +151,10 @@ class _MainMenuState extends State<MainMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<int, String> mapaContatos = {
+      for (var contato in contatos)
+        contato["id"] as int: (contato['name'] ?? "Desconhecido").toString()
+    };
     final processosFiltrados = processos.where((processos) {
       final processo =
           processos['processoider']?.toString().toLowerCase() ?? '';
@@ -210,8 +214,12 @@ class _MainMenuState extends State<MainMenu> {
                           )
                         : ListView(
                             children: processosFiltrados.map((processos) {
+                              final contatoId = processos['contatoId'];
+                              final nomeContato =
+                                  mapaContatos[contatoId] ?? "Desconhecido";
                               return ProcessoCard(
-                                contato: processos,
+                                processo: processos,
+                                contato: nomeContato,
                                 onEdit: () =>
                                     abrirFormulario(processos: processos),
                                 onDelete: () => showDialog(

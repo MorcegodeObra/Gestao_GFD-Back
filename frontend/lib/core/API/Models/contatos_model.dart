@@ -15,6 +15,15 @@ class ContatosModel {
     }
   }
 
+    Future<List<Map<String, dynamic>>> getContato(int id) async {
+    try {
+      final response = await dio.get('/contatos/$id');
+      return List<Map<String, dynamic>>.from(response.data);
+    } on DioException catch (e) {
+      throw CustomException(handleDioError(e));
+    }
+  }
+
   Future<void> criarContatos(Map<String, dynamic> data) async {
     try {
       await dio.post('/contatos', data: data);

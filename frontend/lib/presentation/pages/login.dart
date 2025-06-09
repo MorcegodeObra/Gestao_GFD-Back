@@ -24,6 +24,14 @@ class LoginPageState extends State<LoginPage> {
     });
   }
 
+  bool _obscureText = true;
+
+  void _toogleVisibility() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,8 +58,16 @@ class LoginPageState extends State<LoginPage> {
                 ),
                 TextField(
                   controller: senhaController,
-                  decoration: InputDecoration(labelText: "Senha"),
-                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: "Senha",
+                    suffixIcon: IconButton(
+                      onPressed: _toogleVisibility,
+                      icon: Icon(
+                        _obscureText ? Icons.visibility_off : Icons.visibility,
+                      ),
+                    ),
+                  ),
+                  obscureText: _obscureText,
                 ),
                 isLoading
                     ? CircularProgressIndicator()
@@ -70,7 +86,10 @@ class LoginPageState extends State<LoginPage> {
                   onTap: () {
                     Navigator.pushNamed(context, "/cadastro");
                   },
-                  child: Text("Clique aqui para criar sua conta", style: TextStyle(color: Colors.blue),),
+                  child: Text(
+                    "Clique aqui para criar sua conta",
+                    style: TextStyle(color: Colors.blue),
+                  ),
                 ),
               ],
             ),
