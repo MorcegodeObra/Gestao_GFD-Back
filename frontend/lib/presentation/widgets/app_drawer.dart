@@ -76,7 +76,7 @@ class AppDrawer extends StatelessWidget {
                             mensagem: 'Deseja realmente sair?',
                             onConfirm: () async {
                               await logout();
-                              Navigator.pushReplacementNamed(context, '/');
+                              Navigator.pushNamedAndRemoveUntil(context,'/',(route)=> false);
                             },
                           ),
                         );

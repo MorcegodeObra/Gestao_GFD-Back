@@ -52,12 +52,12 @@ class MyApp extends StatelessWidget {
         ),
       ),
       routes: {
-        "/": (context) => const LoginPage(),
-        "/cadastro": (context) => const CadastroPage(),
-        "/meusProcessos": (context) => const MainMenu(),
-        "/todosProcessos": (context) => const Todosprocessos(),
-        "/mainPage": (context) => const GraficoProcessosPage(),
-        "/contatos":(context)=> const Contatos()
+        "/": (context) => LoginPage(),
+        "/cadastro": (context) => CadastroPage(),
+        "/meusProcessos": (context) => MainMenu(),
+        "/todosProcessos": (context) => Todosprocessos(),
+        "/mainPage": (context) => GraficoProcessosPage(),
+        "/contatos":(context)=> Contatos()
       },
     );
   }

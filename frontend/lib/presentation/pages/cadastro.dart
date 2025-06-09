@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/API/api_controller.dart';
+import './services/cadastro_service.dart';
 
 class CadastroPage extends StatefulWidget {
   const CadastroPage({super.key});
@@ -22,52 +23,10 @@ class _CadastroPageState extends State<CadastroPage> {
 
   bool isLoading = false;
 
-  Future<void> cadastrar() async {
-    setState(() => isLoading = true);
-
-    try {
-      await apiService.users.criarUsuario({
-        'userName': nomeController.text.trim(),
-        'userNumber': numeroController.text.trim(),
-        'userEmail': emailController.text.trim(),
-        'password': senhaController.text.trim(),
-        'userArea': areaSelecionada,
-        'userCargo': cargoSelecionado,
-      });
-
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Sucesso'),
-          content: const Text('Cadastro realizado com sucesso!'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.pop(context);
-              },
-              child: const Text('Ok'),
-            ),
-          ],
-        ),
-      );
-    } catch (e) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Erro'),
-          content: Text(e.toString()),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Ok'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    setState(() => isLoading = false);
+  void setLoading(bool value) {
+    setState(() {
+      isLoading = value;
+    });
   }
 
   @override
@@ -131,7 +90,20 @@ class _CadastroPageState extends State<CadastroPage> {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: isLoading ? null : cadastrar,
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      await cadastrar(
+                        context: context,
+                        nomeController: nomeController,
+                        numeroController: numeroController,
+                        emailController: emailController,
+                        senhaController: senhaController,
+                        areaSelecionada: areaSelecionada,
+                        cargoSelecionado: cargoSelecionado,
+                        setloading: setLoading,
+                      );
+                    },
               child: isLoading
                   ? const CircularProgressIndicator(color: Colors.white)
                   : const Text('Cadastrar'),
