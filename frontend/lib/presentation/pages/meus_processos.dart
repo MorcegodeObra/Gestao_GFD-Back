@@ -19,6 +19,7 @@ class _MainMenuState extends State<MainMenu> {
   List<dynamic> contatos = [];
   int? userId;
   bool isLoading = true;
+  String? statusSelecionado;
   final TextEditingController _searchController = TextEditingController();
   String termoBusca = '';
 
@@ -71,6 +72,22 @@ class _MainMenuState extends State<MainMenu> {
   Future<void> deletarProcessos(int id) async {
     await repo.processos.deletarProcessos(id);
     carregarProcessoss();
+  }
+
+  Widget _buildFiltroButton(String? status, String label) {
+    final isSelected = statusSelecionado == status;
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelected ? Colors.green : Colors.grey[300],
+        foregroundColor: isSelected ? Colors.white : Colors.black,
+      ),
+      onPressed: () {
+        setState(() {
+          statusSelecionado = status;
+        });
+      },
+      child: Text(label),
+    );
   }
 
   void abrirFormulario({Map<String, dynamic>? processos}) {
@@ -153,12 +170,16 @@ class _MainMenuState extends State<MainMenu> {
   Widget build(BuildContext context) {
     final Map<int, String> mapaContatos = {
       for (var contato in contatos)
-        contato["id"] as int: (contato['name'] ?? "Desconhecido").toString()
+        contato["id"] as int: (contato['name'] ?? "Desconhecido").toString(),
     };
-    final processosFiltrados = processos.where((processos) {
-      final processo =
-          processos['processoider']?.toString().toLowerCase() ?? '';
-      return processo.contains(termoBusca);
+
+    final processosFiltrados = processos.where((p) {
+      final status = p['contatoStatus'];
+      final processo = p['processoSider']?.toString().toLowerCase() ?? '';
+      final matchesBusca = processo.contains(termoBusca);
+      final matchesStatus =
+          statusSelecionado == null || status == statusSelecionado;
+      return matchesBusca && matchesStatus;
     }).toList();
 
     return Scaffold(
@@ -190,6 +211,22 @@ class _MainMenuState extends State<MainMenu> {
                     },
                   ),
                   const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      _buildFiltroButton(null, "Todos"),
+                      _buildFiltroButton("REVISÃO DE PROJETO", "Revisão"),
+                      _buildFiltroButton("IMPLANTAÇÃO", "Implantação"),
+                      _buildFiltroButton("ASSINATURAS", "Assinaturas"),
+                      _buildFiltroButton(
+                        "VISTORIA INICIAL",
+                        "Vistoria Inicial",
+                      ),
+                      _buildFiltroButton("VISTORIA FINAL", "Vistoria Final"),
+                      _buildFiltroButton("SEM STATUS", "Sem Status"),
+                    ],
+                  ),
                   Expanded(
                     child: processosFiltrados.isEmpty
                         ? Center(
@@ -212,29 +249,36 @@ class _MainMenuState extends State<MainMenu> {
                               ],
                             ),
                           )
-                        : ListView(
-                            children: processosFiltrados.map((processos) {
-                              final contatoId = processos['contatoId'];
-                              final nomeContato =
-                                  mapaContatos[contatoId] ?? "Desconhecido";
-                              return ProcessoCard(
-                                processo: processos,
-                                contato: nomeContato,
-                                onEdit: () =>
-                                    abrirFormulario(processos: processos),
-                                onDelete: () => showDialog(
-                                  context: context,
-                                  builder: (context) => ConfirmDeleteDialog(
-                                    titulo: 'Confirmar Exclusão',
-                                    mensagem:
-                                        'Tem certeza que deseja deletar este Processos?',
-                                    onConfirm: () {
-                                      deletarProcessos(processos['id']);
-                                    },
-                                  ),
+                        : Column(
+                            children: [
+                              Expanded(
+                                child: ListView(
+                                  children: processosFiltrados.map((processos) {
+                                    final contatoId = processos['contatoId'];
+                                    final nomeContato =
+                                        mapaContatos[contatoId] ??
+                                        "Desconhecido";
+                                    return ProcessoCard(
+                                      processo: processos,
+                                      contato: nomeContato,
+                                      onEdit: () =>
+                                          abrirFormulario(processos: processos),
+                                      onDelete: () => showDialog(
+                                        context: context,
+                                        builder: (context) => ConfirmDeleteDialog(
+                                          titulo: 'Confirmar Exclusão',
+                                          mensagem:
+                                              'Tem certeza que deseja deletar este Processos?',
+                                          onConfirm: () {
+                                            deletarProcessos(processos['id']);
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
                                 ),
-                              );
-                            }).toList(),
+                              ),
+                            ],
                           ),
                   ),
                 ],

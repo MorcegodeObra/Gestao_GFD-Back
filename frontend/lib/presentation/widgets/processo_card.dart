@@ -101,7 +101,7 @@ class _ProcessoCardState extends State<ProcessoCard> {
                             "Protocolo": widget.processo['protocolo'],
                             'Assunto': widget.processo['subject'],
                             'Area': widget.processo['area'],
-                            'Status': widget.processo['processoStatus'],
+                            'Status': widget.processo['contatoStatus'],
                           }),
                         ],
                       ),
