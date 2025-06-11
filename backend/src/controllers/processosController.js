@@ -18,6 +18,7 @@ export const criarProcesso = async (req, res) => {
       contatoId,
       subject,
       priority,
+      rodovia,
     } = req.body;
 
     const process = await Process.create({
@@ -36,6 +37,7 @@ export const criarProcesso = async (req, res) => {
       contatoId,
       subject,
       priority,
+      rodovia,
     });
 
     res.status(201).json(process);
@@ -100,6 +102,7 @@ export const editarProcesso = async (req, res) => {
       contatoId,
       subject,
       priority,
+      rodovia,
     } = req.body;
 
     await process.update({
@@ -118,6 +121,7 @@ export const editarProcesso = async (req, res) => {
       contatoId,
       subject,
       priority,
+      rodovia,
     });
 
     res.json(process);
