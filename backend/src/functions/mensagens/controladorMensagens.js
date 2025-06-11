@@ -1,9 +1,8 @@
 import cron from 'node-cron';
 import { handleContact } from './verificacoes/controladorProcessos.js';
-import { sendWeeklySummaries } from './emailsConfig/resumoSemanal.js';
 import { Process } from '../../models/processo.js';
 
-export const servicoCobranca = cron.schedule('*/10 * * * *', async () => {
+export const servicoCobranca = cron.schedule('* * * * *', async () => {
   console.log("Mandando Emails!");
   try {
     const now = new Date();

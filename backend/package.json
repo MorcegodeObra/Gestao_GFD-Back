@@ -7,6 +7,7 @@
     "date-fns-tz": "^3.2.0",
     "datetime": "^0.0.3",
     "dotenv": "^16.5.0",
+    "email-reply-parser": "^2.0.1",
     "express": "^5.1.0",
     "imap": "^0.8.19",
     "mailparser": "^3.7.3",

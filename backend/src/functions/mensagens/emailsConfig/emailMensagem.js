@@ -2,14 +2,6 @@ import nodemailer from 'nodemailer';
 import { User } from '../../../models/users.js';
 import {ContactEmail} from "../../../models/contactEmail.js"
 
-function formatarData(data) {
-  const dia = String(data.getDate()).padStart(2, '0');
-  const mes = String(data.getMonth() + 1).padStart(2, '0'); // Mês em JavaScript é 0-indexed
-  const ano = data.getFullYear();
-
-  return `${dia}/${mes}/${ano}`;
-}
-
 export async function sendEmailMessage(proces, message, contato) {
   try {
     const transporter = nodemailer.createTransport({
@@ -62,11 +54,7 @@ export async function sendEmailMessage(proces, message, contato) {
       to: emailDestinos.join(","),
       cc: ccList.length > 0 ? ccList : undefined,
       subject: `Solicitação - ${proces.processoSider}`,
-      html: `
-    <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
-      <p>${message.replace(/\n/g, '<br>')}</p>
-    </div>
-  `,
+      html: message,
     };
 
     const info = await transporter.sendMail(mailOptions);
