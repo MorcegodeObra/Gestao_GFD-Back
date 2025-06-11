@@ -14,8 +14,9 @@ export async function gerarMensagemHTML(proces, contato, titulo, corpo) {
       <p>Prezado(a) <strong>${contato.name}</strong>,</p>
 
 
-      <p><strong>Temos o seguinte processo em andamento:</strong><br></p>
+      <p><strong>Há um processo em andamento referente à ocupação de Faixa de Domínio:</strong><br></p>
       <p>Processo: ${proces.processoSider}<br>
+      Rodovia: "${proces.rodovia}".<br>
       Status do processo: "${proces.contatoStatus}".<br>
       Início do contato: ${formatarData(proces.lastInteration)}<br>
       Ultima mensagem anexada: <strong>${proces.subject}</strong></p>

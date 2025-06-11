@@ -15,6 +15,10 @@ export const Process = sequelize.define('Process', {
         type: DataTypes.ENUM("AREA 1", "AREA 2", "AREA 3", "AREA 4", "AREA 5", "SEM AREA"),
         defaultValue: "SEM AREA"
     },
+    rodovia:{
+        type: DataTypes.STRING,
+        defaultValue: "Rodovia não adicionada ao processo."
+    },
     lastSent: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
