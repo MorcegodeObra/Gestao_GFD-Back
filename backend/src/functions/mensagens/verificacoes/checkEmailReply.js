@@ -2,6 +2,7 @@ import Imap from 'imap';
 import { simpleParser } from 'mailparser';
 import dotenv from 'dotenv';
 import { Contact } from '../../../models/contato.js';
+import extractReplyBody from "./extrairCorpoEmail.js";
 
 dotenv.config();
 
@@ -28,7 +29,11 @@ export async function checkEmailReply(proces) {
       },
     });
 
-    const emailsContato = (contato.email || []).map(e => e.toLowerCase());
+    const emailsContato = Array.isArray(contato.email)
+      ? contato.email.map(e => e.toLowerCase())
+      : contato.email
+        ? [contato.email.toLowerCase()]
+        : [];
     const subjectQuery = `Solicitação - ${proces.processoSider}`;
     const sinceDate = new Date();
     sinceDate.setDate(sinceDate.getDate() - 30);
@@ -72,9 +77,10 @@ export async function checkEmailReply(proces) {
 
                 if (messagesProcessed === results.length) {
                   if (latestMsgText) {
+                    const mensagemLimpa = extractReplyBody(latestMsgText)
                     proces.answer = true;
                     proces.answerDate = latestMsgDate;
-                    proces.answerMsg = latestMsgText;
+                    proces.answerMsg = mensagemLimpa;
                     await proces.save();
                     resolve(true);
                   } else {

@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { User } from '../../../models/users.js';
+import {ContactEmail} from "../../../models/contactEmail.js"
 
 function formatarData(data) {
   const dia = String(data.getDate()).padStart(2, '0');
@@ -45,9 +46,20 @@ export async function sendEmailMessage(proces, message, contato) {
       }
     }
 
+    // 🔥 Buscar o email correto pela área
+    const emailsArea = await ContactEmail.findAll({
+      where: { contactId: contato.id, area: proces.area }
+    });
+
+    const emailDestinos = emailsArea.map(e => e.email);
+    if (!emailDestinos.length) {
+      console.warn(`⚠️ Nenhum e-mail encontrado para área ${proces.area} no contato ${contato.name}`);
+      return; // não envia nada se não houver e-mail correspondente
+    }
+
     const mailOptions = {
       from: `Solicitação - ${proces.processoSider} <${process.env.EMAIL_USER}>`,
-      to: contato.email.join(","),
+      to: emailDestinos.join(","),
       cc: ccList.length > 0 ? ccList : undefined,
       subject: `Solicitação - ${proces.processoSider}`,
       html: `
@@ -58,7 +70,7 @@ export async function sendEmailMessage(proces, message, contato) {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`E-mail enviado para ${contato.email} (CC: ${ccList.join(', ') || 'nenhum'}) -> ${info.response}`);
+    console.log(`E-mail enviado para ${emailDestinos} (CC: ${ccList.join(', ') || 'nenhum'}) -> ${info.response}`);
   } catch (error) {
     console.error('Erro ao enviar e-mail:', error.message);
   }

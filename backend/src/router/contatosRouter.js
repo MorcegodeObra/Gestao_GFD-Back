@@ -1,18 +1,23 @@
-import { Router } from 'express';
-import {
-  criarContato,
-  listarContato,
-  listarId,
-  editarContato,
-  deletarContato,
-} from '../controllers/contatoController.js';
+import express from 'express';
+import * as ContactController from '../controllers/contatoController.js'
+import * as ContactEmailController from '../controllers/contatoEmailController.js';
+import * as ContactNumberController from '../controllers/contatoNumberController.js';
 
-const router = Router();
+const router = express.Router();
 
-router.post('/', criarContato);
-router.get('/', listarContato);
-router.get('/:id', listarId);
-router.put('/:id', editarContato);
-router.delete('/:id', deletarContato);
+// Contato principal
+router.post('/', ContactController.criarContato);
+router.get('/', ContactController.listarContatos);
+router.get('/:id', ContactController.buscarContato);
+router.delete('/:id', ContactController.deletarContato);
+router.patch('/:id',ContactController.editarContato);
+
+// Emails
+router.post('/:id/emails', ContactEmailController.adicionarEmail);
+router.delete('/:id/emails/:emailId', ContactEmailController.deletarEmail);
+
+// Telefones
+router.post('/:id/number', ContactNumberController.adicionarTelefone);
+router.delete('/:id/number/:numberId', ContactNumberController.deletarTelefone);
 
 export default router;
