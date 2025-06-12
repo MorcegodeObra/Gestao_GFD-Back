@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import '../widgets/app_graphic.dart';
 import '../../core/API/api_controller.dart';
 import '../../core/UTILS/salvar_dados.dart';
@@ -33,7 +34,7 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
 
     if (userId != null) {
       try {
-        final data = await repo.processos.getProcessos(userId: userId!);
+        final data = await repo.processos.getProcessos(/*userId: userId!*/);
         final agora = DateTime.now();
 
         for (var processos in data) {
@@ -94,36 +95,40 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
       appBar: AppBar(
         title: const Text('Analise de processos'),
         automaticallyImplyLeading: true,
-        actions: [
-        ],
+        actions: [],
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  const Text(
-                    'Respondidos',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  Expanded(child: GraficoPadrao(dados: dadosTrue)),
-                  const Text(
-                    'Sem resposta',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  Expanded(child: GraficoPadrao(dados: dadosFalse)),
-                  Text(
-                    '$acima30Dias processos com mais de 30 dias',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                  Text(
-                    '$abaixo30Dias processos dentro do prazo',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ],
+          : SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  spacing: 12,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Respondidos',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    GraficoPadrao(dados: dadosTrue),
+                    const Text(
+                      'Sem resposta',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    GraficoPadrao(dados: dadosFalse),
+                    Text(
+                      '$acima30Dias processos com mais de 30 dias\n'
+                      '$abaixo30Dias processos dentro do prazo',
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ],
+                ),
               ),
             ),
     );
