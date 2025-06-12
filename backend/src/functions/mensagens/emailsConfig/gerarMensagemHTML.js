@@ -29,7 +29,7 @@ export async function gerarMensagemHTML(proces, contato, titulo, corpo) {
 
       <div style="text-align: center;">
         <img src="https://apismartreport.s3.sa-east-1.amazonaws.com/fotos/LogosEmpresa/icon.png" alt="Logo da Empresa" style="max-width: 150px; margin-bottom: 10px;">
-        <p style="font-size: 14px; color: #666;">"Nossa missão é atender com excelência e eficiência."</p>
+        <p style="font-size: 14px; color: #666;">"Transformando ideias em sonhos realizados!""</p>
       </div>
     </div>
   `;
