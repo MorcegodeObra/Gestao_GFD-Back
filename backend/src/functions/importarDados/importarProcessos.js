@@ -27,7 +27,7 @@ export async function importarPlanilhaProcessos(filePath) {
             if (!processoSiderOriginal) continue;
 
             const processoSider = processoSiderOriginal.trim();
-            
+
             const existente = await Process.findOne({ where: { processoSider } });
             if (existente) {
                 ignorados++;
@@ -47,7 +47,7 @@ export async function importarPlanilhaProcessos(filePath) {
                     lastSent: row['lastSent'] ? new Date(row['lastSent']) : new Date(),
                     answerMsg: row['answerMsg'] || null,
                     answerDate: row['answerDate'] ? new Date(row['answerDate']) : null,
-                    lastInteration: row['lastInteration'] ? new Date(row['lastInteration']) : new Date(),
+                    lastInteration: row['lastSent'] ? new Date(row['lastSent']) : new Date(),
                     answer: row['answer'] === true || row['answer'] === 'true',
                     check: row['check'] === true || row['check'] === 'true',
                     executed: row['executed'] === true || row['executed'] === 'true',
