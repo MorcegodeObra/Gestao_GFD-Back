@@ -11,7 +11,6 @@ export async function importarPlanilhaProcessos(filePath) {
         const workbook = readFile(filePath);
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
         const data = utils.sheet_to_json(sheet, { defval: null });
-        // ...continua o resto da função...
 
         // Validação de cabeçalho
         const colunas = Object.keys(data[0] || {});
@@ -52,6 +51,7 @@ export async function importarPlanilhaProcessos(filePath) {
                     answer: row['answer'] === true || row['answer'] === 'true',
                     check: row['check'] === true || row['check'] === 'true',
                     executed: row['executed'] === true || row['executed'] === 'true',
+                    rodovia: row['rodovia'] || '',
                 });
                 criados++;
             } catch (err) {
