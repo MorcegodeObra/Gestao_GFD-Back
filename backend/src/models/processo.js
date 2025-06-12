@@ -15,7 +15,7 @@ export const Process = sequelize.define('Process', {
         type: DataTypes.ENUM("AREA 1", "AREA 2", "AREA 3", "AREA 4", "AREA 5", "SEM AREA"),
         defaultValue: "SEM AREA"
     },
-    rodovia:{
+    rodovia: {
         type: DataTypes.STRING,
         defaultValue: "Rodovia não adicionada ao processo."
     },
@@ -48,7 +48,7 @@ export const Process = sequelize.define('Process', {
         defaultValue: false
     },
     contatoStatus: {
-        type: DataTypes.ENUM("REVISÃO DE PROJETO", "IMPLANTAÇÃO", "VISTORIA INICIAL", "VISTORIA FINAL", "ASSINATURAS", "SEM STATUS"),
+        type: DataTypes.ENUM("REVISÃO DE PROJETO", "IMPLANTAÇÃO", "VISTORIA INICIAL", "VISTORIA FINAL", "ASSINATURAS", "CONCLUIDO", "SEM STATUS"),
         defaultValue: "SEM STATUS"
     },
     userId: {
