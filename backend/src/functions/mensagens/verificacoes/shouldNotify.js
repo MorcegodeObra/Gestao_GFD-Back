@@ -6,6 +6,11 @@ const priorityDays = {
 };
 
 export function shouldNotify(proces, now) {
+  // Se já está concluído, não notifica
+  if (proces.contatoStatus === 'CONCLUIDO') {
+    return false;
+  }
+
   const lastSent = proces.lastSent ? new Date(proces.lastSent) : null;
   if (!lastSent) return false;
 

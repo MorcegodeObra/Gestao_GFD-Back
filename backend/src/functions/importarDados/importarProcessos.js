@@ -6,6 +6,12 @@ import { Process } from '../../models/processo.js';
 
 const CAMPOS_OBRIGATORIOS = ['processoSider', 'protocolo', 'userId', 'contatoId', 'subject'];
 
+function parseDateSafe(value, fallback = new Date()) {
+    if (!value) return fallback;
+    const date = new Date(value);
+    return isNaN(date.getTime()) ? fallback : date;
+}
+
 export async function importarPlanilhaProcessos(filePath) {
     try {
         const workbook = readFile(filePath);
@@ -33,7 +39,7 @@ export async function importarPlanilhaProcessos(filePath) {
                 ignorados++;
                 continue;
             }
-
+            const lastSentDate = parseDateSafe(row['lastSent'])
             try {
                 await Process.create({
                     processoSider,
@@ -47,7 +53,7 @@ export async function importarPlanilhaProcessos(filePath) {
                     lastSent: row['lastSent'] ? new Date(row['lastSent']) : new Date(),
                     answerMsg: row['answerMsg'] || null,
                     answerDate: row['answerDate'] ? new Date(row['answerDate']) : null,
-                    lastInteration: row['lastSent'] ? new Date(row['lastSent']) : new Date(),
+                    lastInteration: lastSentDate,
                     answer: row['answer'] === true || row['answer'] === 'true',
                     check: row['check'] === true || row['check'] === 'true',
                     executed: row['executed'] === true || row['executed'] === 'true',

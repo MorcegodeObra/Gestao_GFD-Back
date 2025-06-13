@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import '../widgets/app_graphic.dart';
 import '../../core/API/api_controller.dart';
 import '../../core/UTILS/salvar_dados.dart';
