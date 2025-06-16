@@ -15,7 +15,7 @@ function parseDateSafe(value, fallback = new Date()) {
 export async function importarPlanilhaProcessos(filePath) {
     try {
         const workbook = readFile(filePath);
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const sheet = workbook.Sheets['ADICIONAR'];
         const data = utils.sheet_to_json(sheet, { defval: null });
 
         // Validação de cabeçalho
@@ -26,20 +26,38 @@ export async function importarPlanilhaProcessos(filePath) {
         }
 
         let criados = 0;
-        let ignorados = 0;
+        let atualizados = 0;
 
         for (const row of data) {
             const processoSiderOriginal = row['processoSider'];
             if (!processoSiderOriginal) continue;
 
             const processoSider = processoSiderOriginal.trim();
-
             const existente = await Process.findOne({ where: { processoSider } });
+            const lastSentDate = parseDateSafe(row['lastSent']);
+
             if (existente) {
-                ignorados++;
+                await existente.update({
+                    protocolo: row['protocolo'] || existente.protocolo,
+                    area: row['area'] || existente.area,
+                    subject: row['subject'] || existente.subject,
+                    userId: row['userId'] || existente.userId,
+                    contatoId: row['contatoId'] || existente.contatoId,
+                    priority: row['priority'] || existente.priority,
+                    contatoStatus: row['contatoStatus'] || existente.contatoStatus,
+                    lastSent: row['lastSent'] ? new Date(row['lastSent']) : existente.lastSent,
+                    answerMsg: row['answerMsg'] || existente.answerMsg,
+                    answerDate: row['answerDate'] ? new Date(row['answerDate']) : existente.answerDate,
+                    lastInteration: lastSentDate,
+                    answer: row['answer'] === true || row['answer'] === 'true',
+                    check: row['check'] === true || row['check'] === 'true',
+                    executed: row['executed'] === true || row['executed'] === 'true',
+                    rodovia: row['rodovia'] || existente.rodovia,
+                });
+                atualizados++;
                 continue;
             }
-            const lastSentDate = parseDateSafe(row['lastSent'])
+
             try {
                 await Process.create({
                     processoSider,
@@ -65,7 +83,7 @@ export async function importarPlanilhaProcessos(filePath) {
             }
         }
 
-        return { criados, ignorados };
+        return { criados, atualizados };
     } finally {
         // Apagar o arquivo após a execução, mesmo se der erro
         fs.unlinkSync(filePath);
