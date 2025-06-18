@@ -3,20 +3,32 @@ import { simpleParser } from 'mailparser';
 import dotenv from 'dotenv';
 import { Contact } from '../../../models/contato.js';
 import extractReplyBody from "./extrairCorpoEmail.js";
+import { ContactEmail } from '../../../models/contactEmail.js'; // importe o modelo se ainda não tiver feito
 
 dotenv.config();
 
-// Simula uma função para buscar o contato (você pode substituir isso com acesso ao banco de dados real)
 async function getContatoById(id) {
-  // Exemplo com Sequelize ou outro ORM
-  const contato = await Contact.findByPk(id); // ou getContato(id)
-  return contato; // deve ter .email
+  const contato = await Contact.findByPk(id, {
+    include: [{ model: ContactEmail }],
+  });
+
+  if (!contato) return null;
+
+  // Coletar os e-mails
+  const emails = contato.ContactEmails?.map(c => c.email) || [];
+
+  // Retornar objeto com e-mails
+  return {
+    ...contato.toJSON(),
+    email: emails,
+  };
 }
+
 
 export async function checkEmailReply(proces) {
   return new Promise(async (resolve, reject) => {
     const contato = await getContatoById(proces.contatoId);
-    if (!contato.email) return resolve(false);
+    if (!contato?.email) return resolve(false);
 
     const imap = new Imap({
       user: process.env.EMAIL_USER,
@@ -30,10 +42,9 @@ export async function checkEmailReply(proces) {
     });
 
     const emailsContato = Array.isArray(contato.email)
-      ? contato.email.map(e => e.toLowerCase())
-      : contato.email
-        ? [contato.email.toLowerCase()]
-        : [];
+      ? contato.email.map(e => e.trim().toLowerCase())
+      : [contato.email.trim().toLowerCase()];
+
     const subjectQuery = `Solicitação - ${proces.processoSider}`;
     const sinceDate = new Date();
     sinceDate.setDate(sinceDate.getDate() - 30);
@@ -45,7 +56,14 @@ export async function checkEmailReply(proces) {
           return reject(err);
         }
 
-        imap.search([['SINCE', sinceDate.toDateString()]], (err, results) => {
+        const formatDate = (date) =>
+          date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+          }).replace(/ /g, '-');
+
+        imap.search([['SINCE', formatDate(sinceDate)]], (err, results) => {
           if (err || !results.length) {
             imap.end();
             return resolve(false);
@@ -55,48 +73,43 @@ export async function checkEmailReply(proces) {
 
           let latestMsgDate = null;
           let latestMsgText = null;
-
-          let messagesProcessed = 0;
+          const parsePromises = [];
 
           f.on('message', (msg) => {
-            msg.on('body', (stream) => {
-              simpleParser(stream, async (err, mail) => {
-                messagesProcessed++;
+            parsePromises.push(new Promise((resolveMsg) => {
+              msg.on('body', (stream) => {
+                simpleParser(stream, (err, mail) => {
+                  const from = (mail.from?.value?.[0]?.address || '').toLowerCase();
+                  const subject = mail.subject || '';
+                  const date = mail.date;
 
-                const from = (mail.from?.value?.[0]?.address || '').toLowerCase();
-                const subject = mail.subject || '';
-                const date = mail.date;
+                  const normalizedSubject = subject.replace(/^re:\s*/i, '').trim().toLowerCase();
 
-                // Verifica se o e-mail veio do contato e tem o assunto certo
-                if (emailsContato.includes(from) && subject.includes(subjectQuery)) {
-                  if (!latestMsgDate || date > latestMsgDate) {
-                    latestMsgDate = date;
-                    latestMsgText = mail.text || mail.html || null;
+                  if (emailsContato.includes(from) && normalizedSubject.includes(subjectQuery.toLowerCase())) {
+                    if (!latestMsgDate || date > latestMsgDate) {
+                      latestMsgDate = date;
+                      latestMsgText = mail.text || mail.html || null;
+                    }
                   }
-                }
-
-                if (messagesProcessed === results.length) {
-                  if (latestMsgText) {
-                    const mensagemLimpa = extractReplyBody(latestMsgText)
-                    proces.answer = true;
-                    proces.answerDate = latestMsgDate;
-                    proces.answerMsg = mensagemLimpa;
-                    await proces.save();
-                    resolve(true);
-                  } else {
-                    resolve(false);
-                  }
-                  imap.end();
-                }
+                  resolveMsg();
+                });
               });
-            });
+            }));
           });
 
-          f.once('end', () => {
-            if (results.length === 0) {
-              imap.end();
+          f.once('end', async () => {
+            await Promise.all(parsePromises);
+            if (latestMsgText) {
+              const mensagemLimpa = extractReplyBody(latestMsgText);
+              proces.answer = true;
+              proces.answerDate = latestMsgDate;
+              proces.answerMsg = mensagemLimpa;
+              await proces.save();
+              resolve(true);
+            } else {
               resolve(false);
             }
+            imap.end();
           });
         });
       });
