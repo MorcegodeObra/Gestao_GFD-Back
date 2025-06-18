@@ -2,7 +2,7 @@ import cron from 'node-cron';
 import { checkEmailReply } from './verificacoes/checkEmailReply.js';
 import { Process } from '../../models/processo.js';
 
-export const verificaEmail = cron.schedule('* * * * *', async () => {
+export const verificaEmail = cron.schedule('*/5 * * * *', async () => {
   console.log("Verificando emails!");
   try {
     const now = new Date();
