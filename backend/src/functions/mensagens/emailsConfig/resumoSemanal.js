@@ -12,33 +12,31 @@ export const sendWeeklySummaries = cron.schedule('*/10 * * * *', async () => {
   const umaSemanaAtras = new Date();
   umaSemanaAtras.setDate(hoje.getDate() - 7);
 
-  // Novos processos
-  const criados = await Process.count({
-    where: {
-      userId: user.id,
-      createdAt: {
-        [Op.gte]: umaSemanaAtras
-      }
-    }
-  });
-
-  // Processos modificados (interações recentes)
-  const modificados = await Process.count({
-    where: {
-      userId: user.id,
-      lastInteration: {
-        [Op.gte]: umaSemanaAtras
-      }
-    }
-  });
-
   if (diaSemana !== 5) return;
 
   const users = await User.findAll();
 
   for (const user of users) {
     if (!user || !user.id) continue;
+    // Novos processos
+    const criados = await Process.count({
+      where: {
+        userId: user.id,
+        createdAt: {
+          [Op.gte]: umaSemanaAtras
+        }
+      }
+    });
 
+    // Processos modificados (interações recentes)
+    const modificados = await Process.count({
+      where: {
+        userId: user.id,
+        lastInteration: {
+          [Op.gte]: umaSemanaAtras
+        }
+      }
+    });
     // ⛔ Evita reenvio se o resumo já foi enviado hoje
     if (user.userResumo) {
       const ultimaData = new Date(user.userResumo);
