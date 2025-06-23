@@ -3,11 +3,34 @@ import { Process } from '../../../models/processo.js';
 import { sendResumo } from './mensagemResumoSemanal.js';
 import { sendWhatsAppMessage } from '../whatsMensagem.js';
 import cron from 'node-cron';
+import { Op } from 'sequelize';
 
 export const sendWeeklySummaries = cron.schedule('*/10 * * * *', async () => {
   console.log("Rodando resumo semanal!!")
   const hoje = new Date();
   const diaSemana = hoje.getDay(); // 5 = sexta-feira
+  const umaSemanaAtras = new Date();
+  umaSemanaAtras.setDate(hoje.getDate() - 7);
+
+  // Novos processos
+  const criados = await Process.count({
+    where: {
+      userId: user.id,
+      createdAt: {
+        [Op.gte]: umaSemanaAtras
+      }
+    }
+  });
+
+  // Processos modificados (interações recentes)
+  const modificados = await Process.count({
+    where: {
+      userId: user.id,
+      lastInteration: {
+        [Op.gte]: umaSemanaAtras
+      }
+    }
+  });
 
   if (diaSemana !== 5) return;
 
@@ -68,6 +91,8 @@ export const sendWeeklySummaries = cron.schedule('*/10 * * * *', async () => {
       `Processos Respondidos:\n${mensagensRespondido.join('\n')}\n\n` +
       `Processos em dia:\n${mensagensData.join('\n')}\n\n` +
       `Processos atrasados:\n${mensagensAtraso.join('\n')}`;
+    + `\n📊 Atividades Semanais:\n🆕 Criados: ${criados}\n✏️ Modificados: ${modificados}`
+
 
     await sendResumo({ email: user.userEmail }, resumoMsg);
     await sendWhatsAppMessage(user.userNumber, resumoMsg);

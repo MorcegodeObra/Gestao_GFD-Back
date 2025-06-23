@@ -68,6 +68,47 @@ export const listarProcesso = async (req, res) => {
   }
 };
 
+export const resumoSemanal = async (req, res) => {
+  const { userId } = req.params;
+  const hoje = new Date();
+  const umaSemanaAtras = new Date();
+  umaSemanaAtras.setDate(hoje.getDate() - 7);
+
+  try {
+    const criados = await Process.findAll({
+      where: {
+        userId,
+        createdAt: { [Op.gte]: umaSemanaAtras }
+      }
+    });
+
+    const modificados = await Process.findAll({
+      where: {
+        userId,
+        lastInteration: { [Op.gte]: umaSemanaAtras }
+      }
+    });
+
+    res.json({
+      semana: {
+        de: umaSemanaAtras.toISOString().split('T')[0],
+        ate: hoje.toISOString().split('T')[0]
+      },
+      criados: {
+        total: criados.length,
+        lista: criados.map(p => p.processoSider)
+      },
+      modificados: {
+        total: modificados.length,
+        lista: modificados.map(p => p.processoSider)
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ erro: 'Erro ao gerar resumo semanal.' });
+  }
+}
+
 export const listarIdProcesso = async (req, res) => {
   try {
     const process = await Process.findByPk(req.params.id);
