@@ -93,7 +93,7 @@ export const sendWeeklySummaries = cron.schedule('*/10 * * * *', async () => {
 
 
     await sendResumo({ email: user.userEmail }, resumoMsg);
-    await sendWhatsAppMessage(user.userNumber, resumoMsg);
+    //await sendWhatsAppMessage(user.userNumber, resumoMsg);
     console.log(`Resumo Enviado para ${user.userName} no dia ${hoje}`);
     user.userResumo = hoje;
     await user.save();

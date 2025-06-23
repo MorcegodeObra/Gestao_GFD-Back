@@ -6,7 +6,7 @@ export function isSameDay(date1, date2) {
 }
 
 export async function enviarMensagem(proces, now, mensagem, contato) {
-  await sendWhatsAppMessage(proces.number, mensagem, contato);
+  //await sendWhatsAppMessage(proces.number, mensagem, contato);
   await sendEmailMessage(proces, mensagem, contato);
   proces.lastSent = now;
   await proces.save();
