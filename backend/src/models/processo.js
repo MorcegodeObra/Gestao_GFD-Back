@@ -48,7 +48,17 @@ export const Process = sequelize.define('Process', {
         defaultValue: false
     },
     contatoStatus: {
-        type: DataTypes.ENUM("REVISÃO DE PROJETO", "IMPLANTAÇÃO", "VISTORIA INICIAL", "VISTORIA FINAL", "ASSINATURAS", "CONCLUIDO", "CANCELADO/ARQUIVADO", "SEM STATUS"),
+        type: DataTypes.ENUM(
+            "REVISÃO DE PROJETO",
+            "IMPLANTAÇÃO",
+            "VISTORIA INICIAL",
+            "VISTORIA FINAL",
+            "ASSINATURAS",
+            "CONCLUIDO",
+            "CANCELADO/ARQUIVADO",
+            "SEM STATUS",
+            "ANALISE AMBIENTAL",
+            "PAGAMENTO DA GR",),
         defaultValue: "SEM STATUS"
     },
     userId: {
