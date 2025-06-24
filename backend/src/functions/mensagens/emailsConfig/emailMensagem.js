@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import { User } from '../../../models/users.js';
-import {ContactEmail} from "../../../models/contactEmail.js"
+import { ContactEmail } from "../../../models/contactEmail.js"
 
 export async function sendEmailMessage(proces, message, contato) {
   try {
@@ -39,11 +39,16 @@ export async function sendEmailMessage(proces, message, contato) {
     }
 
     // 🔥 Buscar o email correto pela área
-    const emailsArea = await ContactEmail.findAll({
+    const emailsAreaRodovia = await ContactEmail.findAll({
       where: { contactId: contato.id, area: proces.area }
     });
 
-    const emailDestinos = emailsArea.map(e => e.email);
+    const emailsFiltrados = emailsAreaRodovia.filter(e => {
+      if (!e.rodovias || e.rodovias.length === 0) return true; // Se não há rodovias definidas, considerar só por área
+      return e.rodovias.includes(proces.rodovia); // Se tem rodovias, só se coincidir com a do processo
+    }); 
+
+    const emailDestinos = emailsFiltrados.map(e => e.email);
     if (!emailDestinos.length) {
       console.warn(`⚠️ Nenhum e-mail encontrado para área ${proces.area} no contato ${contato.name}`);
       return; // não envia nada se não houver e-mail correspondente

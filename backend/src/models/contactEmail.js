@@ -9,6 +9,10 @@ export const ContactEmail = sequelize.define('ContactEmail', {
   area: {
     type: DataTypes.ENUM("AREA 1", "AREA 2", "AREA 3", "AREA 4", "AREA 5", "SEM AREA"),
     defaultValue: "SEM AREA"
+  },
+  rodovias:{
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    allowNull: true
   }
 });
 
