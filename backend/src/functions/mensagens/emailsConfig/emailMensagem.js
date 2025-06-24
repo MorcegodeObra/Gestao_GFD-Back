@@ -58,7 +58,7 @@ export async function sendEmailMessage(proces, message, contato) {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`E-mail enviado para ${emailDestinos} (CC: ${ccList.join(', ') || 'nenhum'}) -> ${info.response}`);
+    console.log(`E-mail enviado para ${emailDestinos} (CC: ${ccList.join(', ') || 'nenhum'})`);
   } catch (error) {
     console.error('Erro ao enviar e-mail:', error.message);
   }
