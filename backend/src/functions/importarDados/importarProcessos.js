@@ -4,7 +4,7 @@ const { readFile, utils } = pkg;
 
 import { Process } from '../../models/processo.js';
 
-const CAMPOS_OBRIGATORIOS = ['processoSider', 'protocolo', 'userId', 'contatoId', 'subject'];
+const CAMPOS_OBRIGATORIOS = ['processoSider', 'protocolo', 'userId', 'contatoId'];
 
 function parseDateSafe(value) {
     if (!value) return null;
@@ -76,7 +76,7 @@ export async function importarPlanilhaProcessos(filePath) {
                     processoSider,
                     protocolo: row['protocolo'] || '',
                     area: row['area'] || 'SEM AREA',
-                    subject: row['subject'] || '',
+                    subject: row['subject'] || 'Como está a solicitação',
                     userId: row['userId'],
                     contatoId: row['contatoId'],
                     priority: row['priority'] || 'BAIXO',
