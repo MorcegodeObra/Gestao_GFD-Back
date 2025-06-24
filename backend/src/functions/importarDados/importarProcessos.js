@@ -6,11 +6,23 @@ import { Process } from '../../models/processo.js';
 
 const CAMPOS_OBRIGATORIOS = ['processoSider', 'protocolo', 'userId', 'contatoId', 'subject'];
 
-function parseDateSafe(value, fallback = new Date()) {
-    if (!value) return fallback;
-    const date = new Date(value);
-    return isNaN(date.getTime()) ? fallback : date;
+function parseDateSafe(value) {
+    if (!value) return null;
+
+    if (Object.prototype.toString.call(value) === '[object Date]') {
+        return isNaN(value.getTime()) ? null : value; // já é Date
+    }
+
+    if (typeof value === 'number') {
+        // Excel serial number
+        const epoch = new Date(Date.UTC(1899, 11, 30));
+        return new Date(epoch.getTime() + value * 86400 * 1000);
+    }
+
+    const parsed = new Date(value);
+    return isNaN(parsed.getTime()) ? null : parsed;
 }
+
 
 export async function importarPlanilhaProcessos(filePath) {
     try {
@@ -27,6 +39,7 @@ export async function importarPlanilhaProcessos(filePath) {
 
         let criados = 0;
         let atualizados = 0;
+        let ignorados = 0;
 
         for (const row of data) {
             const processoSiderOriginal = row['processoSider'];
@@ -45,10 +58,10 @@ export async function importarPlanilhaProcessos(filePath) {
                     contatoId: row['contatoId'] || existente.contatoId,
                     priority: row['priority'] || existente.priority,
                     contatoStatus: row['contatoStatus'] || existente.contatoStatus,
-                    lastSent: row['lastSent'] ? new Date(row['lastSent']) : existente.lastSent,
+                    lastSent: lastSentDate || existente.lastSent,
+                    lastInteration: lastSentDate || existente.lastInteration,
                     answerMsg: row['answerMsg'] || existente.answerMsg,
                     answerDate: row['answerDate'] ? new Date(row['answerDate']) : existente.answerDate,
-                    lastInteration: lastSentDate,
                     answer: row['answer'] === true || row['answer'] === 'true',
                     check: row['check'] === true || row['check'] === 'true',
                     executed: row['executed'] === true || row['executed'] === 'true',
@@ -68,10 +81,10 @@ export async function importarPlanilhaProcessos(filePath) {
                     contatoId: row['contatoId'],
                     priority: row['priority'] || 'BAIXO',
                     contatoStatus: row['contatoStatus'] || 'SEM STATUS',
-                    lastSent: row['lastSent'] ? new Date(row['lastSent']) : new Date(),
+                    lastSent: lastSentDate || new Date(),
+                    lastInteration: lastSentDate || new Date(),
                     answerMsg: row['answerMsg'] || null,
                     answerDate: row['answerDate'] ? new Date(row['answerDate']) : null,
-                    lastInteration: lastSentDate,
                     answer: row['answer'] === true || row['answer'] === 'true',
                     check: row['check'] === true || row['check'] === 'true',
                     executed: row['executed'] === true || row['executed'] === 'true',
@@ -80,10 +93,11 @@ export async function importarPlanilhaProcessos(filePath) {
                 criados++;
             } catch (err) {
                 console.error(`Erro ao criar processo ${processoSider}:`, err.message);
+                ignorados++;
             }
         }
 
-        return { criados, atualizados };
+        return { criados, atualizados, ignorados };
     } finally {
         // Apagar o arquivo após a execução, mesmo se der erro
         fs.unlinkSync(filePath);

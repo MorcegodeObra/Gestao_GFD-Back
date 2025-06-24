@@ -12,6 +12,7 @@ export async function verificacaoPlanilhas(req, res) {
         res.json({
             mensagem: 'Importação concluída.',
             criados: resultado.criados,
+            atualizados: resultado.atualizados,
             ignorados: resultado.ignorados,
         });
     } catch (err) {
