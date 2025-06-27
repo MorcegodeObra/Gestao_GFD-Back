@@ -15,6 +15,7 @@ export const sendWeeklySummaries = cron.schedule('*/10 * * * *', async () => {
   if (diaSemana !== 5) return;
 
   const users = await User.findAll();
+  console.log(`Total de usuários encontrados: ${users.length}`);
 
   for (const user of users) {
     if (!user || !user.id) continue;
@@ -66,6 +67,7 @@ export const sendWeeklySummaries = cron.schedule('*/10 * * * *', async () => {
 
       const dataEnvio = proces.lastInteration || proces.lastSent;
       const diasDesdeEnvio = Math.floor((hoje - dataEnvio) / (1000 * 60 * 60 * 24));
+      if (!dataEnvio) continue;
 
       if (diasDesdeEnvio > 30) {
         mensagensAtraso.push(`❌ ${proces.processoSider} não respondeu após 30 dias desde o primeiro envio. Aviso reenviado.`);
@@ -88,11 +90,10 @@ export const sendWeeklySummaries = cron.schedule('*/10 * * * *', async () => {
     const resumoMsg = `🗒️ RESUMO SEMANAL DE AÇÕES:\n\n` +
       `Processos Respondidos:\n${mensagensRespondido.join('\n')}\n\n` +
       `Processos em dia:\n${mensagensData.join('\n')}\n\n` +
-      `Processos atrasados:\n${mensagensAtraso.join('\n')}`;
-    + `\n📊 Atividades Semanais:\n🆕 Criados: ${criados}\n✏️ Modificados: ${modificados}`
+      `Processos atrasados:\n${mensagensAtraso.join('\n')}\n\n` +
+      `📊 Atividades Semanais:\n🆕 Criados: ${criados}\n✏️ Modificados: ${modificados}`;
 
-
-    await sendResumo({ email: user.userEmail }, resumoMsg);
+    await sendResumo(user.userEmail, resumoMsg);
     //await sendWhatsAppMessage(user.userNumber, resumoMsg);
     console.log(`Resumo Enviado para ${user.userName} no dia ${hoje}`);
     user.userResumo = hoje;
