@@ -1,11 +1,11 @@
-import { User } from '../../../models/users.js';
-import { Process } from '../../../models/processo.js';
-import { sendResumo } from './mensagemResumoSemanal.js';
-import { sendWhatsAppMessage } from '../whatsMensagem.js';
+import { User } from '../../models/users.js';
+import { Process } from '../../models/processo.js';
+import { sendResumo } from './emailsConfig/mensagemResumoSemanal.js';
+import { sendWhatsAppMessage } from './whatsMensagem.js';
 import cron from 'node-cron';
 import { Op } from 'sequelize';
 
-export const sendWeeklySummaries = cron.schedule('*10 * * * *', async () => {
+export const sendWeeklySummaries = cron.schedule('* * * * *', async () => {
   console.log("Rodando resumo semanal!!")
   const hoje = new Date();
   const diaSemana = hoje.getDay(); // 5 = sexta-feira
@@ -15,7 +15,6 @@ export const sendWeeklySummaries = cron.schedule('*10 * * * *', async () => {
   if (diaSemana !== 5) return;
 
   const users = await User.findAll();
-  console.log(`Total de usuários encontrados: ${users.length}`);
 
   for (const user of users) {
     if (!user || !user.id) continue;
@@ -38,6 +37,11 @@ export const sendWeeklySummaries = cron.schedule('*10 * * * *', async () => {
         }
       }
     });
+
+    const [comUsuario, semUsuario] = await Promise.all([
+      Process.count({ where: { userId: user.id, processoComDER: true } }),
+      Process.count({ where: { userId: user.id, processoComDER: false } }),
+    ]);
     // ⛔ Evita reenvio se o resumo já foi enviado hoje
     if (user.userResumo) {
       const ultimaData = new Date(user.userResumo);
@@ -47,7 +51,7 @@ export const sendWeeklySummaries = cron.schedule('*10 * * * *', async () => {
         ultimaData.getMonth() === hoje.getMonth() &&
         ultimaData.getDate() === hoje.getDate();
 
-      if (mesmaData) continue; // já foi enviado hoje
+      if (!mesmaData) continue; // já foi enviado hoje
     }
 
     // Busca todos os processos do usuário
@@ -87,13 +91,7 @@ export const sendWeeklySummaries = cron.schedule('*10 * * * *', async () => {
       mensagensAtraso.push("Sem processos em atraso.");
     }
 
-    const resumoMsg = `🗒️ RESUMO SEMANAL DE AÇÕES:\n\n` +
-      `Processos Respondidos:\n${mensagensRespondido.join('\n')}\n\n` +
-      `Processos em dia:\n${mensagensData.join('\n')}\n\n` +
-      `Processos atrasados:\n${mensagensAtraso.join('\n')}\n\n` +
-      `📊 Atividades Semanais:\n🆕 Criados: ${criados}\n✏️ Modificados: ${modificados}`;
-
-    await sendResumo(user.userEmail, resumoMsg, mensagensData.length, mensagensAtraso.length, criados, modificados);
+    await sendResumo(user.userEmail, mensagensData.length, mensagensAtraso.length, criados, modificados, comUsuario, semUsuario);
     //await sendWhatsAppMessage(user.userNumber, resumoMsg);
     console.log(`Resumo Enviado para ${user.userName} no dia ${hoje}`);
     user.userResumo = hoje;

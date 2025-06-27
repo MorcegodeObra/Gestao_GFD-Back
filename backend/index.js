@@ -5,7 +5,7 @@ import { configDotenv } from 'dotenv';
 import cors from 'cors';
 import {servicoCobranca} from './src/functions/mensagens/controladorMensagens.js';
 import {verificaEmail} from "./src/functions/mensagens/verificaRespostas.js";
-import { sendWeeklySummaries } from './src/functions/mensagens/emailsConfig/resumoSemanal.js';
+import { sendWeeklySummaries } from './src/functions/mensagens/resumoSemanal.js';
 
 const app = express();
 const PORT = 3000;

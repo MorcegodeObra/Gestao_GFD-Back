@@ -39,14 +39,6 @@ export const Process = sequelize.define('Process', {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
-    check: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-    },
-    executed: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-    },
     contatoStatus: {
         type: DataTypes.ENUM(
             "REVISÃO DE PROJETO",
@@ -86,6 +78,14 @@ export const Process = sequelize.define('Process', {
         defaultValue: "BAIXO"
     },
     vistoriaInicial: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    processoComDER: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    inconformidadeSolicitacao: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
