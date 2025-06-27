@@ -5,7 +5,7 @@ import { sendWhatsAppMessage } from '../whatsMensagem.js';
 import cron from 'node-cron';
 import { Op } from 'sequelize';
 
-export const sendWeeklySummaries = cron.schedule('*/10 * * * *', async () => {
+export const sendWeeklySummaries = cron.schedule('*10 * * * *', async () => {
   console.log("Rodando resumo semanal!!")
   const hoje = new Date();
   const diaSemana = hoje.getDay(); // 5 = sexta-feira
@@ -93,7 +93,7 @@ export const sendWeeklySummaries = cron.schedule('*/10 * * * *', async () => {
       `Processos atrasados:\n${mensagensAtraso.join('\n')}\n\n` +
       `📊 Atividades Semanais:\n🆕 Criados: ${criados}\n✏️ Modificados: ${modificados}`;
 
-    await sendResumo(user.userEmail, resumoMsg);
+    await sendResumo(user.userEmail, resumoMsg, mensagensData.length, mensagensAtraso.length, criados, modificados);
     //await sendWhatsAppMessage(user.userNumber, resumoMsg);
     console.log(`Resumo Enviado para ${user.userName} no dia ${hoje}`);
     user.userResumo = hoje;

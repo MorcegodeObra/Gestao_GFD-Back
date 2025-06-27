@@ -85,4 +85,8 @@ export const Process = sequelize.define('Process', {
         type: DataTypes.ENUM("BAIXO", "MÉDIO", "ALTO", "URGENTE"),
         defaultValue: "BAIXO"
     },
+    vistoriaInicial: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
 })

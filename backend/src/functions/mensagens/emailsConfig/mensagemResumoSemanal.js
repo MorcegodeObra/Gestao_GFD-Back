@@ -1,15 +1,8 @@
 import nodemailer from 'nodemailer';
-import { User } from '../../../models/users.js';
+import { gerarGraficoResumo } from './gerarGraficoResumo.js';
+import { getWeek } from 'date-fns';
 
-function formatarData(data) {
-  const dia = String(data.getDate()).padStart(2, '0');
-  const mes = String(data.getMonth() + 1).padStart(2, '0'); // Mês em JavaScript é 0-indexed
-  const ano = data.getFullYear();
-
-  return `${dia}/${mes}/${ano}`;
-}
-
-export async function sendResumo(email, message) {
+export async function sendResumo(email, message, emDia, atrasados, criados , modificados ) {
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -20,20 +13,37 @@ export async function sendResumo(email, message) {
     });
 
     const dataAtual = new Date();
-    const dataFormatada = formatarData(dataAtual);
+const numeroSemana = getWeek(dataAtual, { weekStartsOn: 0 }); // 0 = domingo, 1 = segunda
+
+    const graficoBase64 = await gerarGraficoResumo({ emDia, atrasados });
 
     const mailOptions = {
       from: `"Contato Smart" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: `Resumo Semanal - ${dataFormatada}`,
+      subject: `Resumo Semanal - Semana ${numeroSemana}`,
       html: `
-    <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
-      <p>${message.replace(/\n/g, '<br>')}</p>
-    </div>
-  `,
+        <div style="font-family: Arial, sans-serif; font-size: 16px; color: #333;">
+          <h2>📊 Resumo Semanal</h2>
+
+          <p><strong>Atividades Semanais:</strong></p>
+          <ul>
+            <li>🆕 Processos Criados: <strong>${criados}</strong></li>
+            <li>✏️ Processos Modificados: <strong>${modificados}</strong></li>
+          </ul>
+
+          <p><strong>Status Geral:</strong></p>
+          <img src="${graficoBase64}" alt="Gráfico de resumo" style="max-width: 100%; height: auto;" />
+
+          <hr style="margin: 30px 0;">
+          <div style="text-align: center;">
+            <img src="https://apismartreport.s3.sa-east-1.amazonaws.com/fotos/LogosEmpresa/icon.png" style="max-width: 150px; margin-bottom: 10px;" />
+            <p style="font-size: 14px; color: #666;">"Transformando ideias em sonhos realizados!"</p>
+          </div>
+        </div>
+      `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    await transporter.sendMail(mailOptions);
   } catch (error) {
     console.error('Erro ao enviar e-mail:', error.message);
   }
