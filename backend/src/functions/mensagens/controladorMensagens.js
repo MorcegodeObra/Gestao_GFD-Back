@@ -14,8 +14,6 @@ export const servicoCobranca = cron.schedule('*/10 * * * *', async () => {
         }
       }
     });
-
-    console.log(process);
     for (const proces of process) {
       await handleContact(proces, now);
     }
