@@ -5,7 +5,7 @@ import { sendWhatsAppMessage } from './whatsMensagem.js';
 import cron from 'node-cron';
 import { Op } from 'sequelize';
 
-export const sendWeeklySummaries = cron.schedule('* * * * *', async () => {
+export const sendWeeklySummaries = cron.schedule('*/15 * * * *', async () => {
   console.log("Rodando resumo semanal!!")
   const hoje = new Date();
   const diaSemana = hoje.getDay(); // 5 = sexta-feira
@@ -51,7 +51,7 @@ export const sendWeeklySummaries = cron.schedule('* * * * *', async () => {
         ultimaData.getMonth() === hoje.getMonth() &&
         ultimaData.getDate() === hoje.getDate();
 
-      if (!mesmaData) continue; // já foi enviado hoje
+      if (mesmaData) continue; // já foi enviado hoje
     }
 
     // Busca todos os processos do usuário
