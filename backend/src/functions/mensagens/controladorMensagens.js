@@ -3,7 +3,7 @@ import { handleContact } from './verificacoes/controladorProcessos.js';
 import { Process } from '../../models/processo.js';
 import { Op, where } from 'sequelize';
 
-export const servicoCobranca = cron.schedule('* * * * *', async () => {
+export const servicoCobranca = cron.schedule('*/10 * * * *', async () => {
   console.log("Mandando Emails!");
   try {
     const now = new Date();
