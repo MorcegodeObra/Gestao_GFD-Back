@@ -89,4 +89,12 @@ export const Process = sequelize.define('Process', {
         type: DataTypes.BOOLEAN,
         defaultValue: false
     },
+    solicitacaoProcesso: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    newUserId: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
 })

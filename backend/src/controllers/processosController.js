@@ -139,13 +139,35 @@ export const editarProcesso = async (req, res) => {
       check,
       executed,
       contatoStatus,
-      userId,
+      userId, // <- representa quem está tentando puxar o processo para si
       contatoId,
       subject,
       priority,
       rodovia,
     } = req.body;
 
+    const donoAtual = process.userId;
+    const novoDono = userId;
+
+    // Está tentando mudar o dono
+    const mudandoDono = novoDono !== donoAtual;
+
+    if (mudandoDono) {
+      // Se o dono atual não é o sistema (12), não deixa mudar direto
+      if (donoAtual !== 12) {
+        // Registra a solicitação de transferência
+        await process.update({
+          solicitacaoProcesso: true,
+          newUserId: novoDono,
+        });
+
+        return res.status(202).json({
+          message: 'Solicitação de transferência enviada ao dono atual do processo.',
+        });
+      }
+    }
+
+    // Atualização normal (inclusive troca de dono se permitido)
     await process.update({
       processoSider,
       protocolo,
@@ -158,11 +180,13 @@ export const editarProcesso = async (req, res) => {
       check,
       executed,
       contatoStatus,
-      userId,
+      userId: novoDono,
       contatoId,
       subject,
       priority,
       rodovia,
+      solicitacaoProcesso: false,
+      newUserId: null,
     });
 
     res.json(process);
@@ -171,6 +195,8 @@ export const editarProcesso = async (req, res) => {
     res.status(500).json({ error: 'Erro ao editar o Processo. Tente novamente mais tarde.' });
   }
 };
+
+
 
 export const deletarProcesso = async (req, res) => {
   try {
@@ -184,5 +210,33 @@ export const deletarProcesso = async (req, res) => {
   } catch (error) {
     console.error(error); // Log do erro
     res.status(500).json({ error: 'Erro ao deletar o Processo. Tente novamente mais tarde.' });
+  }
+};
+
+export const aceitarSolicitacao = async (req, res) => {
+  try {
+    const process = await Process.findByPk(req.params.id);
+    if (!process) return res.status(404).json({ error: 'Processo não encontrado' });
+
+    const {userId} = req.body;
+
+    if (!process.solicitacaoProcesso || !process.newUserId) {
+      return res.status(400).json({ error: 'Não há solicitação pendente para este processo.' });
+    }
+
+    if (process.userId !== userId) {
+      return res.status(403).json({ error: 'Você não tem permissão para aprovar esta solicitação.' });
+    }
+
+    await process.update({
+      userId: process.newUserId,
+      solicitacaoProcesso: false,
+      newUserId: null
+    });
+
+    res.json({ message: 'Solicitação aprovada. Processo transferido com sucesso.', process });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao aprovar a solicitação.' });
   }
 };
