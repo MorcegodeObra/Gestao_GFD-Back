@@ -51,7 +51,7 @@ export const sendWeeklySummaries = cron.schedule('*/15 * * * *', async () => {
         ultimaData.getMonth() === hoje.getMonth() &&
         ultimaData.getDate() === hoje.getDate();
 
-      if (!mesmaData) continue; // já foi enviado hoje
+      if (mesmaData) continue; // já foi enviado hoje
     }
 
     // Busca todos os processos do usuário
