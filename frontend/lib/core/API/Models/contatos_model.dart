@@ -15,7 +15,7 @@ class ContatosModel {
     }
   }
 
-    Future<List<Map<String, dynamic>>> getContato(int id) async {
+  Future<List<Map<String, dynamic>>> getContato(int id) async {
     try {
       final response = await dio.get('/contatos/$id');
       return List<Map<String, dynamic>>.from(response.data);
@@ -24,13 +24,25 @@ class ContatosModel {
     }
   }
 
-  Future<void> criarContatos(Map<String, dynamic> data) async {
+  Future criarContatos(Map<String, dynamic> data) async {
     try {
-      await dio.post('/contatos', data: data);
+      final response = await dio.post('/contatos', data: data);
+      return response.data;
     } on DioException catch (e) {
       throw CustomException(handleDioError(e));
     }
   }
+
+Future<void> adicionarEmail(int id, List<Map<String, dynamic>> emails) async {
+  try {
+    await dio.post('/contatos/$id/emails', data: {
+      'emails': emails,
+    });
+  } on DioException catch (e) {
+    throw CustomException(handleDioError(e));
+  }
+}
+
 
   Future<void> atualizarContatos(int id, Map<String, dynamic> data) async {
     try {

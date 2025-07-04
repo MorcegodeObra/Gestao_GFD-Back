@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class ConfirmDeleteDialog extends StatelessWidget {
   final String titulo;
   final String mensagem;
-  final VoidCallback onConfirm;
+  final Future<void> Function() onConfirm;
 
   const ConfirmDeleteDialog({
     super.key,

@@ -2,12 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class GraficoPadrao extends StatelessWidget {
-  final Map<String, int> dados;
+  final Map<String, int> dadosOriginais;
+  final Set<String> filtrosAtivos;
+  final void Function(String) toggleFiltro;
 
-  const GraficoPadrao({super.key, required this.dados});
+  const GraficoPadrao({
+    super.key,
+    required this.dadosOriginais,
+    required this.filtrosAtivos,
+    required this.toggleFiltro,
+  });
+
+  Map<String, int> filtrarDados() {
+    if (filtrosAtivos.isEmpty) return dadosOriginais;
+    return Map.fromEntries(
+      dadosOriginais.entries.where(
+        (entry) => filtrosAtivos.contains(entry.key),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final dados = filtrarDados();
+
     if (dados.isEmpty) {
       return const Center(child: Text("Sem dados para exibir"));
     }
@@ -59,14 +77,49 @@ class GraficoPadrao extends StatelessWidget {
               margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(color: cor, shape: BoxShape.circle),
             ),
-            Text("${entry.key}: $percentual%", style: const TextStyle(fontSize: 14)),
+            Text(
+              "${entry.key}: $percentual%",
+              style: const TextStyle(fontSize: 14),
+            ),
           ],
         ),
       );
     }).toList();
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Align(
+          alignment: Alignment.centerLeft,
+          child: PopupMenuButton<String>(
+            offset: const Offset(0, 40),
+            itemBuilder: (BuildContext context) {
+              return dadosOriginais.keys.map((String categoria) {
+                final selecionado = filtrosAtivos.contains(categoria);
+                return CheckedPopupMenuItem<String>(
+                  value: categoria,
+                  checked: selecionado,
+                  child: Text(categoria),
+                );
+              }).toList();
+            },
+            onSelected: toggleFiltro,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                children: const [
+                  Icon(Icons.filter_list, size: 18),
+                  SizedBox(width: 4),
+                  Text(
+                    "Filtrar",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Icon(Icons.arrow_drop_down),
+                ],
+              ),
+            ),
+          ),
+        ),
         SizedBox(
           height: 200,
           child: PieChart(

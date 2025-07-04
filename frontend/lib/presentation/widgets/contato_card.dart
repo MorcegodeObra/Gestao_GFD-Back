@@ -20,7 +20,6 @@ class ContatoCard extends StatefulWidget {
 }
 
 class _ContatoCardState extends State<ContatoCard> {
-
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -41,16 +40,24 @@ class _ContatoCardState extends State<ContatoCard> {
                       fontSize: 16,
                     ),
                   ),
-                    Text.rich(
-                      TextSpan(
-                        children: [
-                          ...gerarTextSpan({
-                            "Email": widget.contato['email'],
-                            'Numero': widget.contato['number'],
-                          }),
-                        ],
-                      ),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        const TextSpan(
+                          text: "Emails:\n",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        ...?widget.contato['ContactEmails']?.map<TextSpan>((
+                          emailInfo,
+                        ) {
+                          return TextSpan(
+                            text:
+                                "${emailInfo['email']} - ${emailInfo['area']}\n",
+                          );
+                        }),
+                      ],
                     ),
+                  ),
                 ],
               ),
             ),

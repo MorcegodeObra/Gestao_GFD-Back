@@ -51,7 +51,7 @@ export const sendWeeklySummaries = cron.schedule('*/15 * * * *', async () => {
         ultimaData.getMonth() === hoje.getMonth() &&
         ultimaData.getDate() === hoje.getDate();
 
-      if (mesmaData) continue; // já foi enviado hoje
+      if (!mesmaData) continue; // já foi enviado hoje
     }
 
     // Busca todos os processos do usuário
@@ -59,39 +59,23 @@ export const sendWeeklySummaries = cron.schedule('*/15 * * * *', async () => {
 
     if (!processos.length) continue;
 
-    const mensagensAtraso = [];
-    const mensagensData = [];
-    const mensagensRespondido = [];
+    let mensagensAtraso = 0;
+    let mensagensEmDia = 0;
 
     for (const proces of processos) {
-      if (proces.answer) {
-        mensagensRespondido.push(`✅ Processo ${proces.processoSider} respondido`);
-        continue;
-      }
 
       const dataEnvio = proces.lastInteration || proces.lastSent;
       const diasDesdeEnvio = Math.floor((hoje - dataEnvio) / (1000 * 60 * 60 * 24));
       if (!dataEnvio) continue;
 
       if (diasDesdeEnvio > 30) {
-        mensagensAtraso.push(`❌ ${proces.processoSider} não respondeu após 30 dias desde o primeiro envio. Aviso reenviado.`);
+        mensagensAtraso ++;
       } else {
-        mensagensData.push(`🕒 ${proces.processoSider} ainda dentro dos 30 dias desde o primeiro envio.`);
+        mensagensEmDia ++;
       }
     }
-    if (mensagensRespondido.length === 0) {
-      mensagensRespondido.push("Sem processos respondidos.");
-    }
 
-    if (mensagensData.length === 0) {
-      mensagensData.push("Sem processos dentro dos 30 dias.");
-    }
-
-    if (mensagensAtraso.length === 0) {
-      mensagensAtraso.push("Sem processos em atraso.");
-    }
-
-    await sendResumo(user.userEmail, mensagensData.length, mensagensAtraso.length, criados, modificados, comUsuario, semUsuario);
+    await sendResumo(user.userEmail, mensagensEmDia, mensagensAtraso, criados, modificados, comUsuario, semUsuario);
     //await sendWhatsAppMessage(user.userNumber, resumoMsg);
     console.log(`Resumo Enviado para ${user.userName} no dia ${hoje}`);
     user.userResumo = hoje;

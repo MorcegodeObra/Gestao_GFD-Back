@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/presentation/widgets/app_drawer.dart';
+import 'package:frontend/presentation/widgets/processo_card.dart';
 import '../../core/API/api_controller.dart';
-import '../widgets/processo_card.dart';
 import '../../core/UTILS/salvar_dados.dart';
+import '../widgets/app_drawer.dart';
 
-class Todosprocessos extends StatefulWidget {
-  const Todosprocessos({super.key});
+class TodosProcessos extends StatefulWidget {
+  const TodosProcessos({super.key});
 
   @override
-  State<Todosprocessos> createState() => _Todosproprocessostate();
+  State<TodosProcessos> createState() => _TodosProcessosState();
 }
 
-class _Todosproprocessostate extends State<Todosprocessos> {
+class _TodosProcessosState extends State<TodosProcessos> {
   final repo = ApiService();
   List<dynamic> processos = [];
   List<dynamic> contatos = [];
-  Set<int> abrirDetalhes = {};
-
   int? userId;
   bool isLoading = true;
+  String? statusSelecionado;
   final TextEditingController _searchController = TextEditingController();
   String termoBusca = '';
 
@@ -33,7 +32,8 @@ class _Todosproprocessostate extends State<Todosprocessos> {
     setState(() {
       userId = userData['userId'];
     });
-    await carregarproprocessos();
+    await carregarContatos();
+    await carregarProcessoss();
   }
 
   Future<void> carregarContatos() async {
@@ -47,20 +47,19 @@ class _Todosproprocessostate extends State<Todosprocessos> {
     }
   }
 
-  Future<void> carregarproprocessos() async {
+  Future<void> carregarProcessoss() async {
     if (userId == null) return;
-
     setState(() {
       isLoading = true;
     });
 
     try {
-      final data = await repo.processos.getProcessos(notUserId: userId!);
+      final data = await repo.processos.getProcessos();
       setState(() {
         processos = data;
       });
     } catch (e) {
-      debugPrint('Erro ao carregarprocessos: $e');
+      debugPrint('Erro ao carregar Processoss: $e');
     } finally {
       setState(() {
         isLoading = false;
@@ -68,16 +67,41 @@ class _Todosproprocessostate extends State<Todosprocessos> {
     }
   }
 
+  Future<void> deletarProcessos(int id) async {
+    await repo.processos.deletarProcessos(id);
+    carregarProcessoss();
+  }
+
+  Widget _buildFiltroButton(String? status, String label) {
+    final isSelected = statusSelecionado == status;
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelected ? Colors.green : Colors.grey[300],
+        foregroundColor: isSelected ? Colors.white : Colors.black,
+      ),
+      onPressed: () {
+        setState(() {
+          statusSelecionado = status;
+        });
+      },
+      child: Text(label),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final Map<int, String> mapaContatos = {
       for (var contato in contatos)
-        contato["id"] as int: contato['nome'] as String,
+        contato["id"] as int: (contato['name'] ?? "Desconhecido").toString(),
     };
-    final processosFiltrados = processos.where((processos) {
-      final processo =
-          processos['processoider']?.toString().toLowerCase() ?? '';
-      return processo.contains(termoBusca);
+
+    final processosFiltrados = processos.where((p) {
+      final status = p['contatoStatus'];
+      final processo = p['processoSider']?.toString().toLowerCase() ?? '';
+      final matchesBusca = processo.contains(termoBusca);
+      final matchesStatus =
+          statusSelecionado == null || status == statusSelecionado;
+      return matchesBusca && matchesStatus;
     }).toList();
 
     return Scaffold(
@@ -109,6 +133,22 @@ class _Todosproprocessostate extends State<Todosprocessos> {
                     },
                   ),
                   const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      _buildFiltroButton(null, "Todos"),
+                      _buildFiltroButton("REVISÃO DE PROJETO", "Revisão"),
+                      _buildFiltroButton("IMPLANTAÇÃO", "Implantação"),
+                      _buildFiltroButton("ASSINATURAS", "Assinaturas"),
+                      _buildFiltroButton(
+                        "VISTORIA INICIAL",
+                        "Vistoria Inicial",
+                      ),
+                      _buildFiltroButton("VISTORIA FINAL", "Vistoria Final"),
+                      _buildFiltroButton("SEM STATUS", "Sem Status"),
+                    ],
+                  ),
                   Expanded(
                     child: processosFiltrados.isEmpty
                         ? Center(
@@ -131,62 +171,93 @@ class _Todosproprocessostate extends State<Todosprocessos> {
                               ],
                             ),
                           )
-                        : ListView(
-                            children: processosFiltrados.map((processos) {
-                              final contatoId = processos['contatoId'];
-                              final nomeContato =
-                                  mapaContatos[contatoId] ?? "Desconhecido";
-                              return ProcessoCard(
-                                processo: processos,
-                                contato: nomeContato,
-                                editIcon: Icons.work,
-                                onEdit: () async {
-                                  try {
-                                    final dataAtualizada =
-                                        Map<String, dynamic>.from(processos);
-                                    dataAtualizada["userId"] = userId;
-                                    await repo.processos.atualizarProcessos(
-                                      processos["id"],
-                                      dataAtualizada,
+                        : Column(
+                            children: [
+                              Expanded(
+                                child: ListView(
+                                  children: processosFiltrados.map((processos) {
+                                    final contatoId = processos['contatoId'];
+                                    final nomeContato =
+                                        mapaContatos[contatoId] ??
+                                        "Desconhecido";
+                                    final bool processoDoUsuario =
+                                        processos['userId'] == userId;
+                                    final bool processoAguardando =
+                                        processos["solicitacaoProcesso"] ==
+                                        true;
+
+                                    return ProcessoCard(
+                                      processo: processos,
+                                      contato: nomeContato,
+                                      editIcon: processoAguardando
+                                          ? Icons.watch_later
+                                          : (!processoDoUsuario
+                                                ? Icons.work
+                                                : Icons.check_circle),
+                                      onEdit: !processoDoUsuario
+                                          ? () async {
+                                              try {
+                                                final dataAtualizada =
+                                                    Map<String, dynamic>.from(
+                                                      processos,
+                                                    );
+                                                dataAtualizada["userId"] =
+                                                    userId;
+                                                final resposta = await repo
+                                                    .processos
+                                                    .atualizarProcessos(
+                                                      processos["id"],
+                                                      dataAtualizada,
+                                                    );
+                                                carregarProcessoss();
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) => AlertDialog(
+                                                    title: const Text(
+                                                      'Sucesso',
+                                                    ),
+                                                    content: Text(
+                                                      resposta["message"] ??
+                                                          "Processo foi para sua carga!",
+                                                    ),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () =>
+                                                            Navigator.pop(
+                                                              context,
+                                                            ),
+                                                        child: const Text('OK'),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              } catch (e) {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) => AlertDialog(
+                                                    title: const Text(
+                                                      'Erro ao puxar o processo',
+                                                    ),
+                                                    content: Text(e.toString()),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () =>
+                                                            Navigator.of(
+                                                              context,
+                                                            ).pop(),
+                                                        child: const Text('OK'),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              }
+                                            }
+                                          : null,
                                     );
-                                    carregarproprocessos();
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: const Text('Sucesso'),
-                                        content: const Text(
-                                          'Processo foi para sua carga!',
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context),
-                                            child: const Text('OK'),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  } catch (e) {
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) => AlertDialog(
-                                        title: const Text(
-                                          'Erro ao puxar o processo',
-                                        ),
-                                        content: Text(e.toString()),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(),
-                                            child: const Text('OK'),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }
-                                },
-                              );
-                            }).toList(),
+                                  }).toList(),
+                                ),
+                              ),
+                            ],
                           ),
                   ),
                 ],

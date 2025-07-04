@@ -45,31 +45,48 @@ class _ContatosState extends State<Contatos> {
     }
   }
 
-  void abrirFormulario({Map<String, dynamic>? contatos}) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => ModularFormDialog(
-        titulo: contatos == null ? 'Novo contato' : 'Editar contato',
-        dataInicial: contatos,
-        camposTexto: [
-          {'label': 'Nome', 'key': 'name'},
-          {'label': 'Email', 'key': 'email'},
-          {'label': 'Numero', 'key': 'number'},
-        ],
-        camposDropdown: [],
-        onSubmit: (data) async {
-          data['userId'] = userId;
-          if (contatos == null) {
-            await repo.contatos.criarContatos(data);
-          } else {
-            await repo.contatos.atualizarContatos(contatos['id'], data);
+void abrirFormulario({Map<String, dynamic>? contatos}) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => ModularFormDialog(
+      titulo: contatos == null ? 'Nova Solicitante' : 'Editar Solicitante',
+      dataInicial: contatos,
+      camposTexto: [
+        {'label': 'Nome', 'key': 'name'},
+      ],
+      contato: "contatoPage",
+      camposDropdown: [],
+      onSubmit: (data) async {
+        data['userId'] = userId;
+
+        if (contatos == null) {
+          // Criação de novo contato
+          final contatoCriado = await repo.contatos.criarContatos({
+            'name': data['name'],
+            'userId': data['userId'],
+          });
+
+          final contatoId = contatoCriado['id'];
+
+          // Envia os emails em um array
+          final List<Map<String, dynamic>> emails =
+              (data['ContactEmails'] as List).cast<Map<String, dynamic>>();
+
+          if (emails.isNotEmpty) {
+            await repo.contatos.adicionarEmail(contatoId, emails);
           }
-          carregarContatos();
-        },
-      ),
-    );
-  }
+        } else {
+          // Atualização de contato (sem incluir emails aqui)
+          await repo.contatos.atualizarContatos(contatos['id'], data);
+        }
+
+        carregarContatos();
+      },
+    ),
+  );
+}
+
 
   Future<void> deletarcontatos(int id) async {
     await repo.contatos.deletarcontatos(id);
@@ -141,7 +158,7 @@ class _ContatosState extends State<Contatos> {
                                     titulo: 'Confirmar Exclusão',
                                     mensagem:
                                         'Tem certeza que deseja deletar este contatos?',
-                                    onConfirm: () {
+                                    onConfirm: () async {
                                       deletarcontatos(contatos['id']);
                                     },
                                   ),

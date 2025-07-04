@@ -4,18 +4,26 @@ import '../../core/UTILS/lista_textos.dart';
 class ProcessoCard extends StatefulWidget {
   final Map<String, dynamic> processo;
   final String contato;
-  final VoidCallback onEdit;
+  final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onTest;
   final IconData? editIcon;
+  final IconData? testIcon;
 
   const ProcessoCard({
     super.key,
     required this.processo,
     required this.contato,
     required this.onEdit,
+    this.onTest,
     this.onDelete,
     this.editIcon,
+    this.testIcon,
   });
+
+  final corEditar = Colors.blue;
+  final corMaleta = Colors.brown;
+  final corCheck = Colors.green;
 
   @override
   State<ProcessoCard> createState() => _ProcessoCardState();
@@ -110,15 +118,20 @@ class _ProcessoCardState extends State<ProcessoCard> {
               ),
             ),
             // Botões
-            SizedBox(
-              height: 100,
+            Container(
               child: Column(
-                mainAxisSize: MainAxisSize.max,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
                     icon: Icon(
                       widget.editIcon ?? Icons.edit,
-                      color: Colors.blue,
+                      color: widget.editIcon == Icons.watch_later
+                          ? Colors.blue
+                          : widget.editIcon == Icons.work
+                          ? Colors.brown
+                          : widget.editIcon == Icons.check_circle
+                          ? Colors.green
+                          : Colors.blueGrey, // cor padrão
                     ),
                     onPressed: widget.onEdit,
                   ),
@@ -126,6 +139,11 @@ class _ProcessoCardState extends State<ProcessoCard> {
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
                       onPressed: widget.onDelete,
+                    ),
+                  if (widget.onTest != null && widget.testIcon != null)
+                    IconButton(
+                      onPressed: widget.onTest,
+                      icon: Icon(widget.testIcon, color: Colors.green),
                     ),
                 ],
               ),

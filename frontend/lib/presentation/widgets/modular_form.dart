@@ -8,6 +8,7 @@ class ModularFormDialog extends StatefulWidget {
   final List<Map<String, dynamic>> camposTexto;
   final List<Map<String, dynamic>> camposDropdown;
   final Future<void> Function(Map<String, dynamic>) onSubmit;
+  final String? contato;
 
   const ModularFormDialog({
     super.key,
@@ -16,6 +17,7 @@ class ModularFormDialog extends StatefulWidget {
     required this.camposTexto,
     required this.camposDropdown,
     required this.onSubmit,
+    this.contato,
   });
 
   @override
@@ -27,7 +29,9 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
   final Map<String, String?> dropdownSelecionados = {};
   int _currentStep = 0;
   Map<String, dynamic> contatoSelecionado = {};
-
+  List<Map<String, dynamic>> emails = [
+    {"email": "", "area": "", "rodovias": <String>[]},
+  ];
   @override
   void initState() {
     super.initState();
@@ -81,7 +85,9 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
           index: _currentStep,
           children: [
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Campos de texto padrão
                 ...widget.camposTexto.map((campo) {
                   final isDate = FormUtils.isDateField(campo);
                   final controller = textControllers[campo['key']]!;
@@ -114,7 +120,7 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
                   );
                 }),
 
-                // Campos dropdown
+                // Dropdowns
                 if (widget.camposDropdown.isNotEmpty) ...[
                   ...widget.camposDropdown.map(
                     (drop) => Padding(
@@ -122,12 +128,12 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
                       child: DropdownPadrao(
                         label: drop['label'],
                         itens: (drop['itens'] as List)
-                            .map((item) {
-                              return {
+                            .map(
+                              (item) => {
                                 'label': item['label'].toString(),
                                 'value': item['value'].toString(),
-                              };
-                            })
+                              },
+                            )
                             .toList()
                             .cast<Map<String, String>>(),
                         valorSelecionado: dropdownSelecionados[drop['key']],
@@ -137,6 +143,86 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
                           });
                         },
                       ),
+                    ),
+                  ),
+                ],
+
+                if (widget.contato == "contatoPage") ...[
+                  const Text(
+                    'E-mails do contato:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Campos de e-mail dinâmicos
+                  ...emails.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final email = entry.value;
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextField(
+                          decoration: const InputDecoration(labelText: 'Email'),
+                          onChanged: (value) => email['email'] = value,
+                        ),
+                        DropdownPadrao(
+                          label: 'Área',
+                          itens: [
+                            {'label': 'AREA 1', 'value': 'AREA 1'},
+                            {'label': 'AREA 2', 'value': 'AREA 2'},
+                            {'label': 'AREA 3', 'value': 'AREA 3'},
+                            {'label': 'AREA 4', 'value': 'AREA 4'},
+                            {'label': 'AREA 5', 'value': 'AREA 5'},
+                          ],
+                          valorSelecionado: email['area'].isNotEmpty
+                              ? email['area']
+                              : null,
+                          onChanged: (valor) {
+                            setState(() {
+                              email['area'] = valor ?? '';
+                            });
+                          },
+                        ),
+
+                        TextField(
+                          decoration: const InputDecoration(
+                            labelText: 'Rodovias (separadas por vírgula)',
+                          ),
+                          onChanged: (value) {
+                            email['rodovias'] = value
+                                .split(',')
+                                .map((e) => e.trim())
+                                .where((e) => e.isNotEmpty)
+                                .toList();
+                          },
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: () {
+                              setState(() => emails.removeAt(index));
+                            },
+                            child: const Text('Remover'),
+                          ),
+                        ),
+                        const Divider(),
+                      ],
+                    );
+                  }),
+
+                  Center(
+                    child: TextButton(
+                      onPressed: () {
+                        setState(() {
+                          emails.add({
+                            'email': '',
+                            'area': '',
+                            'rodovias': <String>[],
+                          });
+                        });
+                      },
+                      child: const Text('Adicionar outro email'),
                     ),
                   ),
                 ],
@@ -154,22 +240,24 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
           onPressed: () async {
             final data = <String, dynamic>{};
 
-            // Dados dos campos texto e data
+            // Campos de texto
             textControllers.forEach((key, controller) {
               final campo = widget.camposTexto.firstWhere(
                 (e) => e['key'] == key,
               );
               if (FormUtils.isDateField(campo)) {
-                final date = FormUtils.parseDateFromDisplay(controller.text);
+                final date = FormUtils.parseDateFromDisplay(
+                  controller.text.trim(),
+                );
                 data[key] = date != null
                     ? FormUtils.formatDateToBackend(date)
                     : controller.text;
               } else {
-                data[key] = controller.text;
+                data[key] = controller.text.trim();
               }
             });
 
-            // Dados dos dropdowns
+            // Dropdowns
             dropdownSelecionados.forEach((key, valor) {
               if (valor == "true") {
                 data[key] = true;
@@ -180,26 +268,12 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
               }
             });
 
+            // E-mails
+            data['ContactEmails'] = emails;
+
             try {
               await widget.onSubmit(data);
-
-              if (context.mounted) {
-                Navigator.pop(context); // Fecha o formulário
-
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Sucesso'),
-                    content: const Text('Dados salvos com sucesso!'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                );
-              }
+              if (context.mounted) Navigator.pop(context);
             } catch (e) {
               if (context.mounted) {
                 showDialog(

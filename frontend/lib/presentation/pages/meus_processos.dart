@@ -74,6 +74,10 @@ class _MainMenuState extends State<MainMenu> {
     carregarProcessoss();
   }
 
+  Future<void> aceitarEnviarProcesso(int id, data) async {
+    await repo.processos.aceitarEnvioProcesso(id, data);
+  }
+
   Widget _buildFiltroButton(String? status, String label) {
     final isSelected = statusSelecionado == status;
     return ElevatedButton(
@@ -258,18 +262,46 @@ class _MainMenuState extends State<MainMenu> {
                                     final nomeContato =
                                         mapaContatos[contatoId] ??
                                         "Desconhecido";
+                                    final bool processoAguardando =
+                                        processos["solicitacaoProcesso"] ==
+                                        true;
+
                                     return ProcessoCard(
                                       processo: processos,
                                       contato: nomeContato,
+                                      editIcon: Icons.edit,
+                                      testIcon: Icons.check,
                                       onEdit: () =>
                                           abrirFormulario(processos: processos),
+                                      onTest: processoAguardando
+                                          ? () async {
+                                              final data = {"userId": userId};
+
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) => ConfirmDeleteDialog(
+                                                  titulo:
+                                                      "Confirmar envio de processo",
+                                                  mensagem:
+                                                      "Tem certeza que quer enviar esse processo para outro usuário??",
+                                                  onConfirm: () async {
+                                                    await aceitarEnviarProcesso(
+                                                      processos['id'],
+                                                      data,
+                                                    );
+                                                    carregarProcessoss();
+                                                  },
+                                                ),
+                                              );
+                                            }
+                                          : null,
                                       onDelete: () => showDialog(
                                         context: context,
                                         builder: (context) => ConfirmDeleteDialog(
                                           titulo: 'Confirmar Exclusão',
                                           mensagem:
                                               'Tem certeza que deseja deletar este Processos?',
-                                          onConfirm: () {
+                                          onConfirm: () async {
                                             deletarProcessos(processos['id']);
                                           },
                                         ),
