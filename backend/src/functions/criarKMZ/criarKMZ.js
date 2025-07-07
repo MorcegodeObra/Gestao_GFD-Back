@@ -28,8 +28,9 @@ export async function gerarEEnviarKmz(req, res) {
         const kmzFiles = await Promise.all(
             linhas.map(async (linha) => gerarKmzDaSolicitacao(linha, tempDir))
         );
-
-        await enviarEmailComAnexos(user.userEmail, kmzFiles,hoje);
+        const nomeArquivo = XLSX.readFile(arquivo.path).SheetNames[0];
+        
+        await enviarEmailComAnexos(user.userEmail, kmzFiles, hoje,nomeArquivo);
 
         res.status(200).json({ message: 'KMZ enviado por e-mail com sucesso.' });
     } catch (err) {
@@ -104,7 +105,7 @@ async function gerarKmzDaSolicitacao(linha, dirPath) {
     return { filename: `${nome}.kmz`, path: kmzPath };
 }
 
-async function enviarEmailComAnexos(destinatario, arquivos,hoje) {
+async function enviarEmailComAnexos(destinatario, arquivos, hoje,nomeArquivo) {
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -114,7 +115,7 @@ async function enviarEmailComAnexos(destinatario, arquivos,hoje) {
     });
 
     await transporter.sendMail({
-        from: `KMZ Gerado - ${hoje} ${process.env.EMAIL_USER}`,
+        from: `KMZ Gerado - ${nomeArquivo} - ${hoje} ${process.env.EMAIL_USER}`,
         to: destinatario,
         subject: 'Arquivos KMZ gerados',
         text: 'Segue em anexo os arquivos KMZ com os pontos da sua solicitação.',
