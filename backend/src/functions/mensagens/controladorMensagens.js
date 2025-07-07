@@ -3,7 +3,7 @@ import { handleContact } from './verificacoes/controladorProcessos.js';
 import { Process } from '../../models/processo.js';
 import { Op, where } from 'sequelize';
 
-export const servicoCobranca = cron.schedule('*/10 * * * *', async () => {
+export const servicoCobranca = cron.schedule('* * * * *', async () => {
   console.log("Mandando Emails!");
   try {
     const now = new Date();
@@ -11,8 +11,12 @@ export const servicoCobranca = cron.schedule('*/10 * * * *', async () => {
       where: {
         contatoStatus: {
           [Op.notIn]: ["CANCELADO/ARQUIVADO", "CONCLUIDO"]
+        },
+        userId:{
+          [Op.notIn]:[12]
         }
       }
+      
     });
     for (const proces of process) {
       await handleContact(proces, now);

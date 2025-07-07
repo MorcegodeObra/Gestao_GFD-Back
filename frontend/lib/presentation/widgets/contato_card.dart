@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/UTILS/lista_textos.dart';
 
 class ContatoCard extends StatefulWidget {
   final Map<String, dynamic> contato;
