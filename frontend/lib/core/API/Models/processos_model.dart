@@ -24,15 +24,19 @@ class ProcessosModel {
     }
   }
 
-  Future<void> criarProcessos(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> criarProcessos(Map<String, dynamic> data) async {
     try {
-      await dio.post('/processos', data: data);
+      final response = await dio.post('/processos', data: data);
+      return response.data;
     } on DioException catch (e) {
       throw CustomException(handleDioError(e));
     }
   }
 
-  Future<Map<String,dynamic>> atualizarProcessos(int id, Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> atualizarProcessos(
+    int id,
+    Map<String, dynamic> data,
+  ) async {
     try {
       final response = await dio.put('/processos/$id', data: data);
       return response.data;
@@ -40,10 +44,16 @@ class ProcessosModel {
       throw CustomException(handleDioError(e));
     }
   }
-  
-  Future<Map<String,dynamic>> aceitarEnvioProcesso(int id, Map<String, dynamic> data) async {
+
+  Future<Map<String, dynamic>> aceitarEnvioProcesso(
+    int id,
+    Map<String, dynamic> data,
+  ) async {
     try {
-      final response = await dio.post('/processos/$id/aceitarProcesso', data: data);
+      final response = await dio.post(
+        '/processos/$id/aceitarProcesso',
+        data: data,
+      );
       return response.data;
     } on DioException catch (e) {
       throw CustomException(handleDioError(e));
@@ -58,4 +68,3 @@ class ProcessosModel {
     }
   }
 }
-

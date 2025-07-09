@@ -7,15 +7,23 @@ class ProcessoCard extends StatefulWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
   final VoidCallback? onTest;
+  final VoidCallback? adicionarRevisao;
+  final VoidCallback? processoServidor;
   final IconData? editIcon;
   final IconData? testIcon;
+  final IconData? addRevisao;
+  final IconData? enviarProcesso;
 
   const ProcessoCard({
     super.key,
     required this.processo,
     required this.contato,
     required this.onEdit,
+    this.processoServidor,
+    this.enviarProcesso,
+    this.adicionarRevisao,
     this.onTest,
+    this.addRevisao,
     this.onDelete,
     this.editIcon,
     this.testIcon,
@@ -118,9 +126,14 @@ class _ProcessoCardState extends State<ProcessoCard> {
               ),
             ),
             // Botões
-            Container(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+            SizedBox(
+              height: 120,
+              width: 80,
+              child: GridView.count(
+                crossAxisCount: 2,
+                shrinkWrap: true,
+                mainAxisSpacing: 20,
+                crossAxisSpacing: 20,
                 children: [
                   IconButton(
                     icon: Icon(
@@ -144,6 +157,18 @@ class _ProcessoCardState extends State<ProcessoCard> {
                     IconButton(
                       onPressed: widget.onTest,
                       icon: Icon(widget.testIcon, color: Colors.green),
+                    ),
+                  if (widget.adicionarRevisao != null &&
+                      widget.addRevisao != null)
+                    IconButton(
+                      onPressed: widget.adicionarRevisao,
+                      icon: Icon(widget.addRevisao, color: Colors.blueGrey),
+                    ),
+                  if (widget.processoServidor != null &&
+                      widget.enviarProcesso != null)
+                    IconButton(
+                      onPressed: widget.processoServidor,
+                      icon: Icon(widget.enviarProcesso, color: Colors.blueGrey),
                     ),
                 ],
               ),

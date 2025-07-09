@@ -152,21 +152,22 @@ export const editarProcesso = async (req, res) => {
     // Está tentando mudar o dono
     const mudandoDono = novoDono !== donoAtual;
 
-    if (mudandoDono) {
-      // Se o dono atual não é o sistema (12), não deixa mudar direto
-      if (donoAtual !== 12) {
-        // Registra a solicitação de transferência
-        await process.update({
-          solicitacaoProcesso: true,
-          newUserId: novoDono,
-        });
+    if (novoDono == 12) {
+      if (mudandoDono) {
+        // Se o dono atual não é o sistema (12), não deixa mudar direto
+        if (donoAtual !== 12) {
+          // Registra a solicitação de transferência
+          await process.update({
+            solicitacaoProcesso: true,
+            newUserId: novoDono,
+          });
 
-        return res.status(202).json({
-          message: 'Solicitação de transferência enviada ao dono atual do processo.',
-        });
+          return res.status(202).json({
+            message: 'Solicitação de transferência enviada ao dono atual do processo.',
+          });
+        }
       }
     }
-
     // Atualização normal (inclusive troca de dono se permitido)
     await process.update({
       processoSider,
@@ -218,7 +219,7 @@ export const aceitarSolicitacao = async (req, res) => {
     const process = await Process.findByPk(req.params.id);
     if (!process) return res.status(404).json({ error: 'Processo não encontrado' });
 
-    const {userId} = req.body;
+    const { userId } = req.body;
 
     if (!process.solicitacaoProcesso || !process.newUserId) {
       return res.status(400).json({ error: 'Não há solicitação pendente para este processo.' });

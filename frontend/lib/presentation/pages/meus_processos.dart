@@ -4,7 +4,6 @@ import '../widgets/modular_form.dart';
 import '../../core/API/api_controller.dart';
 import '../widgets/delete_dialog.dart';
 import '../../core/UTILS/salvar_dados.dart';
-import '../widgets/app_drawer.dart';
 
 class MainMenu extends StatefulWidget {
   const MainMenu({super.key});
@@ -69,13 +68,21 @@ class _MainMenuState extends State<MainMenu> {
     }
   }
 
-  Future<void> deletarProcessos(int id) async {
-    await repo.processos.deletarProcessos(id);
-    carregarProcessoss();
+  void atualizarProcessoNaLista(Map<String, dynamic> processoAtualizado) {
+    final index = processos.indexWhere(
+      (p) => p['id'] == processoAtualizado['id'],
+    );
+    if (index != -1) {
+      setState(() {
+        processos[index] = processoAtualizado;
+      });
+    }
   }
 
-  Future<void> aceitarEnviarProcesso(int id, data) async {
-    await repo.processos.aceitarEnvioProcesso(id, data);
+  void adicionarProcessoNaLista(Map<String, dynamic> novoProcesso) {
+    setState(() {
+      processos.add(novoProcesso);
+    });
   }
 
   Widget _buildFiltroButton(String? status, String label) {
@@ -94,6 +101,42 @@ class _MainMenuState extends State<MainMenu> {
     );
   }
 
+  void abrirFormularioAdicionarRevisao({Map<String, dynamic>? processos}) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ModularFormDialog(
+        titulo: processos == null ? 'Novo Processo' : 'Editar Processo',
+        dataInicial: processos,
+        camposTexto: [
+          {'label': 'Processo Sider', 'key': 'processoSider'},
+          {'label': 'Assunto', 'key': 'subject'},
+          {'label': 'Ultimo contato', 'key': 'lastSent', "type": "date"},
+        ],
+        camposDropdown: [
+          {
+            "label": "Respondido",
+            "key": "answer",
+            "itens": [
+              {"label": "Sim", "value": "true"},
+              {"label": "Não", "value": "false"},
+            ],
+          },
+        ],
+        onSubmit: (data) async {
+          data['userId'] = userId;
+          if (processos != null) {
+            final atualizado = await repo.processos.atualizarProcessos(
+              processos['id'],
+              data,
+            );
+            atualizarProcessoNaLista(atualizado);
+          }
+        },
+      ),
+    );
+  }
+
   void abrirFormulario({Map<String, dynamic>? processos}) {
     final contatosDropdown = contatos.map((contato) {
       return {
@@ -105,7 +148,7 @@ class _MainMenuState extends State<MainMenu> {
       context: context,
       barrierDismissible: false,
       builder: (context) => ModularFormDialog(
-        titulo: processos == null ? 'Novo Processos' : 'Editar Processos',
+        titulo: processos == null ? 'Novo Processo' : 'Editar Processo',
         dataInicial: processos,
         camposTexto: [
           {'label': 'Processo Sider', 'key': 'processoSider'},
@@ -160,9 +203,14 @@ class _MainMenuState extends State<MainMenu> {
         onSubmit: (data) async {
           data['userId'] = userId;
           if (processos == null) {
-            await repo.processos.criarProcessos(data);
+            final novo = await repo.processos.criarProcessos(data);
+            adicionarProcessoNaLista(novo);
           } else {
-            await repo.processos.atualizarProcessos(processos['id'], data);
+            final atualizado = await repo.processos.atualizarProcessos(
+              processos['id'],
+              data,
+            );
+            atualizarProcessoNaLista(atualizado);
           }
           carregarProcessoss();
         },
@@ -187,12 +235,6 @@ class _MainMenuState extends State<MainMenu> {
     }).toList();
 
     return Scaffold(
-      drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: const Text('Meus processos'),
-        automaticallyImplyLeading: true,
-        actions: [],
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: isLoading
@@ -228,7 +270,10 @@ class _MainMenuState extends State<MainMenu> {
                         "Vistoria Inicial",
                       ),
                       _buildFiltroButton("VISTORIA FINAL", "Vistoria Final"),
-                      _buildFiltroButton("SEM STATUS", "Sem Status"),
+                      _buildFiltroButton(
+                        "CANCELADO/ARQUIVADO",
+                        "Cancelado/Arquivado",
+                      ),
                     ],
                   ),
                   Expanded(
@@ -271,6 +316,35 @@ class _MainMenuState extends State<MainMenu> {
                                       contato: nomeContato,
                                       editIcon: Icons.edit,
                                       testIcon: Icons.check,
+                                      addRevisao: Icons.addchart_outlined,
+                                      enviarProcesso: Icons.cloud_upload,
+                                      processoServidor: () async {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) => ConfirmDeleteDialog(
+                                            titulo:
+                                                "Confirma o envio do processo para o servidor?",
+                                            mensagem:
+                                                "Tem certeza que quer enviar esse processo para o servidor?",
+                                            onConfirm: () async {
+                                              final atualizado = await repo
+                                                  .processos
+                                                  .atualizarProcessos(
+                                                    processos['id'],
+                                                    {"userId": 12},
+                                                  );
+                                              atualizarProcessoNaLista(
+                                                atualizado,
+                                              );
+                                            },
+                                          ),
+                                        );
+                                      },
+                                      adicionarRevisao: () => {
+                                        abrirFormularioAdicionarRevisao(
+                                          processos: processos,
+                                        ),
+                                      },
                                       onEdit: () =>
                                           abrirFormulario(processos: processos),
                                       onTest: processoAguardando
@@ -285,11 +359,15 @@ class _MainMenuState extends State<MainMenu> {
                                                   mensagem:
                                                       "Tem certeza que quer enviar esse processo para outro usuário??",
                                                   onConfirm: () async {
-                                                    await aceitarEnviarProcesso(
-                                                      processos['id'],
-                                                      data,
+                                                    final atualizado = await repo
+                                                        .processos
+                                                        .aceitarEnvioProcesso(
+                                                          processos['id'],
+                                                          data,
+                                                        );
+                                                    atualizarProcessoNaLista(
+                                                      atualizado,
                                                     );
-                                                    carregarProcessoss();
                                                   },
                                                 ),
                                               );
@@ -302,7 +380,10 @@ class _MainMenuState extends State<MainMenu> {
                                           mensagem:
                                               'Tem certeza que deseja deletar este Processos?',
                                           onConfirm: () async {
-                                            deletarProcessos(processos['id']);
+                                            await repo.processos
+                                                .deletarProcessos(
+                                                  processos['id'],
+                                                );
                                           },
                                         ),
                                       ),
@@ -319,7 +400,7 @@ class _MainMenuState extends State<MainMenu> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF28582E),
         onPressed: () => abrirFormulario(),
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.create_new_folder, color: Colors.white),
       ),
     );
   }

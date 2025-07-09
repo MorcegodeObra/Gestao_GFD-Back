@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/presentation/pages/contatos_page.dart';
 import './presentation/pages/login.dart';
-import './presentation/pages/cadastro.dart';
-import "./presentation/pages/meus_processos.dart";
-import 'presentation/pages/todos_processos.dart';
-import "./presentation/pages/main_page.dart";
+import "presentation/pages/router_navBar.dart";
 
 void main() {
   runApp(const MyApp());
@@ -52,12 +48,8 @@ class MyApp extends StatelessWidget {
         ),
       ),
       routes: {
-        "/": (context) => LoginPage(),
-        "/cadastro": (context) => CadastroPage(),
-        "/meusProcessos": (context) => MainMenu(),
-        "/todosProcessos": (context) => TodosProcessos(),
-        "/mainPage": (context) => GraficoProcessosPage(),
-        "/contatos":(context)=> Contatos()
+        '/': (context) => LoginPage(),
+        '/mainPage': (context) => MainScaffold(),
       },
     );
   }

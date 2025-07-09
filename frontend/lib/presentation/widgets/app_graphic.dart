@@ -52,7 +52,7 @@ class GraficoPadrao extends StatelessWidget {
         color: cor,
         value: entry.value.toDouble(),
         title: "${entry.value}",
-        radius: 80,
+        radius: 60,
         titleStyle: const TextStyle(
           fontSize: 14,
           fontWeight: FontWeight.bold,
@@ -72,14 +72,14 @@ class GraficoPadrao extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 12,
-              height: 12,
+              width: 10,
+              height: 10,
               margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(color: cor, shape: BoxShape.circle),
             ),
             Text(
               "${entry.key}: $percentual%",
-              style: const TextStyle(fontSize: 14),
+              style: const TextStyle(fontSize: 12),
             ),
           ],
         ),
@@ -120,18 +120,29 @@ class GraficoPadrao extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(
-          height: 200,
-          child: PieChart(
-            PieChartData(
-              sections: sections,
-              sectionsSpace: 2,
-              centerSpaceRadius: 30,
-            ),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 180,
+                height: 180,
+                child: PieChart(
+                  PieChartData(
+                    sections: sections,
+                    sectionsSpace: 2,
+                    centerSpaceRadius: 30,
+                  ),
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: legendas,
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
-        ...legendas,
       ],
     );
   }

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import '../widgets/app_graphic.dart'; // GraficoPadrao agora tem o filtro interno
+import '../widgets/app_graphic.dart';
 import '../../core/API/api_controller.dart';
 import '../../core/UTILS/salvar_dados.dart';
-import '../widgets/app_drawer.dart';
 
 class GraficoProcessosPage extends StatefulWidget {
   const GraficoProcessosPage({super.key});
@@ -135,31 +134,41 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const AppDrawer(),
-      appBar: AppBar(title: const Text('Análise de processos')),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : SafeArea(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    SwitchListTile(
-                      title: Text("Mostrar somente meus processos"),
-                      value: filtrarPorUsuario,
-                      onChanged: (value) {
-                        setState(() {
-                          filtrarPorUsuario = value;
-                        });
-                        processarDados();
-                      },
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Mostrar somente meus processos',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Switch(
+                          value: filtrarPorUsuario,
+                          onChanged: (value) {
+                            setState(() {
+                              filtrarPorUsuario = value;
+                            });
+                            processarDados();
+                          },
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 8),
                     // Gráfico Respondidos
                     const Text(
                       'Respondidos',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -175,7 +184,7 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
                     const Text(
                       'Sem resposta',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -185,13 +194,13 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
                       toggleFiltro: toggleFiltroFalse,
                     ),
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
 
                     // Texto de resumo
                     Text(
                       '$acima30Dias processos com mais de 30 dias\n'
                       '$abaixo30Dias processos dentro do prazo',
-                      style: const TextStyle(fontSize: 14),
+                      style: const TextStyle(fontSize: 16),
                     ),
                   ],
                 ),

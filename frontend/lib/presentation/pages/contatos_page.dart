@@ -3,7 +3,6 @@ import '../widgets/modular_form.dart';
 import '../../core/API/api_controller.dart';
 import '../widgets/contato_card.dart';
 import '../widgets/delete_dialog.dart';
-import '../widgets/app_drawer.dart';
 
 class Contatos extends StatefulWidget {
   const Contatos({super.key});
@@ -96,12 +95,6 @@ void abrirFormulario({Map<String, dynamic>? contatos}) {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: const Text('Meus contatos'),
-        automaticallyImplyLeading: true,
-        actions: [],
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: isLoading
@@ -173,7 +166,7 @@ void abrirFormulario({Map<String, dynamic>? contatos}) {
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF28582E),
         onPressed: () => abrirFormulario(),
-        child: const Icon(Icons.add, color: Colors.white),
+        child: const Icon(Icons.person_add, color: Colors.white),
       ),
     );
   }

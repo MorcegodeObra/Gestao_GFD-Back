@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:frontend/presentation/widgets/processo_card.dart';
 import '../../core/API/api_controller.dart';
 import '../../core/UTILS/salvar_dados.dart';
-import '../widgets/app_drawer.dart';
 
 class TodosProcessos extends StatefulWidget {
   const TodosProcessos({super.key});
@@ -55,8 +54,12 @@ class _TodosProcessosState extends State<TodosProcessos> {
 
     try {
       final data = await repo.processos.getProcessos();
+      final processosFiltrados = data
+          .where((p) => p['userId'] != userId)
+          .toList();
+
       setState(() {
-        processos = data;
+        processos = processosFiltrados;
       });
     } catch (e) {
       debugPrint('Erro ao carregar Processoss: $e');
@@ -105,12 +108,6 @@ class _TodosProcessosState extends State<TodosProcessos> {
     }).toList();
 
     return Scaffold(
-      drawer: const AppDrawer(),
-      appBar: AppBar(
-        title: const Text('Todos os processos'),
-        automaticallyImplyLeading: true,
-        actions: [],
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: isLoading
@@ -146,7 +143,7 @@ class _TodosProcessosState extends State<TodosProcessos> {
                         "Vistoria Inicial",
                       ),
                       _buildFiltroButton("VISTORIA FINAL", "Vistoria Final"),
-                      _buildFiltroButton("SEM STATUS", "Sem Status"),
+                      _buildFiltroButton("CANCELADO/ARQUIVADO", "Cancelado/Arquivado"),
                     ],
                   ),
                   Expanded(

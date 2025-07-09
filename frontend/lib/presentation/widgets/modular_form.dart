@@ -91,6 +91,7 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
                 ...widget.camposTexto.map((campo) {
                   final isDate = FormUtils.isDateField(campo);
                   final controller = textControllers[campo['key']]!;
+                  final isMultiline = campo['key'] == 'subject';
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
@@ -105,6 +106,11 @@ class _ModularFormDialogState extends State<ModularFormDialog> {
                         absorbing: isDate,
                         child: TextField(
                           controller: controller,
+                          maxLines: isMultiline ? 4 : 1,
+                          minLines: isMultiline ? 3 : 1,
+                          keyboardType: isMultiline
+                              ? TextInputType.multiline
+                              : TextInputType.text,
                           decoration: InputDecoration(
                             labelText: campo['label'],
                             border: const OutlineInputBorder(),
