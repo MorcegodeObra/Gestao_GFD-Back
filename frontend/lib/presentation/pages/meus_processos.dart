@@ -68,23 +68,6 @@ class _MainMenuState extends State<MainMenu> {
     }
   }
 
-  void atualizarProcessoNaLista(Map<String, dynamic> processoAtualizado) {
-    final index = processos.indexWhere(
-      (p) => p['id'] == processoAtualizado['id'],
-    );
-    if (index != -1) {
-      setState(() {
-        processos[index] = processoAtualizado;
-      });
-    }
-  }
-
-  void adicionarProcessoNaLista(Map<String, dynamic> novoProcesso) {
-    setState(() {
-      processos.add(novoProcesso);
-    });
-  }
-
   Widget _buildFiltroButton(String? status, String label) {
     final isSelected = statusSelecionado == status;
     return ElevatedButton(
@@ -130,7 +113,7 @@ class _MainMenuState extends State<MainMenu> {
               processos['id'],
               data,
             );
-            atualizarProcessoNaLista(atualizado);
+            carregarProcessoss();
           }
         },
       ),
@@ -188,7 +171,7 @@ class _MainMenuState extends State<MainMenu> {
               {'label': 'VISTORIA INICIAL', 'value': 'VISTORIA INICIAL'},
               {'label': 'VISTORIA FINAL', 'value': 'VISTORIA FINAL'},
               {'label': 'ASSINATURAS', 'value': 'ASSINATURAS'},
-              {'label': 'SEM STATUS', 'value': 'SEM STATUS'},
+              {'label': 'CANCELADO/ARQUIVADO', 'value': 'CANCELADO/ARQUIVADO'},
             ],
           },
           {
@@ -204,13 +187,13 @@ class _MainMenuState extends State<MainMenu> {
           data['userId'] = userId;
           if (processos == null) {
             final novo = await repo.processos.criarProcessos(data);
-            adicionarProcessoNaLista(novo);
+            carregarProcessoss();
           } else {
             final atualizado = await repo.processos.atualizarProcessos(
               processos['id'],
               data,
             );
-            atualizarProcessoNaLista(atualizado);
+            carregarProcessoss();
           }
           carregarProcessoss();
         },
@@ -323,7 +306,7 @@ class _MainMenuState extends State<MainMenu> {
                                           context: context,
                                           builder: (context) => ConfirmDeleteDialog(
                                             titulo:
-                                                "Confirma o envio do processo para o servidor?",
+                                                "Confirma o envio do processo?",
                                             mensagem:
                                                 "Tem certeza que quer enviar esse processo para o servidor?",
                                             onConfirm: () async {
@@ -333,9 +316,7 @@ class _MainMenuState extends State<MainMenu> {
                                                     processos['id'],
                                                     {"userId": 12},
                                                   );
-                                              atualizarProcessoNaLista(
-                                                atualizado,
-                                              );
+                                              carregarProcessoss();
                                             },
                                           ),
                                         );
@@ -365,9 +346,7 @@ class _MainMenuState extends State<MainMenu> {
                                                           processos['id'],
                                                           data,
                                                         );
-                                                    atualizarProcessoNaLista(
-                                                      atualizado,
-                                                    );
+                                                    carregarProcessoss();
                                                   },
                                                 ),
                                               );

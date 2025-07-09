@@ -139,7 +139,7 @@ export const editarProcesso = async (req, res) => {
       check,
       executed,
       contatoStatus,
-      userId, // <- representa quem está tentando puxar o processo para si
+      userId,
       contatoId,
       subject,
       priority,
@@ -152,7 +152,7 @@ export const editarProcesso = async (req, res) => {
     // Está tentando mudar o dono
     const mudandoDono = novoDono !== donoAtual;
 
-    if (novoDono == 12) {
+    if (novoDono !== 12) {
       if (mudandoDono) {
         // Se o dono atual não é o sistema (12), não deixa mudar direto
         if (donoAtual !== 12) {
