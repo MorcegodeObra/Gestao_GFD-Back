@@ -1,83 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/presentation/widgets/processo_card.dart';
 import '../widgets/modular_form.dart';
-import '../../core/API/api_controller.dart';
 import '../widgets/delete_dialog.dart';
-import '../../core/UTILS/salvar_dados.dart';
 
 class MainMenu extends StatefulWidget {
-  const MainMenu({super.key});
+  final int? userId;
+  final List<dynamic> processos;
+  final List<dynamic> contatos;
+  final void Function(int, Map<String, dynamic>) atualizarProcessos;
+  final VoidCallback carregarDados;
+  final void Function(Map<String, dynamic>) criarProcesso;
+  final void Function(int, Map<String, dynamic>) aceitarEnvioProcesso;
+  final void Function(int) deletarProcesso;
+  final bool isLoading;
+
+  const MainMenu({
+    super.key,
+    required this.userId,
+    required this.processos,
+    required this.contatos,
+    required this.atualizarProcessos,
+    required this.aceitarEnvioProcesso,
+    required this.carregarDados,
+    required this.criarProcesso,
+    required this.deletarProcesso,
+    required this.isLoading,
+  });
 
   @override
   State<MainMenu> createState() => _MainMenuState();
 }
 
 class _MainMenuState extends State<MainMenu> {
-  final repo = ApiService();
-  List<dynamic> processos = [];
-  List<dynamic> contatos = [];
-  int? userId;
-  bool isLoading = true;
   String? statusSelecionado;
   final TextEditingController _searchController = TextEditingController();
   String termoBusca = '';
 
-  @override
-  void initState() {
-    super.initState();
-    carregarDadosUsuario();
-  }
-
-  Future<void> carregarDadosUsuario() async {
-    final userData = await getDadosUsuario();
-    setState(() {
-      userId = userData['userId'];
-    });
-    await carregarContatos();
-    await carregarProcessoss();
-  }
-
-  Future<void> carregarContatos() async {
-    try {
-      final data = await repo.contatos.getContatos();
-      setState(() {
-        contatos = data;
-      });
-    } catch (e) {
-      debugPrint('Erro ao carregar contatos: $e');
-    }
-  }
-
-  Future<void> carregarProcessoss() async {
-    if (userId == null) return;
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      final data = await repo.processos.getProcessos(userId: userId!);
-      setState(() {
-        processos = data;
-      });
-    } catch (e) {
-      debugPrint('Erro ao carregar Processoss: $e');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
   Widget _buildFiltroButton(String? status, String label) {
     final isSelected = statusSelecionado == status;
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: isSelected ? Colors.green : Colors.grey[300],
         foregroundColor: isSelected ? Colors.white : Colors.black,
+        textStyle: const TextStyle(fontSize: 12),
       ),
       onPressed: () {
         setState(() {
-          statusSelecionado = status;
+          if (isSelected) {
+            statusSelecionado = null;
+          } else {
+            statusSelecionado = status;
+          }
         });
       },
       child: Text(label),
@@ -107,13 +81,9 @@ class _MainMenuState extends State<MainMenu> {
           },
         ],
         onSubmit: (data) async {
-          data['userId'] = userId;
+          data['userId'] = widget.userId;
           if (processos != null) {
-            final atualizado = await repo.processos.atualizarProcessos(
-              processos['id'],
-              data,
-            );
-            carregarProcessoss();
+            widget.atualizarProcessos(processos['id'], data);
           }
         },
       ),
@@ -121,7 +91,7 @@ class _MainMenuState extends State<MainMenu> {
   }
 
   void abrirFormulario({Map<String, dynamic>? processos}) {
-    final contatosDropdown = contatos.map((contato) {
+    final contatosDropdown = widget.contatos.map((contato) {
       return {
         'label': contato['name'] ?? 'Sem nome',
         'value': contato['id'].toString(), // <-- converte para String
@@ -184,18 +154,12 @@ class _MainMenuState extends State<MainMenu> {
           },
         ],
         onSubmit: (data) async {
-          data['userId'] = userId;
+          data['userId'] = widget.userId;
           if (processos == null) {
-            final novo = await repo.processos.criarProcessos(data);
-            carregarProcessoss();
+            widget.criarProcesso(data);
           } else {
-            final atualizado = await repo.processos.atualizarProcessos(
-              processos['id'],
-              data,
-            );
-            carregarProcessoss();
+            widget.atualizarProcessos(processos['id'], data);
           }
-          carregarProcessoss();
         },
       ),
     );
@@ -204,11 +168,11 @@ class _MainMenuState extends State<MainMenu> {
   @override
   Widget build(BuildContext context) {
     final Map<int, String> mapaContatos = {
-      for (var contato in contatos)
+      for (var contato in widget.contatos)
         contato["id"] as int: (contato['name'] ?? "Desconhecido").toString(),
     };
 
-    final processosFiltrados = processos.where((p) {
+    final processosFiltrados = widget.processos.where((p) {
       final status = p['contatoStatus'];
       final processo = p['processoSider']?.toString().toLowerCase() ?? '';
       final matchesBusca = processo.contains(termoBusca);
@@ -220,7 +184,7 @@ class _MainMenuState extends State<MainMenu> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: isLoading
+        child: widget.isLoading
             ? const Center(child: CircularProgressIndicator())
             : Column(
                 children: [
@@ -241,21 +205,18 @@ class _MainMenuState extends State<MainMenu> {
                   ),
                   const SizedBox(height: 16),
                   Wrap(
+                    alignment: WrapAlignment.center,
                     spacing: 6,
                     runSpacing: 6,
                     children: [
-                      _buildFiltroButton(null, "Todos"),
                       _buildFiltroButton("REVISÃO DE PROJETO", "Revisão"),
                       _buildFiltroButton("IMPLANTAÇÃO", "Implantação"),
-                      _buildFiltroButton("ASSINATURAS", "Assinaturas"),
-                      _buildFiltroButton(
-                        "VISTORIA INICIAL",
-                        "Vistoria Inicial",
-                      ),
-                      _buildFiltroButton("VISTORIA FINAL", "Vistoria Final"),
+                      _buildFiltroButton("ASSINATURAS", "Assinatura"),
+                      _buildFiltroButton("VISTORIA INICIAL", "Vistoria I"),
+                      _buildFiltroButton("VISTORIA FINAL", "Vistoria F"),
                       _buildFiltroButton(
                         "CANCELADO/ARQUIVADO",
-                        "Cancelado/Arquivado",
+                        "Cancelado/Arquivo",
                       ),
                     ],
                   ),
@@ -310,13 +271,10 @@ class _MainMenuState extends State<MainMenu> {
                                             mensagem:
                                                 "Tem certeza que quer enviar esse processo para o servidor?",
                                             onConfirm: () async {
-                                              final atualizado = await repo
-                                                  .processos
-                                                  .atualizarProcessos(
-                                                    processos['id'],
-                                                    {"userId": 12},
-                                                  );
-                                              carregarProcessoss();
+                                              widget.atualizarProcessos(
+                                                processos['id'],
+                                                {"userId": 12},
+                                              );
                                             },
                                           ),
                                         );
@@ -330,7 +288,9 @@ class _MainMenuState extends State<MainMenu> {
                                           abrirFormulario(processos: processos),
                                       onTest: processoAguardando
                                           ? () async {
-                                              final data = {"userId": userId};
+                                              final data = {
+                                                "userId": widget.userId,
+                                              };
 
                                               showDialog(
                                                 context: context,
@@ -340,13 +300,10 @@ class _MainMenuState extends State<MainMenu> {
                                                   mensagem:
                                                       "Tem certeza que quer enviar esse processo para outro usuário??",
                                                   onConfirm: () async {
-                                                    final atualizado = await repo
-                                                        .processos
-                                                        .aceitarEnvioProcesso(
-                                                          processos['id'],
-                                                          data,
-                                                        );
-                                                    carregarProcessoss();
+                                                    widget.aceitarEnvioProcesso(
+                                                      processos['id'],
+                                                      data,
+                                                    );
                                                   },
                                                 ),
                                               );
@@ -359,10 +316,9 @@ class _MainMenuState extends State<MainMenu> {
                                           mensagem:
                                               'Tem certeza que deseja deletar este Processos?',
                                           onConfirm: () async {
-                                            await repo.processos
-                                                .deletarProcessos(
-                                                  processos['id'],
-                                                );
+                                            widget.deletarProcesso(
+                                              processos['id'],
+                                            );
                                           },
                                         ),
                                       ),

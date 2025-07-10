@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/API/api_controller.dart';
 import '../widgets/app_navbar.dart';
 import '../../core/UTILS/salvar_dados.dart';
 import '../pages/main_page.dart';
@@ -8,7 +9,7 @@ import '../pages/todos_processos.dart';
 import '../widgets/delete_dialog.dart';
 
 class MainScaffold extends StatefulWidget {
-  const MainScaffold({super.key});
+  const MainScaffold({Key? key}) : super(key: key);
 
   @override
   State<MainScaffold> createState() => _MainScaffoldState();
@@ -16,13 +17,82 @@ class MainScaffold extends StatefulWidget {
 
 class _MainScaffoldState extends State<MainScaffold> {
   int paginaAtual = 0;
+  final ApiService repo = ApiService();
 
-  final List<Widget> paginas = [
-    GraficoProcessosPage(),
-    Contatos(),
-    MainMenu(),
-    TodosProcessos(),
-  ];
+  List<dynamic> processos = [];
+  List<dynamic> contatos = [];
+  int? userId;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    carregarDados();
+  }
+
+  Future<void> carregarDados() async {
+    final userData = await getDadosUsuario();
+    userId = userData['userId'];
+    contatos = await repo.contatos.getContatos();
+    processos = await repo.processos.getProcessos();
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  void atualizarProcesso(int id, Map<String, dynamic> data) async {
+    final atualizado = await repo.processos.atualizarProcessos(id, data);
+    atualizarProcessoNaLista(atualizado);
+  }
+
+  void deletarProcesso(int id) async {
+    await repo.processos.deletarProcessos(id);
+    removerProcessoDaLista(id);
+  }
+
+  void aceitarEnvioProcesso(int id, Map<String, dynamic> data) async {
+    final atualizado = await repo.processos.aceitarEnvioProcesso(id, data);
+    atualizarProcessoNaLista(atualizado);
+  }
+
+  void atualizarProcessoNaLista(Map<String, dynamic> processoAtualizado) {
+    final id = processoAtualizado['id'];
+    final index = processos.indexWhere((p) => p['id'] == id);
+
+    if (index != -1) {
+      setState(() {
+        processos[index] = processoAtualizado;
+      });
+    }
+  }
+
+  void removerProcessoDaLista(int id) {
+    setState(() {
+      processos.removeWhere((p) => p['id'] == id);
+    });
+  }
+
+  void criarProcesso(Map<String, dynamic> data) async {
+    final novo = await repo.processos.criarProcessos(data);
+    setState(() {
+      processos.add(novo);
+    });
+  }
+
+  void criarContato(Map<String, dynamic> data) async {
+    final novo = await repo.contatos.criarContatos(data);
+    setState(() {
+      contatos.add(novo);
+    });
+  }
+
+  void addEmail(int id, List<Map<String, dynamic>> data) async {
+    final novo = await repo.contatos.adicionarEmail(id, data);
+    setState(() {
+      contatos.add(novo);
+    });
+  }
 
   void _logout(BuildContext context) {
     showDialog(
@@ -40,6 +110,39 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> paginas = [
+      GraficoProcessosPage(
+        processos: processos,
+        contatos: contatos,
+        userId: userId,
+        isLoading: isLoading,
+      ),
+      Contatos(
+        contatos: contatos,
+        userId: userId,
+        isLoading: isLoading,
+        criarContatos: criarContato,
+      ),
+      MainMenu(
+        userId: userId,
+        processos: processos,
+        contatos: contatos,
+        atualizarProcessos: atualizarProcesso,
+        criarProcesso: criarProcesso,
+        carregarDados: carregarDados,
+        aceitarEnvioProcesso: aceitarEnvioProcesso,
+        deletarProcesso: deletarProcesso,
+        isLoading: isLoading,
+      ),
+      TodosProcessos(
+        userId: userId,
+        processos: processos,
+        contatos: contatos,
+        atualizarProcessos: atualizarProcesso,
+        carregarDados: carregarDados,
+        isLoading: isLoading,
+      ),
+    ];
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false, // REMOVE o botão de retorno
@@ -58,7 +161,9 @@ class _MainScaffoldState extends State<MainScaffold> {
           ],
         ),
       ),
-      body: IndexedStack(index: paginaAtual, children: paginas),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : IndexedStack(index: paginaAtual, children: paginas),
       bottomNavigationBar: AppNavBar(
         currentIndex: paginaAtual,
         onTap: (index) {

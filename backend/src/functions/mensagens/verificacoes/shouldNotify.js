@@ -1,5 +1,5 @@
 const priorityDays = {
-  'BAIXO': 5,
+  'BAIXO': 4,
   'MÉDIO': 3,
   'ALTO': 2,
   'URGENTE': 1,

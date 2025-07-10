@@ -5,91 +5,75 @@ import '../widgets/contato_card.dart';
 import '../widgets/delete_dialog.dart';
 
 class Contatos extends StatefulWidget {
-  const Contatos({super.key});
+  final bool isLoading;
+  final int? userId;
+  final List<dynamic> contatos;
+  final void Function(Map<String, dynamic>) criarContatos;
+
+  const Contatos({
+    super.key,
+    required this.contatos,
+    required this.isLoading,
+    required this.userId,
+    required this.criarContatos,
+  });
 
   @override
   State<Contatos> createState() => _ContatosState();
 }
 
 class _ContatosState extends State<Contatos> {
-  final repo = ApiService();
-  List<dynamic> contatos = [];
-  int? userId;
-  bool isLoading = true;
+  final ApiService repo = ApiService();
   final TextEditingController _searchController = TextEditingController();
   String termoBusca = '';
 
   @override
   void initState() {
     super.initState();
-    carregarContatos();
   }
 
-  Future<void> carregarContatos() async {
-    setState(() {
-      isLoading = true;
-    });
+  void abrirFormulario({Map<String, dynamic>? contatos}) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ModularFormDialog(
+        titulo: contatos == null ? 'Nova Solicitante' : 'Editar Solicitante',
+        dataInicial: contatos,
+        camposTexto: [
+          {'label': 'Nome', 'key': 'name'},
+        ],
+        contato: "contatoPage",
+        camposDropdown: [],
+        onSubmit: (data) async {
+          data['userId'] = widget.userId;
 
-    try {
-      final data = await repo.contatos.getContatos();
-      setState(() {
-        contatos = data;
-      });
-    } catch (e) {
-      debugPrint('Erro ao carregar contatos: $e');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
+          if (contatos == null) {
+            // Criação de novo contato
+            final contatoCriado = await repo.contatos.criarContatos({
+              'name': data['name'],
+              'userId': data['userId'],
+            });
 
-void abrirFormulario({Map<String, dynamic>? contatos}) {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (context) => ModularFormDialog(
-      titulo: contatos == null ? 'Nova Solicitante' : 'Editar Solicitante',
-      dataInicial: contatos,
-      camposTexto: [
-        {'label': 'Nome', 'key': 'name'},
-      ],
-      contato: "contatoPage",
-      camposDropdown: [],
-      onSubmit: (data) async {
-        data['userId'] = userId;
+            final contatoId = contatoCriado['id'];
 
-        if (contatos == null) {
-          // Criação de novo contato
-          final contatoCriado = await repo.contatos.criarContatos({
-            'name': data['name'],
-            'userId': data['userId'],
-          });
+            // Envia os emails em um array
+            final List<Map<String, dynamic>> emails =
+                (data['ContactEmails'] as List).cast<Map<String, dynamic>>();
 
-          final contatoId = contatoCriado['id'];
-
-          // Envia os emails em um array
-          final List<Map<String, dynamic>> emails =
-              (data['ContactEmails'] as List).cast<Map<String, dynamic>>();
-
-          if (emails.isNotEmpty) {
-            await repo.contatos.adicionarEmail(contatoId, emails);
+            if (emails.isNotEmpty) {
+              await repo.contatos.adicionarEmail(contatoId, emails);
+            }
+          } else {
+            // Atualização de contato (sem incluir emails aqui)
+            await repo.contatos.atualizarContatos(contatos['id'], data);
           }
-        } else {
-          // Atualização de contato (sem incluir emails aqui)
-          await repo.contatos.atualizarContatos(contatos['id'], data);
-        }
-
-        carregarContatos();
-      },
-    ),
-  );
-}
-
+        },
+      ),
+    );
+  }
 
   Future<void> deletarcontatos(int id) async {
     await repo.contatos.deletarcontatos(id);
-    carregarContatos();
   }
 
   @override
@@ -97,7 +81,7 @@ void abrirFormulario({Map<String, dynamic>? contatos}) {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: isLoading
+        child: widget.isLoading
             ? const Center(child: CircularProgressIndicator())
             : Column(
                 children: [
@@ -118,7 +102,7 @@ void abrirFormulario({Map<String, dynamic>? contatos}) {
                   ),
                   const SizedBox(height: 16),
                   Expanded(
-                    child: contatos.isEmpty
+                    child: widget.contatos.isEmpty
                         ? Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -140,7 +124,7 @@ void abrirFormulario({Map<String, dynamic>? contatos}) {
                             ),
                           )
                         : ListView(
-                            children: contatos.map((contatos) {
+                            children: widget.contatos.map((contatos) {
                               return ContatoCard(
                                 contato: contatos,
                                 onEdit: () =>

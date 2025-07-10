@@ -33,16 +33,13 @@ class ContatosModel {
     }
   }
 
-Future<void> adicionarEmail(int id, List<Map<String, dynamic>> emails) async {
-  try {
-    await dio.post('/contatos/$id/emails', data: {
-      'emails': emails,
-    });
-  } on DioException catch (e) {
-    throw CustomException(handleDioError(e));
+  Future adicionarEmail(int id, List<Map<String, dynamic>> emails) async {
+    try {
+      await dio.post('/contatos/$id/emails', data: {'emails': emails});
+    } on DioException catch (e) {
+      throw CustomException(handleDioError(e));
+    }
   }
-}
-
 
   Future<void> atualizarContatos(int id, Map<String, dynamic> data) async {
     try {

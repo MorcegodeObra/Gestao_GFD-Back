@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
 import '../widgets/app_graphic.dart';
-import '../../core/API/api_controller.dart';
-import '../../core/UTILS/salvar_dados.dart';
 
 class GraficoProcessosPage extends StatefulWidget {
-  const GraficoProcessosPage({super.key});
+  final int? userId;
+  final List<dynamic> processos;
+  final List<dynamic> contatos;
+  final bool isLoading;
+
+  const GraficoProcessosPage({super.key,
+  required this.processos,
+  required this.contatos,
+  required this.userId,
+  required this.isLoading,
+  });
 
   @override
   State<GraficoProcessosPage> createState() => _GraficoProcessosPageState();
 }
 
 class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
-  final repo = ApiService();
-  bool isLoading = true;
-  List<dynamic> processoss = [];
-  int? userId;
   int acima30Dias = 0;
   int abaixo30Dias = 0;
 
@@ -28,17 +32,16 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
   @override
   void initState() {
     super.initState();
-    carregarUserEDados();
   }
 
-  void processarDados() {
+  Future<void> processarDados() async {
     final agora = DateTime.now();
     int acima = 0;
     int abaixo = 0;
 
-    final dataFiltrada = processoss.where((processo) {
+    final dataFiltrada = widget.processos.where((processo) {
       if (filtrarPorUsuario) {
-        return processo['userId'] == userId;
+        return processo['userId'] == widget.userId;
       }
       return true;
     }).toList();
@@ -81,30 +84,6 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
     });
   }
 
-  Future<void> carregarUserEDados() async {
-    final userData = await getDadosUsuario();
-    setState(() {
-      userId = userData['userId'];
-    });
-
-    if (userId != null) {
-      try {
-        final data = await repo.processos.getProcessos();
-
-        setState(() {
-          processoss = data; // salva todos os processos brutos
-        });
-
-        processarDados(); // aplica o filtro (inicialmente sem filtrar por user)
-      } catch (e) {
-        debugPrint('Erro ao carregar Processoss: $e');
-      } finally {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    }
-  }
 
   Map<String, int> agruparPorStatus(List<Map<String, dynamic>> lista) {
     final Map<String, int> resultado = {};
@@ -134,13 +113,13 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: isLoading
+      body: widget.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+          : RefreshIndicator(
+              onRefresh: processarDados,
+              child: SafeArea(
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

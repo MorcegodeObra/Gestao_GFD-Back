@@ -1,90 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/presentation/widgets/processo_card.dart';
-import '../../core/API/api_controller.dart';
-import '../../core/UTILS/salvar_dados.dart';
 
 class TodosProcessos extends StatefulWidget {
-  const TodosProcessos({super.key});
+  final int? userId;
+  final List<dynamic> processos;
+  final List<dynamic> contatos;
+  final void Function(int, Map<String, dynamic>) atualizarProcessos;
+  final VoidCallback carregarDados;
+  final bool isLoading;
+
+  const TodosProcessos({
+    super.key,
+    required this.userId,
+    required this.processos,
+    required this.contatos,
+    required this.atualizarProcessos,
+    required this.carregarDados,
+    required this.isLoading,
+  });
 
   @override
   State<TodosProcessos> createState() => _TodosProcessosState();
 }
 
 class _TodosProcessosState extends State<TodosProcessos> {
-  final repo = ApiService();
-  List<dynamic> processos = [];
-  List<dynamic> contatos = [];
-  int? userId;
-  bool isLoading = true;
   String? statusSelecionado;
   final TextEditingController _searchController = TextEditingController();
   String termoBusca = '';
 
-  @override
-  void initState() {
-    super.initState();
-    carregarDadosUsuario();
-  }
-
-  Future<void> carregarDadosUsuario() async {
-    final userData = await getDadosUsuario();
-    setState(() {
-      userId = userData['userId'];
-    });
-    await carregarContatos();
-    await carregarProcessoss();
-  }
-
-  Future<void> carregarContatos() async {
-    try {
-      final data = await repo.contatos.getContatos();
-      setState(() {
-        contatos = data;
-      });
-    } catch (e) {
-      debugPrint('Erro ao carregar contatos: $e');
-    }
-  }
-
-  Future<void> carregarProcessoss() async {
-    if (userId == null) return;
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      final data = await repo.processos.getProcessos();
-      final processosFiltrados = data
-          .where((p) => p['userId'] != userId)
-          .toList();
-
-      setState(() {
-        processos = processosFiltrados;
-      });
-    } catch (e) {
-      debugPrint('Erro ao carregar Processoss: $e');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  Future<void> deletarProcessos(int id) async {
-    await repo.processos.deletarProcessos(id);
-    carregarProcessoss();
-  }
-
   Widget _buildFiltroButton(String? status, String label) {
     final isSelected = statusSelecionado == status;
+
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
         backgroundColor: isSelected ? Colors.green : Colors.grey[300],
         foregroundColor: isSelected ? Colors.white : Colors.black,
+        textStyle: const TextStyle(fontSize: 12),
       ),
       onPressed: () {
         setState(() {
-          statusSelecionado = status;
+          if (isSelected) {
+            statusSelecionado = null;
+          } else {
+            statusSelecionado = status;
+          }
         });
       },
       child: Text(label),
@@ -94,23 +53,27 @@ class _TodosProcessosState extends State<TodosProcessos> {
   @override
   Widget build(BuildContext context) {
     final Map<int, String> mapaContatos = {
-      for (var contato in contatos)
+      for (var contato in widget.contatos)
         contato["id"] as int: (contato['name'] ?? "Desconhecido").toString(),
     };
 
-    final processosFiltrados = processos.where((p) {
+    final processosFiltrados = widget.processos.where((p) {
       final status = p['contatoStatus'];
       final processo = p['processoSider']?.toString().toLowerCase() ?? '';
+      final idUsuario = p['userId'];
+
       final matchesBusca = processo.contains(termoBusca);
       final matchesStatus =
           statusSelecionado == null || status == statusSelecionado;
-      return matchesBusca && matchesStatus;
+      final isFromOtherUser = idUsuario != widget.userId;
+
+      return matchesBusca && matchesStatus && isFromOtherUser;
     }).toList();
 
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: isLoading
+        child: widget.isLoading
             ? const Center(child: CircularProgressIndicator())
             : Column(
                 children: [
@@ -131,19 +94,19 @@ class _TodosProcessosState extends State<TodosProcessos> {
                   ),
                   const SizedBox(height: 16),
                   Wrap(
+                    alignment: WrapAlignment.center,
                     spacing: 6,
                     runSpacing: 6,
                     children: [
-                      _buildFiltroButton(null, "Todos"),
                       _buildFiltroButton("REVISÃO DE PROJETO", "Revisão"),
                       _buildFiltroButton("IMPLANTAÇÃO", "Implantação"),
-                      _buildFiltroButton("ASSINATURAS", "Assinaturas"),
+                      _buildFiltroButton("ASSINATURAS", "Assinatura"),
+                      _buildFiltroButton("VISTORIA INICIAL", "Vistoria I"),
+                      _buildFiltroButton("VISTORIA FINAL", "Vistoria F"),
                       _buildFiltroButton(
-                        "VISTORIA INICIAL",
-                        "Vistoria Inicial",
+                        "CANCELADO/ARQUIVADO",
+                        "Cancelado/Arquivo",
                       ),
-                      _buildFiltroButton("VISTORIA FINAL", "Vistoria Final"),
-                      _buildFiltroButton("CANCELADO/ARQUIVADO", "Cancelado/Arquivado"),
                     ],
                   ),
                   Expanded(
@@ -178,7 +141,7 @@ class _TodosProcessosState extends State<TodosProcessos> {
                                         mapaContatos[contatoId] ??
                                         "Desconhecido";
                                     final bool processoDoUsuario =
-                                        processos['userId'] == userId;
+                                        processos['userId'] == widget.userId;
                                     final bool processoAguardando =
                                         processos["solicitacaoProcesso"] ==
                                         true;
@@ -199,14 +162,11 @@ class _TodosProcessosState extends State<TodosProcessos> {
                                                       processos,
                                                     );
                                                 dataAtualizada["userId"] =
-                                                    userId;
-                                                final resposta = await repo
-                                                    .processos
-                                                    .atualizarProcessos(
-                                                      processos["id"],
-                                                      dataAtualizada,
-                                                    );
-                                                carregarProcessoss();
+                                                    widget.userId;
+                                                widget.atualizarProcessos(
+                                                  processos["id"],
+                                                  dataAtualizada,
+                                                );
                                                 showDialog(
                                                   context: context,
                                                   builder: (context) => AlertDialog(
@@ -214,8 +174,7 @@ class _TodosProcessosState extends State<TodosProcessos> {
                                                       'Sucesso',
                                                     ),
                                                     content: Text(
-                                                      resposta["message"] ??
-                                                          "Processo foi para sua carga!",
+                                                      "Processo foi para sua carga!",
                                                     ),
                                                     actions: [
                                                       TextButton(

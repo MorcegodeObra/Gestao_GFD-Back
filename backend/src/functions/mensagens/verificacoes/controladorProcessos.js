@@ -35,8 +35,8 @@ export async function handleContact(proces, now) {
       return;
     } else {
     }
-
     const deveNotificar = shouldNotify(proces, now);
+
     if (deveNotificar) {
       titulo = '⏳ Acompanhamento de prazo';
       corpo = `
