@@ -2,29 +2,53 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class GraficoPadrao extends StatelessWidget {
+  final List<dynamic> processos;
   final Map<String, int> dadosOriginais;
   final Set<String> filtrosAtivos;
-  final void Function(String) toggleFiltro;
+  final Set<int> filtrosContatoAtivos;
+  final List<dynamic> listaContatos;
 
   const GraficoPadrao({
     super.key,
+    required this.processos,
     required this.dadosOriginais,
     required this.filtrosAtivos,
-    required this.toggleFiltro,
+    required this.filtrosContatoAtivos,
+    required this.listaContatos,
   });
 
-  Map<String, int> filtrarDados() {
-    if (filtrosAtivos.isEmpty) return dadosOriginais;
-    return Map.fromEntries(
-      dadosOriginais.entries.where(
-        (entry) => filtrosAtivos.contains(entry.key),
-      ),
-    );
+  Map<String, int> gerarDadosFiltrados() {
+    final filtrados = processos.where((item) {
+      final p = item as Map<String, dynamic>;
+      final status = p['contatoStatus'] ?? 'Sem status';
+      final rawContatoId = p['contatoId'];
+
+      // Converte contatoId para int com segurança
+      final contatoId = rawContatoId is int
+          ? rawContatoId
+          : int.tryParse(rawContatoId.toString());
+
+      final statusMatch =
+          filtrosAtivos.isEmpty || filtrosAtivos.contains(status);
+      final contatoMatch =
+          filtrosContatoAtivos.isEmpty ||
+          (contatoId != null && filtrosContatoAtivos.contains(contatoId));
+
+      return statusMatch && contatoMatch;
+    });
+
+    final resultado = <String, int>{};
+    for (var item in filtrados) {
+      final p = item as Map<String, dynamic>;
+      final status = p['contatoStatus'] ?? 'Sem status';
+      resultado[status] = (resultado[status] ?? 0) + 1;
+    }
+    return resultado;
   }
 
   @override
   Widget build(BuildContext context) {
-    final dados = filtrarDados();
+    final dados = gerarDadosFiltrados();
 
     if (dados.isEmpty) {
       return const Center(child: Text("Sem dados para exibir"));
@@ -103,21 +127,7 @@ class GraficoPadrao extends StatelessWidget {
                 );
               }).toList();
             },
-            onSelected: toggleFiltro,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: const [
-                  Icon(Icons.filter_list, size: 18),
-                  SizedBox(width: 4),
-                  Text(
-                    "Filtrar",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Icon(Icons.arrow_drop_down),
-                ],
-              ),
-            ),
+            child: Padding(padding: const EdgeInsets.only(bottom: 8)),
           ),
         ),
         SingleChildScrollView(

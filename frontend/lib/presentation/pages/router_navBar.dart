@@ -41,7 +41,7 @@ class _MainScaffoldState extends State<MainScaffold> {
     });
   }
 
-  void atualizarProcesso(int id, Map<String, dynamic> data) async {
+  Future<void> atualizarProcesso(int id, Map<String, dynamic> data) async {
     final atualizado = await repo.processos.atualizarProcessos(id, data);
     atualizarProcessoNaLista(atualizado);
   }
@@ -59,7 +59,7 @@ class _MainScaffoldState extends State<MainScaffold> {
   void atualizarProcessoNaLista(Map<String, dynamic> processoAtualizado) {
     final id = processoAtualizado['id'];
     final index = processos.indexWhere((p) => p['id'] == id);
-
+    if (!mounted) return;
     if (index != -1) {
       setState(() {
         processos[index] = processoAtualizado;

@@ -148,6 +148,7 @@ class _ContatosState extends State<Contatos> {
               ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "contatos",
         backgroundColor: const Color(0xFF28582E),
         onPressed: () => abrirFormulario(),
         child: const Icon(Icons.person_add, color: Colors.white),

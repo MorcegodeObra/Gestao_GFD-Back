@@ -29,7 +29,7 @@ sendWeeklySummaries.start();
 
 // Sincronizar DB e iniciar servidor
 sequelize.sync({alter:true}).then(() => {
-  app.listen(PORT, () => {
+  app.listen(PORT,"0.0.0.0", () => {
     console.log(`Servidor rodando...`);
   });
 });

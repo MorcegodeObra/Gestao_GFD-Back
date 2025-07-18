@@ -5,7 +5,7 @@ class TodosProcessos extends StatefulWidget {
   final int? userId;
   final List<dynamic> processos;
   final List<dynamic> contatos;
-  final void Function(int, Map<String, dynamic>) atualizarProcessos;
+  final Future<void> Function(int, Map<String, dynamic>) atualizarProcessos;
   final VoidCallback carregarDados;
   final bool isLoading;
 
@@ -25,8 +25,28 @@ class TodosProcessos extends StatefulWidget {
 
 class _TodosProcessosState extends State<TodosProcessos> {
   String? statusSelecionado;
+  bool? respondidoSelecionado;
+
   final TextEditingController _searchController = TextEditingController();
   String termoBusca = '';
+
+  Widget _buildFiltroRespondidoButton() {
+    final bool isRespondido = respondidoSelecionado == true;
+
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isRespondido ? Colors.blue : Colors.orange,
+        foregroundColor: Colors.white,
+        textStyle: const TextStyle(fontSize: 12),
+      ),
+      onPressed: () {
+        setState(() {
+          respondidoSelecionado = !isRespondido;
+        });
+      },
+      child: Text(isRespondido ? "Respondidos" : "Não Respondidos"),
+    );
+  }
 
   Widget _buildFiltroButton(String? status, String label) {
     final isSelected = statusSelecionado == status;
@@ -66,8 +86,11 @@ class _TodosProcessosState extends State<TodosProcessos> {
       final matchesStatus =
           statusSelecionado == null || status == statusSelecionado;
       final isFromOtherUser = idUsuario != widget.userId;
+      final respondidoOk =
+          (respondidoSelecionado == true && p['answer'] == true) ||
+          (respondidoSelecionado == false && p['answer'] == false);
 
-      return matchesBusca && matchesStatus && isFromOtherUser;
+      return matchesBusca && matchesStatus && isFromOtherUser && respondidoOk;
     }).toList();
 
     return Scaffold(
@@ -98,6 +121,7 @@ class _TodosProcessosState extends State<TodosProcessos> {
                     spacing: 6,
                     runSpacing: 6,
                     children: [
+                      _buildFiltroRespondidoButton(),
                       _buildFiltroButton("REVISÃO DE PROJETO", "Revisão"),
                       _buildFiltroButton("IMPLANTAÇÃO", "Implantação"),
                       _buildFiltroButton("ASSINATURAS", "Assinatura"),
@@ -163,10 +187,11 @@ class _TodosProcessosState extends State<TodosProcessos> {
                                                     );
                                                 dataAtualizada["userId"] =
                                                     widget.userId;
-                                                widget.atualizarProcessos(
+                                                await widget.atualizarProcessos(
                                                   processos["id"],
                                                   dataAtualizada,
                                                 );
+                                                setState(() {});
                                                 showDialog(
                                                   context: context,
                                                   builder: (context) => AlertDialog(

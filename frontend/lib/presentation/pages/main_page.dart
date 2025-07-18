@@ -7,11 +7,12 @@ class GraficoProcessosPage extends StatefulWidget {
   final List<dynamic> contatos;
   final bool isLoading;
 
-  const GraficoProcessosPage({super.key,
-  required this.processos,
-  required this.contatos,
-  required this.userId,
-  required this.isLoading,
+  const GraficoProcessosPage({
+    super.key,
+    required this.processos,
+    required this.contatos,
+    required this.userId,
+    required this.isLoading,
   });
 
   @override
@@ -22,15 +23,20 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
   int acima30Dias = 0;
   int abaixo30Dias = 0;
 
-  Set<String> filtrosAtivosTrue = {};
-  Set<String> filtrosAtivosFalse = {};
+  Set<String> filtrosProcessosAtivos = {};
+  Set<int> filtrosContatosAtivos = {};
+
+  List<Map<String, dynamic>> processosTrue = [];
+  List<Map<String, dynamic>> processosFalse = [];
 
   Map<String, int> dadosTrue = {};
   Map<String, int> dadosFalse = {};
+
   bool filtrarPorUsuario = false;
 
   @override
   void initState() {
+    processarDados();
     super.initState();
   }
 
@@ -61,12 +67,12 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
       }
     }
 
-    final processosTrue = dataFiltrada
+    processosTrue = dataFiltrada
         .where((c) => c['answer'] == true && c['lastInteration'] != null)
         .cast<Map<String, dynamic>>()
         .toList();
 
-    final processosFalse = dataFiltrada
+    processosFalse = dataFiltrada
         .where((c) => c['answer'] == false && c['lastInteration'] != null)
         .cast<Map<String, dynamic>>()
         .toList();
@@ -79,11 +85,11 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
       abaixo30Dias = abaixo;
       dadosTrue = dadosT;
       dadosFalse = dadosF;
-      filtrosAtivosTrue = dadosT.keys.toSet();
-      filtrosAtivosFalse = dadosF.keys.toSet();
+      filtrosProcessosAtivos = {...dadosT.keys, ...dadosF.keys};
+      this.processosTrue = processosTrue;
+      this.processosFalse = processosFalse;
     });
   }
-
 
   Map<String, int> agruparPorStatus(List<Map<String, dynamic>> lista) {
     final Map<String, int> resultado = {};
@@ -94,20 +100,141 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
     return resultado;
   }
 
-  void toggleFiltroTrue(String categoria) {
+  void toggleFiltroProcessos(String categoria) {
     setState(() {
-      if (!filtrosAtivosTrue.remove(categoria)) {
-        filtrosAtivosTrue.add(categoria);
+      if (filtrosProcessosAtivos.contains(categoria)) {
+        filtrosProcessosAtivos.remove(categoria);
+      } else {
+        filtrosProcessosAtivos.add(categoria);
       }
     });
   }
 
-  void toggleFiltroFalse(String categoria) {
+  void toggleFiltroContato(int contatoId) {
     setState(() {
-      if (!filtrosAtivosFalse.remove(categoria)) {
-        filtrosAtivosFalse.add(categoria);
+      if (filtrosContatosAtivos.contains(contatoId)) {
+        filtrosContatosAtivos.remove(contatoId);
+      } else {
+        filtrosContatosAtivos.add(contatoId);
       }
     });
+  }
+
+  void _mostrarFiltroStatus(BuildContext context) {
+    final todosStatus = {...dadosFalse.keys, ...dadosTrue.keys};
+    final Set<String> selecionados = Set.from(filtrosProcessosAtivos);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Filtrar por status"),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: StatefulBuilder(
+              builder: (context, setInnerState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: double.maxFinite,
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: todosStatus.map((status) {
+                          return CheckboxListTile(
+                            title: Text(status),
+                            value: selecionados.contains(status),
+                            onChanged: (value) {
+                              setInnerState(() {
+                                if (value == true) {
+                                  selecionados.add(status);
+                                } else {
+                                  selecionados.remove(status);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          filtrosProcessosAtivos = selecionados;
+                        });
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text("Aplicar filtros"),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _mostrarFiltroContatos(BuildContext context) {
+    final todosContatos = widget.contatos;
+    final Set<String> selecionados = Set.from(filtrosProcessosAtivos);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Filtrar por contato"),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: StatefulBuilder(
+              builder: (context, setInnerState) {
+                return SizedBox(
+                  height:
+                      MediaQuery.of(context).size.height *
+                      0.5, // controla altura
+                  child: Column(
+                    children: [
+                      Expanded(
+                        // <- permite que a lista role
+                        child: ListView(
+                          children: todosContatos.map((contato) {
+                            final nome = contato['name']; // ou contato['name']
+                            return CheckboxListTile(
+                              title: Text(nome),
+                              value: selecionados.contains(nome),
+                              onChanged: (value) {
+                                setInnerState(() {
+                                  if (value == true) {
+                                    selecionados.add(nome);
+                                  } else {
+                                    selecionados.remove(nome);
+                                  }
+                                });
+                              },
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            filtrosProcessosAtivos = selecionados;
+                          });
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text("Aplicar filtros"),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -115,74 +242,90 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
     return Scaffold(
       body: widget.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
-              onRefresh: processarDados,
-              child: SafeArea(
-                child: ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          : SafeArea(
+              child: Column(
+                children: [
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () => _mostrarFiltroStatus(context),
+                        label: const Text("Filtrar por status"),
+                        icon: const Icon(Icons.filter_alt),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () => _mostrarFiltroContatos(context),
+                        label: const Text("Filtrar por contato"),
+                        icon: const Icon(Icons.person),
+                      ),
+                    ],
+                  ),
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.all(16),
                       children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Mostrar somente meus processos',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Switch(
+                              value: filtrarPorUsuario,
+                              onChanged: (value) {
+                                setState(() {
+                                  filtrarPorUsuario = value;
+                                });
+                                processarDados();
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
                         const Text(
-                          'Mostrar somente meus processos',
+                          'Respondidos',
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Switch(
-                          value: filtrarPorUsuario,
-                          onChanged: (value) {
-                            setState(() {
-                              filtrarPorUsuario = value;
-                            });
-                            processarDados();
-                          },
+                        GraficoPadrao(
+                          dadosOriginais: dadosTrue,
+                          filtrosAtivos: filtrosProcessosAtivos,
+                          filtrosContatoAtivos: filtrosContatosAtivos,
+                          listaContatos: widget.contatos,
+                          processos: processosTrue,
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Sem resposta',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        GraficoPadrao(
+                          dadosOriginais: dadosFalse,
+                          filtrosAtivos: filtrosProcessosAtivos,
+                          filtrosContatoAtivos: filtrosContatosAtivos,
+                          listaContatos: widget.contatos,
+                          processos: processosFalse,
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          '$acima30Dias processos com mais de 30 dias\n'
+                          '$abaixo30Dias processos dentro do prazo',
+                          style: const TextStyle(fontSize: 16),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    // Gráfico Respondidos
-                    const Text(
-                      'Respondidos',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    GraficoPadrao(
-                      dadosOriginais: dadosTrue,
-                      filtrosAtivos: filtrosAtivosTrue,
-                      toggleFiltro: toggleFiltroTrue,
-                    ),
-
-                    const SizedBox(height: 8),
-
-                    // Gráfico Sem resposta
-                    const Text(
-                      'Sem resposta',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    GraficoPadrao(
-                      dadosOriginais: dadosFalse,
-                      filtrosAtivos: filtrosAtivosFalse,
-                      toggleFiltro: toggleFiltroFalse,
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    // Texto de resumo
-                    Text(
-                      '$acima30Dias processos com mais de 30 dias\n'
-                      '$abaixo30Dias processos dentro do prazo',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
     );

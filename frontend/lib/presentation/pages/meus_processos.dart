@@ -33,6 +33,7 @@ class MainMenu extends StatefulWidget {
 
 class _MainMenuState extends State<MainMenu> {
   String? statusSelecionado;
+  bool? respondidoSelecionado;
   final TextEditingController _searchController = TextEditingController();
   String termoBusca = '';
 
@@ -55,6 +56,24 @@ class _MainMenuState extends State<MainMenu> {
         });
       },
       child: Text(label),
+    );
+  }
+
+  Widget _buildFiltroRespondidoButton() {
+    final bool isRespondido = respondidoSelecionado == true;
+
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isRespondido ? Colors.blue : Colors.orange,
+        foregroundColor: Colors.white,
+        textStyle: const TextStyle(fontSize: 12),
+      ),
+      onPressed: () {
+        setState(() {
+          respondidoSelecionado = !isRespondido;
+        });
+      },
+      child: Text(isRespondido ? "Respondidos" : "Não Respondidos"),
     );
   }
 
@@ -175,10 +194,16 @@ class _MainMenuState extends State<MainMenu> {
     final processosFiltrados = widget.processos.where((p) {
       final status = p['contatoStatus'];
       final processo = p['processoSider']?.toString().toLowerCase() ?? '';
+      final userId = p['userId']; // 🟡 Ajuste conforme sua chave real
       final matchesBusca = processo.contains(termoBusca);
       final matchesStatus =
           statusSelecionado == null || status == statusSelecionado;
-      return matchesBusca && matchesStatus;
+      final matchesUser = widget.userId == null || userId == widget.userId;
+      final respondidoOk =
+          (respondidoSelecionado == true && p['answer'] == true) ||
+          (respondidoSelecionado == false && p['answer'] == false);
+
+      return matchesBusca && matchesStatus && matchesUser && respondidoOk;
     }).toList();
 
     return Scaffold(
@@ -209,6 +234,7 @@ class _MainMenuState extends State<MainMenu> {
                     spacing: 6,
                     runSpacing: 6,
                     children: [
+                      _buildFiltroRespondidoButton(),
                       _buildFiltroButton("REVISÃO DE PROJETO", "Revisão"),
                       _buildFiltroButton("IMPLANTAÇÃO", "Implantação"),
                       _buildFiltroButton("ASSINATURAS", "Assinatura"),
@@ -275,6 +301,8 @@ class _MainMenuState extends State<MainMenu> {
                                                 processos['id'],
                                                 {"userId": 12},
                                               );
+                                              setState(() {
+                                              });
                                             },
                                           ),
                                         );
@@ -304,6 +332,11 @@ class _MainMenuState extends State<MainMenu> {
                                                       processos['id'],
                                                       data,
                                                     );
+                                                    setState(() {
+                                                      Navigator.of(
+                                                        context,
+                                                      ).pop();
+                                                    });
                                                   },
                                                 ),
                                               );
@@ -319,6 +352,9 @@ class _MainMenuState extends State<MainMenu> {
                                             widget.deletarProcesso(
                                               processos['id'],
                                             );
+                                            setState(() {
+                                              Navigator.of(context).pop();
+                                            });
                                           },
                                         ),
                                       ),
@@ -333,6 +369,7 @@ class _MainMenuState extends State<MainMenu> {
               ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "meu_processos",
         backgroundColor: const Color(0xFF28582E),
         onPressed: () => abrirFormulario(),
         child: const Icon(Icons.create_new_folder, color: Colors.white),
