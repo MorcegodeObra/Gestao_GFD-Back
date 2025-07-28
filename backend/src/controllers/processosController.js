@@ -1,5 +1,5 @@
 import { Process } from "../models/processo.js"
-import { Op } from 'sequelize';
+import { DATE, Op } from 'sequelize';
 
 export const criarProcesso = async (req, res) => {
   try {
@@ -134,7 +134,6 @@ export const editarProcesso = async (req, res) => {
       area,
       lastSent,
       answerMsg,
-      answerDate,
       answer,
       check,
       executed,
@@ -168,7 +167,8 @@ export const editarProcesso = async (req, res) => {
         }
       }
     }
-    // Atualização normal (inclusive troca de dono se permitido)
+    let answerDate = answer ? new Date(): process.answerDate
+
     await process.update({
       processoSider,
       protocolo,
