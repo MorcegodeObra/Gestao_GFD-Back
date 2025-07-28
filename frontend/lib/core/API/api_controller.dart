@@ -13,7 +13,7 @@ class ApiService {
   ApiService()
     : dio = Dio(
         BaseOptions(
-          baseUrl: 'https://chatbotwhatsapp-z0bc.onrender.com',
+          baseUrl: 'https://v5j3u8j8t3.execute-api.sa-east-1.amazonaws.com/inicio/%7Bproxy+%7D',
           connectTimeout: Duration(seconds: 10),
           receiveTimeout: Duration(seconds: 10),
         ),

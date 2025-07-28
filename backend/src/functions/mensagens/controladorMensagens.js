@@ -1,9 +1,9 @@
 import cron from 'node-cron';
 import { handleContact } from './verificacoes/controladorProcessos.js';
 import { Process } from '../../models/processo.js';
-import { Op, or, where } from 'sequelize';
+import { Op } from 'sequelize';
 
-export const servicoCobranca = cron.schedule('*/15 * * * *', async () => {
+export const servicoCobranca = cron.schedule('* * * * *', async () => {
   try {
     const now = new Date();
     const diaSemana = now.getDay();
@@ -14,9 +14,9 @@ export const servicoCobranca = cron.schedule('*/15 * * * *', async () => {
         },
         userId: {
           [Op.notIn]: [12]
-        }
+        },
+        answer: { [Op.notIn]: true }
       }
-
     });
 
     if (!diaSemana == 6 || !diaSemana == 0) {
