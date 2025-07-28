@@ -48,6 +48,7 @@ export const Process = sequelize.define('Process', {
             "ASSINATURAS",
             "CONCLUIDO",
             "CANCELADO/ARQUIVADO",
+            "AGUARDANDO DER",
             "SEM STATUS",
             "ANALISE AMBIENTAL",
             "PAGAMENTO DA GR",),
