@@ -78,6 +78,12 @@ class _ContatosState extends State<Contatos> {
 
   @override
   Widget build(BuildContext context) {
+    final contatosFiltrados = widget.contatos.where((c) {
+      final matchesBusca =
+          c['name']?.toLowerCase().contains(termoBusca.toLowerCase()) ?? false;
+      return matchesBusca;
+    }).toList();
+
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -88,7 +94,7 @@ class _ContatosState extends State<Contatos> {
                   TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
-                      labelText: "Buscar por processo",
+                      labelText: "Buscar por contato",
                       prefixIcon: Icon(Icons.search),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -124,7 +130,7 @@ class _ContatosState extends State<Contatos> {
                             ),
                           )
                         : ListView(
-                            children: widget.contatos.map((contatos) {
+                            children: contatosFiltrados.map((contatos) {
                               return ContatoCard(
                                 contato: contatos,
                                 onEdit: () =>

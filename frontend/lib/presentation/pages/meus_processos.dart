@@ -77,38 +77,6 @@ class _MainMenuState extends State<MainMenu> {
     );
   }
 
-  void abrirFormularioAdicionarRevisao({Map<String, dynamic>? processos}) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => ModularFormDialog(
-        titulo: processos == null ? 'Novo Processo' : 'Editar Processo',
-        dataInicial: processos,
-        camposTexto: [
-          {'label': 'Processo Sider', 'key': 'processoSider'},
-          {'label': 'Assunto', 'key': 'subject'},
-          {'label': 'Ultimo contato', 'key': 'lastSent', "type": "date"},
-        ],
-        camposDropdown: [
-          {
-            "label": "Respondido",
-            "key": "answer",
-            "itens": [
-              {"label": "Sim", "value": "true"},
-              {"label": "Não", "value": "false"},
-            ],
-          },
-        ],
-        onSubmit: (data) async {
-          data['userId'] = widget.userId;
-          if (processos != null) {
-            widget.atualizarProcessos(processos['id'], data);
-          }
-        },
-      ),
-    );
-  }
-
   void abrirFormulario({Map<String, dynamic>? processos}) {
     final contatosDropdown = widget.contatos.map((contato) {
       return {
@@ -127,6 +95,7 @@ class _MainMenuState extends State<MainMenu> {
           {'label': 'Protocolo', 'key': 'protocolo'},
           {'label': 'Assunto', 'key': 'subject'},
           {'label': 'Ultimo contato', 'key': 'lastSent', "type": "date"},
+          {'label': 'Rodovia', 'key': 'rodovia'},
         ],
         camposDropdown: [
           {'label': 'Contato', 'key': 'contatoId', 'itens': contatosDropdown},
@@ -160,6 +129,7 @@ class _MainMenuState extends State<MainMenu> {
               {'label': 'VISTORIA INICIAL', 'value': 'VISTORIA INICIAL'},
               {'label': 'VISTORIA FINAL', 'value': 'VISTORIA FINAL'},
               {'label': 'ASSINATURAS', 'value': 'ASSINATURAS'},
+              {'label': 'AGUARDANDO DER', 'value': 'AGUARDANDO DER'},
               {'label': 'CANCELADO/ARQUIVADO', 'value': 'CANCELADO/ARQUIVADO'},
             ],
           },
@@ -306,11 +276,6 @@ class _MainMenuState extends State<MainMenu> {
                                             },
                                           ),
                                         );
-                                      },
-                                      adicionarRevisao: () => {
-                                        abrirFormularioAdicionarRevisao(
-                                          processos: processos,
-                                        ),
                                       },
                                       onEdit: () =>
                                           abrirFormulario(processos: processos),

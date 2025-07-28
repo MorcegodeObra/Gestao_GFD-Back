@@ -178,7 +178,7 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
 
   void _mostrarFiltroContatos(BuildContext context) {
     final todosContatos = widget.contatos;
-    final Set<String> selecionados = Set.from(filtrosProcessosAtivos);
+    final Set<int> selecionados = Set.from(filtrosContatosAtivos);
 
     showDialog(
       context: context,
@@ -198,17 +198,18 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
                       Expanded(
                         // <- permite que a lista role
                         child: ListView(
+                          shrinkWrap: true,
                           children: todosContatos.map((contato) {
                             final nome = contato['name']; // ou contato['name']
                             return CheckboxListTile(
                               title: Text(nome),
-                              value: selecionados.contains(nome),
+                              value: selecionados.contains(contato["id"]),
                               onChanged: (value) {
                                 setInnerState(() {
                                   if (value == true) {
-                                    selecionados.add(nome);
+                                    selecionados.add(contato["id"]);
                                   } else {
-                                    selecionados.remove(nome);
+                                    selecionados.remove(contato["id"]);
                                   }
                                 });
                               },
@@ -220,7 +221,7 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
-                            filtrosProcessosAtivos = selecionados;
+                            filtrosContatosAtivos = selecionados;
                           });
                           Navigator.of(context).pop();
                         },
@@ -239,6 +240,34 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
 
   @override
   Widget build(BuildContext context) {
+    final processosFiltrados = widget.processos
+        .where((p) => p['answer'] == true)
+        .toList();
+
+    final prioridadeOrdem = {"URGENTE": 0, "ALTO": 1, "MÉDIO": 2, "BAIXO": 3};
+
+    final corPorPrioridade = {
+      "URGENTE": Colors.red.shade300,
+      "ALTO": Colors.orange.shade300,
+      "MÉDIO": Colors.yellow.shade300,
+      "BAIXO": Colors.green.shade300,
+    };
+
+    processosFiltrados.sort((a, b) {
+      final prioridadeA = prioridadeOrdem[a['priority']] ?? 999;
+      final prioridadeB = prioridadeOrdem[b['priority']] ?? 999;
+
+      if (prioridadeA != prioridadeB) {
+        return prioridadeA.compareTo(
+          prioridadeB,
+        ); // menor número = maior prioridade
+      }
+
+      final dateA = DateTime.tryParse(a['answerDate'] ?? '') ?? DateTime(1900);
+      final dateB = DateTime.tryParse(b['answerDate'] ?? '') ?? DateTime(1900);
+      return dateB.compareTo(dateA); // se prioridade igual, compara por data
+    });
+
     return Scaffold(
       body: widget.isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -316,11 +345,47 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
                           listaContatos: widget.contatos,
                           processos: processosFalse,
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 8),
                         Text(
                           '$acima30Dias processos com mais de 30 dias\n'
                           '$abaixo30Dias processos dentro do prazo',
                           style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Fila de atendimento:",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: processosFiltrados.map<Widget>((p) {
+                              return Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      corPorPrioridade[p['priority']] ??
+                                      Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  p['processoSider'] ?? 'Sem ID',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
                         ),
                       ],
                     ),
