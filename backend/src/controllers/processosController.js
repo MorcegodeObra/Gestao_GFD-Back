@@ -168,6 +168,7 @@ export const editarProcesso = async (req, res) => {
       }
     }
     let answerDate = answer ? new Date(): process.answerDate
+    let statusEnviado = !contatoStatus && answer ? "AGUARDANDO DER" : process.contatoStatus
 
     await process.update({
       processoSider,
@@ -180,7 +181,7 @@ export const editarProcesso = async (req, res) => {
       answer,
       check,
       executed,
-      contatoStatus,
+      statusEnviado,
       userId: novoDono,
       contatoId,
       subject,
