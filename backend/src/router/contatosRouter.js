@@ -14,6 +14,7 @@ router.patch('/:id',ContactController.editarContato);
 
 // Emails
 router.post('/:id/emails', ContactEmailController.adicionarEmail);
+router.patch('/:id/emails/:emailId', ContactEmailController.editarEmail);
 router.delete('/:id/emails/:emailId', ContactEmailController.deletarEmail);
 
 // Telefones

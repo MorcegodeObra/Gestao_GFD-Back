@@ -104,6 +104,7 @@ export async function checkEmailReply(proces) {
               proces.answer = true;
               proces.answerDate = latestMsgDate;
               proces.answerMsg = mensagemLimpa;
+              proces.contatoStatus = "AGUARDANDO DER"
               await proces.save();
               resolve(true);
             } else {

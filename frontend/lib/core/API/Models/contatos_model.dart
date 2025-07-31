@@ -41,6 +41,26 @@ class ContatosModel {
     }
   }
 
+  Future editarEmail({
+    required int contatoId,
+    required int emailId,
+    required Map<String, dynamic> emailData,
+  }) async {
+    try {
+      await dio.patch('/contatos/$contatoId/emails/$emailId', data: emailData);
+    } on DioException catch (e) {
+      throw CustomException(handleDioError(e));
+    }
+  }
+
+  Future deletarEmail({required int contatoId, required int emailId}) async {
+    try {
+      await dio.delete('/contatos/$contatoId/emails/$emailId');
+    } on DioException catch (e) {
+      throw CustomException(handleDioError(e));
+    }
+  }
+
   Future<void> atualizarContatos(int id, Map<String, dynamic> data) async {
     try {
       await dio.put('/contatos/$id', data: data);

@@ -94,6 +94,35 @@ class _MainScaffoldState extends State<MainScaffold> {
     });
   }
 
+  void editarEmail(Map<String, dynamic> data) async {
+    try {
+      await repo.contatos.editarEmail(
+        contatoId: data['contatoId'],
+        emailId: data['emailId'],
+        emailData: data['emailData'],
+      );
+      setState(() {
+        carregarDados();
+      });
+    } catch (e) {
+      print("Erro ao editar email: $e");
+    }
+  }
+
+  void deletarEmail(Map<String, dynamic> data) async {
+    try {
+      await repo.contatos.deletarEmail(
+        contatoId: data['contatoId'],
+        emailId: data['emailId'],
+      );
+      setState(() {
+        carregarDados();
+      });
+    } catch (e) {
+      print("Erro ao deletar email: $e");
+    }
+  }
+
   void _logout(BuildContext context) {
     showDialog(
       context: context,
@@ -122,6 +151,8 @@ class _MainScaffoldState extends State<MainScaffold> {
         userId: userId,
         isLoading: isLoading,
         criarContatos: criarContato,
+        editarEmailsContatos: editarEmail,
+        deletarEmailsContatos: deletarEmail,
       ),
       MainMenu(
         userId: userId,

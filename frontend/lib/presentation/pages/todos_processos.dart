@@ -25,7 +25,8 @@ class TodosProcessos extends StatefulWidget {
 
 class _TodosProcessosState extends State<TodosProcessos> {
   String? statusSelecionado;
-  bool? respondidoSelecionado;
+  bool respondidoSelecionado = false;
+  bool mostrarApenasAtrasados = false;
 
   final TextEditingController _searchController = TextEditingController();
   String termoBusca = '';
@@ -44,29 +45,24 @@ class _TodosProcessosState extends State<TodosProcessos> {
           respondidoSelecionado = !isRespondido;
         });
       },
-      child: Text(isRespondido ? "Respondidos" : "Não Respondidos"),
+      child: Text(isRespondido ? "R" : "N.R"),
     );
   }
 
-  Widget _buildFiltroButton(String? status, String label) {
-    final isSelected = statusSelecionado == status;
-
+  Widget _buildFiltroAtrasadoButton() {
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? Colors.green : Colors.grey[300],
-        foregroundColor: isSelected ? Colors.white : Colors.black,
+        backgroundColor: mostrarApenasAtrasados ? Colors.blue : Colors.green,
+        padding: EdgeInsets.zero,
+        foregroundColor: Colors.white,
         textStyle: const TextStyle(fontSize: 12),
       ),
       onPressed: () {
         setState(() {
-          if (isSelected) {
-            statusSelecionado = null;
-          } else {
-            statusSelecionado = status;
-          }
+          mostrarApenasAtrasados = !mostrarApenasAtrasados;
         });
       },
-      child: Text(label),
+      child: Text(mostrarApenasAtrasados ? "Atrasados" : "Em dia"),
     );
   }
 
@@ -80,18 +76,37 @@ class _TodosProcessosState extends State<TodosProcessos> {
     final processosFiltrados = widget.processos.where((p) {
       final status = p['contatoStatus'];
       final processo = p['processoSider']?.toString().toLowerCase() ?? '';
-      final idUsuario = p['userId'];
-
+      final userId = p['userId'];
       final matchesBusca = processo.contains(termoBusca);
       final matchesStatus =
           statusSelecionado == null || status == statusSelecionado;
-      final isFromOtherUser = idUsuario != widget.userId;
+      final matchesUser = widget.userId == null || userId == widget.userId;
       final respondidoOk =
           (respondidoSelecionado == true && p['answer'] == true) ||
           (respondidoSelecionado == false && p['answer'] == false);
 
-      return matchesBusca && matchesStatus && isFromOtherUser && respondidoOk;
+      final String? lastInterationString = p['lastInteration'];
+      final DateTime? lastInteraction = lastInterationString != null
+          ? DateTime.tryParse(lastInterationString)
+          : null;
+      final bool estaAtrasado =
+          lastInteraction != null &&
+          DateTime.now().difference(lastInteraction).inDays > 30;
+
+      final matchesAtraso = !mostrarApenasAtrasados || estaAtrasado;
+
+      return matchesBusca &&
+          matchesStatus &&
+          matchesUser &&
+          respondidoOk &&
+          matchesAtraso;
     }).toList();
+
+    final Set<String> statusDisponiveis = widget.processos
+        .map((p) => p['contatoStatus'] as String?)
+        .where((s) => s != null)
+        .toSet()
+        .cast<String>();
 
     return Scaffold(
       body: Padding(
@@ -122,14 +137,29 @@ class _TodosProcessosState extends State<TodosProcessos> {
                     runSpacing: 6,
                     children: [
                       _buildFiltroRespondidoButton(),
-                      _buildFiltroButton("REVISÃO DE PROJETO", "Revisão"),
-                      _buildFiltroButton("IMPLANTAÇÃO", "Implantação"),
-                      _buildFiltroButton("ASSINATURAS", "Assinatura"),
-                      _buildFiltroButton("VISTORIA INICIAL", "Vistoria I"),
-                      _buildFiltroButton("VISTORIA FINAL", "Vistoria F"),
-                      _buildFiltroButton(
-                        "CANCELADO/ARQUIVADO",
-                        "Cancelado/Arquivo",
+                      _buildFiltroAtrasadoButton(),
+                      DropdownButton<String>(
+                        value: statusSelecionado,
+                        hint: const Text("Filtrar por status"),
+                        onChanged: (String? novoStatus) {
+                          setState(() {
+                            statusSelecionado = (novoStatus == 'TODOS')
+                                ? null
+                                : novoStatus;
+                          });
+                        },
+                        items: [
+                          const DropdownMenuItem(
+                            value: 'TODOS',
+                            child: Text("Todos"),
+                          ),
+                          ...statusDisponiveis.map(
+                            (status) => DropdownMenuItem(
+                              value: status,
+                              child: Text(status),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

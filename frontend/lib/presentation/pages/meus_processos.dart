@@ -33,31 +33,10 @@ class MainMenu extends StatefulWidget {
 
 class _MainMenuState extends State<MainMenu> {
   String? statusSelecionado;
-  bool? respondidoSelecionado;
+  bool respondidoSelecionado = false;
+  bool mostrarApenasAtrasados = false;
   final TextEditingController _searchController = TextEditingController();
   String termoBusca = '';
-
-  Widget _buildFiltroButton(String? status, String label) {
-    final isSelected = statusSelecionado == status;
-
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? Colors.green : Colors.grey[300],
-        foregroundColor: isSelected ? Colors.white : Colors.black,
-        textStyle: const TextStyle(fontSize: 12),
-      ),
-      onPressed: () {
-        setState(() {
-          if (isSelected) {
-            statusSelecionado = null;
-          } else {
-            statusSelecionado = status;
-          }
-        });
-      },
-      child: Text(label),
-    );
-  }
 
   Widget _buildFiltroRespondidoButton() {
     final bool isRespondido = respondidoSelecionado == true;
@@ -73,7 +52,24 @@ class _MainMenuState extends State<MainMenu> {
           respondidoSelecionado = !isRespondido;
         });
       },
-      child: Text(isRespondido ? "Respondidos" : "Não Respondidos"),
+      child: Text(isRespondido ? "R" : "N.R"),
+    );
+  }
+
+  Widget _buildFiltroAtrasadoButton() {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: mostrarApenasAtrasados ? Colors.blue : Colors.green,
+        padding: EdgeInsets.zero,
+        foregroundColor: Colors.white,
+        textStyle: const TextStyle(fontSize: 12),
+      ),
+      onPressed: () {
+        setState(() {
+          mostrarApenasAtrasados = !mostrarApenasAtrasados;
+        });
+      },
+      child: Text(mostrarApenasAtrasados ? "Atrasados" : "Em dia"),
     );
   }
 
@@ -156,6 +152,33 @@ class _MainMenuState extends State<MainMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final processosFiltradosFila = widget.processos
+        .where((p) => p['answer'] == true)
+        .toList();
+
+    final prioridadeOrdem = {"URGENTE": 0, "ALTO": 1, "MÉDIO": 2, "BAIXO": 3};
+
+    final corPorPrioridade = {
+      "URGENTE": Colors.red.shade300,
+      "ALTO": Colors.orange.shade300,
+      "MÉDIO": Colors.yellow.shade300,
+      "BAIXO": Colors.green.shade300,
+    };
+
+    processosFiltradosFila.sort((a, b) {
+      final prioridadeA = prioridadeOrdem[a['priority']] ?? 999;
+      final prioridadeB = prioridadeOrdem[b['priority']] ?? 999;
+
+      if (prioridadeA != prioridadeB) {
+        return prioridadeA.compareTo(
+          prioridadeB,
+        ); // menor número = maior prioridade
+      }
+
+      final dateA = DateTime.tryParse(a['answerDate'] ?? '') ?? DateTime(1900);
+      final dateB = DateTime.tryParse(b['answerDate'] ?? '') ?? DateTime(1900);
+      return dateB.compareTo(dateA); // se prioridade igual, compara por data
+    });
     final Map<int, String> mapaContatos = {
       for (var contato in widget.contatos)
         contato["id"] as int: (contato['name'] ?? "Desconhecido").toString(),
@@ -164,7 +187,7 @@ class _MainMenuState extends State<MainMenu> {
     final processosFiltrados = widget.processos.where((p) {
       final status = p['contatoStatus'];
       final processo = p['processoSider']?.toString().toLowerCase() ?? '';
-      final userId = p['userId']; // 🟡 Ajuste conforme sua chave real
+      final userId = p['userId'];
       final matchesBusca = processo.contains(termoBusca);
       final matchesStatus =
           statusSelecionado == null || status == statusSelecionado;
@@ -173,8 +196,28 @@ class _MainMenuState extends State<MainMenu> {
           (respondidoSelecionado == true && p['answer'] == true) ||
           (respondidoSelecionado == false && p['answer'] == false);
 
-      return matchesBusca && matchesStatus && matchesUser && respondidoOk;
+      final String? lastInterationString = p['lastInteration'];
+      final DateTime? lastInteraction = lastInterationString != null
+          ? DateTime.tryParse(lastInterationString)
+          : null;
+      final bool estaAtrasado =
+          lastInteraction != null &&
+          DateTime.now().difference(lastInteraction).inDays > 30;
+
+      final matchesAtraso = !mostrarApenasAtrasados || estaAtrasado;
+
+      return matchesBusca &&
+          matchesStatus &&
+          matchesUser &&
+          respondidoOk &&
+          matchesAtraso;
     }).toList();
+
+    final Set<String> statusDisponiveis = widget.processos
+        .map((p) => p['contatoStatus'] as String?)
+        .where((s) => s != null)
+        .toSet()
+        .cast<String>();
 
     return Scaffold(
       body: Padding(
@@ -205,14 +248,29 @@ class _MainMenuState extends State<MainMenu> {
                     runSpacing: 6,
                     children: [
                       _buildFiltroRespondidoButton(),
-                      _buildFiltroButton("REVISÃO DE PROJETO", "Revisão"),
-                      _buildFiltroButton("IMPLANTAÇÃO", "Implantação"),
-                      _buildFiltroButton("ASSINATURAS", "Assinatura"),
-                      _buildFiltroButton("VISTORIA INICIAL", "Vistoria I"),
-                      _buildFiltroButton("VISTORIA FINAL", "Vistoria F"),
-                      _buildFiltroButton(
-                        "CANCELADO/ARQUIVADO",
-                        "Cancelado/Arquivo",
+                      _buildFiltroAtrasadoButton(),
+                      DropdownButton<String>(
+                        value: statusSelecionado,
+                        hint: const Text("Filtrar por status"),
+                        onChanged: (String? novoStatus) {
+                          setState(() {
+                            statusSelecionado = (novoStatus == 'TODOS')
+                                ? null
+                                : novoStatus;
+                          });
+                        },
+                        items: [
+                          const DropdownMenuItem(
+                            value: 'TODOS',
+                            child: Text("Todos"),
+                          ),
+                          ...statusDisponiveis.map(
+                            (status) => DropdownMenuItem(
+                              value: status,
+                              child: Text(status),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -240,6 +298,52 @@ class _MainMenuState extends State<MainMenu> {
                           )
                         : Column(
                             children: [
+                              Text(
+                                "Fila de atendimento:",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: widget.processos.map<Widget>((p) {
+                                    return Container(
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 4,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            corPorPrioridade[p['priority']] ??
+                                            Colors.grey.shade300,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            p['processoSider'] ?? 'Sem ID',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          Text(
+                                            p['contatoStatus'] ?? 'Sem Status',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+
                               Expanded(
                                 child: ListView(
                                   children: processosFiltrados.map((processos) {
@@ -271,8 +375,7 @@ class _MainMenuState extends State<MainMenu> {
                                                 processos['id'],
                                                 {"userId": 12},
                                               );
-                                              setState(() {
-                                              });
+                                              setState(() {});
                                             },
                                           ),
                                         );

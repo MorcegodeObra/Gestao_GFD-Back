@@ -30,6 +30,33 @@ export const adicionarEmail = async (req, res) => {
   }
 };
 
+export const editarEmail = async (req, res) => {
+  try {
+    const { id, emailId } = req.params;
+    const { email, area, rodovias } = req.body;
+    const emailRegistro = await ContactEmail.findOne({
+      where: {
+        id: emailId,
+        ContactId: id
+      }
+    });
+
+    if (!emailRegistro) {
+      return res.status(404).json({ message: 'Email não encontrado' });
+    }
+
+    emailRegistro.email = email ?? emailRegistro.email;
+    emailRegistro.area = area ?? emailRegistro.area;
+    emailRegistro.rodovias = rodovias ?? emailRegistro.rodovias;
+
+    await emailRegistro.save();
+
+    return res.json(emailRegistro);
+  } catch (err) {
+    return res.status(500).json({ message: 'Erro ao atualizar email', error: err.message });
+  }
+}
+
 // Deletar email
 export const deletarEmail = async (req, res) => {
   try {

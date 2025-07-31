@@ -9,6 +9,8 @@ class Contatos extends StatefulWidget {
   final int? userId;
   final List<dynamic> contatos;
   final void Function(Map<String, dynamic>) criarContatos;
+  final void Function(Map<String, dynamic>) editarEmailsContatos;
+  final void Function(Map<String, dynamic>) deletarEmailsContatos;
 
   const Contatos({
     super.key,
@@ -16,6 +18,8 @@ class Contatos extends StatefulWidget {
     required this.isLoading,
     required this.userId,
     required this.criarContatos,
+    required this.editarEmailsContatos,
+    required this.deletarEmailsContatos,
   });
 
   @override
@@ -66,6 +70,50 @@ class _ContatosState extends State<Contatos> {
           } else {
             // Atualização de contato (sem incluir emails aqui)
             await repo.contatos.atualizarContatos(contatos['id'], data);
+          }
+        },
+      ),
+    );
+  }
+
+  void abrirFormularioEmail({Map<String, dynamic>? contatos}) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => ModularFormDialog(
+        titulo: contatos == null ? 'Nova Solicitante' : 'Editar Solicitante',
+        dataInicial: contatos,
+        camposTexto: [
+          {'label': 'Nome', 'key': 'name'},
+        ],
+        contato: "contatoPage",
+        camposDropdown: [],
+        onSubmit: (data) async {
+          data['userId'] = widget.userId;
+
+          if (contatos == null) {
+            // Criação de novo contato
+            final contatoCriado = await repo.contatos.criarContatos({
+              'name': data['name'],
+              'userId': data['userId'],
+            });
+
+            final contatoId = contatoCriado['id'];
+
+            // Envia os emails em um array
+            final List<Map<String, dynamic>> emails =
+                (data['ContactEmails'] as List).cast<Map<String, dynamic>>();
+
+            if (emails.isNotEmpty) {
+              await repo.contatos.adicionarEmail(contatoId, emails);
+            }
+          } else {
+            // Atualização de contato (sem incluir emails aqui)
+            await repo.contatos.editarEmail(
+              emailId: contatos['id'],
+              contatoId: contatos['id'],
+              emailData: data,
+            );
           }
         },
       ),
@@ -134,18 +182,50 @@ class _ContatosState extends State<Contatos> {
                               return ContatoCard(
                                 contato: contatos,
                                 onEdit: () =>
-                                    abrirFormulario(contatos: contatos),
-                                onDelete: () => showDialog(
-                                  context: context,
-                                  builder: (context) => ConfirmDeleteDialog(
-                                    titulo: 'Confirmar Exclusão',
-                                    mensagem:
-                                        'Tem certeza que deseja deletar este contatos?',
-                                    onConfirm: () async {
-                                      deletarcontatos(contatos['id']);
-                                    },
-                                  ),
-                                ),
+                                    widget.criarContatos(contatos), //TODO
+                                onDelete: () =>
+                                    widget.criarContatos(contatos['id']), //TODO
+                                onDeleteEmail: (contatoId, emailId) {
+                                  widget.deletarEmailsContatos({
+                                    'contatoId': contatoId,
+                                    'emailId': emailId,
+                                  });
+                                },
+                                onEditEmail: (contato, emailData) async {
+                                  // Abre um modal ou página para editar o email
+                                  final novoEmail =
+                                      await showDialog<Map<String, dynamic>>(
+                                        context: context,
+                                        builder: (context) {
+                                          return ModularFormDialog(
+                                            titulo: 'Editar E-mail',
+                                            dataInicial: emailData,
+                                            camposTexto: [
+                                              {
+                                                'label': 'E-mail',
+                                                'key': 'email',
+                                              },
+                                            ],
+                                            camposDropdown: [],
+                                            contato: "contatoPage",
+                                            onSubmit: (novoEmail) {
+                                              Navigator.of(
+                                                context,
+                                              ).pop(novoEmail);
+                                              return (novoEmail['id']);
+                                            },
+                                          );
+                                        },
+                                      );
+
+                                  if (novoEmail != null) {
+                                    widget.editarEmailsContatos({
+                                      'contatoId': contato['id'],
+                                      'emailId': emailData['id'],
+                                      'emailData': novoEmail,
+                                    });
+                                  }
+                                },
                               );
                             }).toList(),
                           ),
