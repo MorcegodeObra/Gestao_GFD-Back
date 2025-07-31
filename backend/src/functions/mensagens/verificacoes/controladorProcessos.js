@@ -4,7 +4,7 @@ import { enviarMensagem, isSameDay } from "../emailsConfig/enviarMensagem.js";
 import { gerarMensagemHTML } from '../emailsConfig/gerarMensagemHTML.js';
 import { ContactEmail } from '../../../models/contactEmail.js';
 import { ContactNumber } from '../../../models/contactNumber.js';
-
+import { differenceInDays } from 'date-fns';
 
 export async function handleContact(proces, now) {
   const contato = await Contact.findByPk(proces.contatoId, {
@@ -20,10 +20,10 @@ export async function handleContact(proces, now) {
   if (lastInteration && !proces.answer) {
     const diasSemAtualizacao = Math.floor((now - lastInteration) / (1000 * 60 * 60 * 24));
     const lastSent = proces.lastSent ? new Date(proces.lastSent) : null;
-    const mesmoDia = lastSent && isSameDay(lastSent, now)
+    const doisDias = lastSent && differenceInDays(now,lastSent)>=2;
     const diasRestantes = 30 - diasSemAtualizacao
 
-    if (diasSemAtualizacao >= 30 && !mesmoDia) {
+    if (diasSemAtualizacao >= 30 && doisDias) {
       titulo = '⚠️ Prazo vencido';
       corpo = `
       Verificamos que o prazo de 30 dias para o envio das informações expirou há <strong>${diasSemAtualizacao - 30} dias</strong>.<br><br>

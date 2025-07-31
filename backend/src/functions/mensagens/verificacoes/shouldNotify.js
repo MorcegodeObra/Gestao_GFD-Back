@@ -17,7 +17,7 @@ export function shouldNotify(proces, now) {
   const diffInDays = (now - lastSent) / (1000 * 3600 * 24);
 
   if (proces.contatoStatus === 'IMPLANTAÇÃO') {
-    return diffInDays >= 170;
+    return diffInDays >= 140;
   }
 
   const priority = proces.priority || 'BAIXO';

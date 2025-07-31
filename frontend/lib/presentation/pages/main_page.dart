@@ -377,11 +377,21 @@ class _GraficoProcessosPageState extends State<GraficoProcessosPage> {
                                       Colors.grey.shade300,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Text(
-                                  p['processoSider'] ?? 'Sem ID',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      p['processoSider'] ?? 'Sem ID',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      p['contatoStatus'] ?? 'Sem Status',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               );
                             }).toList(),
