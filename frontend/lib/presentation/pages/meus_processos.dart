@@ -153,7 +153,9 @@ class _MainMenuState extends State<MainMenu> {
   @override
   Widget build(BuildContext context) {
     final processosFiltradosFila = widget.processos
-        .where((p) => p['answer'] == true)
+        .where(
+          (p) => p['answer'] == true && p['userId'] == widget.userId,
+        )
         .toList();
 
     final prioridadeOrdem = {"URGENTE": 0, "ALTO": 1, "MÉDIO": 2, "BAIXO": 3};
@@ -274,6 +276,46 @@ class _MainMenuState extends State<MainMenu> {
                       ),
                     ],
                   ),
+                  Text(
+                    "Fila de atendimento:",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: processosFiltradosFila.map<Widget>((p) {
+                        return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color:
+                                corPorPrioridade[p['priority']] ??
+                                Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                p['processoSider'] ?? 'Sem ID',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                p['contatoStatus'] ?? 'Sem Status',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
                   Expanded(
                     child: processosFiltrados.isEmpty
                         ? Center(
@@ -298,52 +340,6 @@ class _MainMenuState extends State<MainMenu> {
                           )
                         : Column(
                             children: [
-                              Text(
-                                "Fila de atendimento:",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: widget.processos.map<Widget>((p) {
-                                    return Container(
-                                      margin: const EdgeInsets.symmetric(
-                                        horizontal: 4,
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 8,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            corPorPrioridade[p['priority']] ??
-                                            Colors.grey.shade300,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            p['processoSider'] ?? 'Sem ID',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                          Text(
-                                            p['contatoStatus'] ?? 'Sem Status',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
-                                ),
-                              ),
-
                               Expanded(
                                 child: ListView(
                                   children: processosFiltrados.map((processos) {
