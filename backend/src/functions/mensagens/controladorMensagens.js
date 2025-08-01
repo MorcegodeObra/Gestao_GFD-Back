@@ -3,7 +3,7 @@ import { handleContact } from './verificacoes/controladorProcessos.js';
 import { Process } from '../../models/processo.js';
 import { Op } from 'sequelize';
 
-export const servicoCobranca = cron.schedule('* * * * *', async () => {
+export const servicoCobranca = cron.schedule('*/15 * * * *', async () => {
   try {
     const now = new Date();
     const diaSemana = now.getDay();
