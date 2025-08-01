@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import './presentation/pages/login.dart';
 import "presentation/pages/router_navBar.dart";
+import './presentation/pages/cadastro.dart';
 
 void main() {
   runApp(const MyApp());
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => LoginPage(),
         '/mainPage': (context) => MainScaffold(),
+        '/cadastro': (context) => CadastroPage(),
       },
     );
   }

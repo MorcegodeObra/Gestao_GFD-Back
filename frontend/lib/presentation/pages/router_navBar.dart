@@ -43,7 +43,20 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   Future<void> atualizarProcesso(int id, Map<String, dynamic> data) async {
     final atualizado = await repo.processos.atualizarProcessos(id, data);
-    atualizarProcessoNaLista(atualizado);
+    carregarDados();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Sucesso'),
+        content: Text("O processo foi atualizado com sucesso."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("OK"),
+          ),
+        ],
+      ),
+    );
   }
 
   void deletarProcesso(int id) async {
