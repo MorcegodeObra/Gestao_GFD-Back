@@ -76,11 +76,9 @@ class _TodosProcessosState extends State<TodosProcessos> {
     final processosFiltrados = widget.processos.where((p) {
       final status = p['contatoStatus'];
       final processo = p['processoSider']?.toString().toLowerCase() ?? '';
-      final userId = p['userId'];
       final matchesBusca = processo.contains(termoBusca);
       final matchesStatus =
           statusSelecionado == null || status == statusSelecionado;
-      final matchesUser = widget.userId == null || userId == widget.userId;
       final respondidoOk =
           (respondidoSelecionado == true && p['answer'] == true) ||
           (respondidoSelecionado == false && p['answer'] == false);
@@ -97,7 +95,6 @@ class _TodosProcessosState extends State<TodosProcessos> {
 
       return matchesBusca &&
           matchesStatus &&
-          matchesUser &&
           respondidoOk &&
           matchesAtraso;
     }).toList();

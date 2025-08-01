@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../widgets/modular_form.dart';
 import '../../core/API/api_controller.dart';
 import '../widgets/contato_card.dart';
-import '../widgets/delete_dialog.dart';
 
 class Contatos extends StatefulWidget {
   final bool isLoading;
