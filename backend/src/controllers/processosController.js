@@ -41,10 +41,11 @@ export const criarProcesso = async (req, res) => {
       priority,
       rodovia,
     });
+
     await user.update({
       criados: (user.criados || 0) + 1
     });
-    
+
     res.status(201).json(process);
   } catch (error) {
     console.error(error);
@@ -197,9 +198,11 @@ export const editarProcesso = async (req, res) => {
       newUserId: null,
     });
 
-    await user.update({
-      editados: (user.editados || 0) + 1
-    });
+    if (novoDono !== 12) {
+      await user.update({
+        editados: (user.editados || 0) + 1
+      });
+    }
 
     res.json(process);
   } catch (error) {
