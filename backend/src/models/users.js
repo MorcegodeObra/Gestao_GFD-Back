@@ -36,4 +36,12 @@ export const User = sequelize.define('User', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW
   },
+  criados: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
+  },
+  editados: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
+  }
 });

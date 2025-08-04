@@ -1,4 +1,5 @@
 import { Process } from "../models/processo.js"
+import { User } from "../models/users.js"
 import { DATE, Op } from 'sequelize';
 
 export const criarProcesso = async (req, res) => {
@@ -20,6 +21,7 @@ export const criarProcesso = async (req, res) => {
       priority,
       rodovia,
     } = req.body;
+    const user = await User.findByPk(novoDono)
 
     const process = await Process.create({
       processoSider,
@@ -39,7 +41,10 @@ export const criarProcesso = async (req, res) => {
       priority,
       rodovia,
     });
-
+    await user.update({
+      criados: (user.criados || 0) + 1
+    });
+    
     res.status(201).json(process);
   } catch (error) {
     console.error(error);
@@ -167,9 +172,10 @@ export const editarProcesso = async (req, res) => {
         }
       }
     }
-    let answerDate = answer ? new Date(): process.answerDate
+    let answerDate = answer ? new Date() : process.answerDate
     let novoStatus = (!contatoStatus && answer) ? "AGUARDANDO DER" : (contatoStatus || process.contatoStatus);
 
+    const user = await User.findByPk(novoDono)
     await process.update({
       processoSider,
       protocolo,
@@ -189,6 +195,10 @@ export const editarProcesso = async (req, res) => {
       rodovia,
       solicitacaoProcesso: false,
       newUserId: null,
+    });
+
+    await user.update({
+      editados: (user.editados || 0) + 1
     });
 
     res.json(process);

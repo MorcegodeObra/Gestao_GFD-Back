@@ -179,7 +179,7 @@ class _MainMenuState extends State<MainMenu> {
 
       final dateA = DateTime.tryParse(a['answerDate'] ?? '') ?? DateTime(1900);
       final dateB = DateTime.tryParse(b['answerDate'] ?? '') ?? DateTime(1900);
-      return dateB.compareTo(dateA); // se prioridade igual, compara por data
+      return dateA.compareTo(dateB); // se prioridade igual, compara por data
     });
     final Map<int, String> mapaContatos = {
       for (var contato in widget.contatos)
