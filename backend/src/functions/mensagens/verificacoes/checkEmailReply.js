@@ -46,8 +46,8 @@ export async function checkEmailReply(proces) {
       : [contato.email.trim().toLowerCase()];
 
     const subjectQuery = `Solicitação - ${proces.processoSider}`;
-    const sinceDate = new Date();
-    sinceDate.setDate(sinceDate.getDate());
+    const sinceDate = new Date(Date.now() - 30 * 60 * 1000);
+
 
     imap.once('ready', () => {
       imap.openBox('INBOX', false, (err) => {
