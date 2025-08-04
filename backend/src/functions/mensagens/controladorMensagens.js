@@ -6,7 +6,7 @@ import { Op } from 'sequelize';
 export const servicoCobranca = cron.schedule('*/15 * * * *', async () => {
   try {
     const now = new Date();
-    const diaSemana = now.getDay();
+    const diaSemana = new Date().toLocaleDateString('pt-BR', { weekday: 'numeric', timeZone: 'America/Sao_Paulo' });
     const process = await Process.findAll({
       where: {
         contatoStatus: {
@@ -19,7 +19,7 @@ export const servicoCobranca = cron.schedule('*/15 * * * *', async () => {
       }
     });
 
-    if (!diaSemana == 6 || !diaSemana == 0) {
+    if (diaSemana !== 7 || diaSemana !== 6) {
       console.log("Enviando emails...")
       for (const proces of process) {
         await handleContact(proces, now);
