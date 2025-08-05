@@ -21,7 +21,7 @@ export const criarProcesso = async (req, res) => {
       priority,
       rodovia,
     } = req.body;
-    const user = await User.findByPk(novoDono)
+    const user = await User.findByPk(userId)
 
     const process = await Process.create({
       processoSider,
