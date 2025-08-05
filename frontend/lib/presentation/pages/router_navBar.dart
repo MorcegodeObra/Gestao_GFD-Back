@@ -4,9 +4,10 @@ import '../widgets/app_navbar.dart';
 import '../../core/UTILS/salvar_dados.dart';
 import '../pages/main_page.dart';
 import '../pages/contatos_page.dart';
-import '../pages/meus_processos.dart';
-import '../pages/todos_processos.dart';
+import 'process/meus_processos.dart';
+import 'process/todos_processos.dart';
 import '../widgets/delete_dialog.dart';
+import '../pages/services/main_services.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({Key? key}) : super(key: key);
@@ -18,9 +19,6 @@ class MainScaffold extends StatefulWidget {
 class _MainScaffoldState extends State<MainScaffold> {
   int paginaAtual = 0;
   final ApiService repo = ApiService();
-
-  List<dynamic> processos = [];
-  List<dynamic> contatos = [];
   int? userId;
   bool isLoading = true;
 
@@ -32,10 +30,9 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   Future<void> carregarDados() async {
     final userData = await getDadosUsuario();
+    carregarContatos();
+    carregarProcessos();
     userId = userData['userId'];
-    contatos = await repo.contatos.getContatos();
-    processos = await repo.processos.getProcessos();
-
     setState(() {
       isLoading = false;
     });
@@ -43,7 +40,7 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   Future<void> atualizarProcesso(int id, Map<String, dynamic> data) async {
     await repo.processos.atualizarProcessos(id, data);
-    carregarDados();
+    carregarProcessos();
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -59,54 +56,6 @@ class _MainScaffoldState extends State<MainScaffold> {
     );
   }
 
-  void deletarProcesso(int id) async {
-    await repo.processos.deletarProcessos(id);
-    removerProcessoDaLista(id);
-  }
-
-  void aceitarEnvioProcesso(int id, Map<String, dynamic> data) async {
-    final atualizado = await repo.processos.aceitarEnvioProcesso(id, data);
-    atualizarProcessoNaLista(atualizado);
-  }
-
-  void atualizarProcessoNaLista(Map<String, dynamic> processoAtualizado) {
-    final id = processoAtualizado['id'];
-    final index = processos.indexWhere((p) => p['id'] == id);
-    if (!mounted) return;
-    if (index != -1) {
-      setState(() {
-        processos[index] = processoAtualizado;
-      });
-    }
-  }
-
-  void removerProcessoDaLista(int id) {
-    setState(() {
-      processos.removeWhere((p) => p['id'] == id);
-    });
-  }
-
-  void criarProcesso(Map<String, dynamic> data) async {
-    final novo = await repo.processos.criarProcessos(data);
-    setState(() {
-      processos.add(novo);
-    });
-  }
-
-  void criarContato(Map<String, dynamic> data) async {
-    final novo = await repo.contatos.criarContatos(data);
-    setState(() {
-      contatos.add(novo);
-    });
-  }
-
-  void addEmail(int id, List<Map<String, dynamic>> data) async {
-    final novo = await repo.contatos.adicionarEmail(id, data);
-    setState(() {
-      contatos.add(novo);
-    });
-  }
-
   void editarEmail(Map<String, dynamic> data) async {
     try {
       await repo.contatos.editarEmail(
@@ -115,7 +64,7 @@ class _MainScaffoldState extends State<MainScaffold> {
         emailData: data['emailData'],
       );
       setState(() {
-        carregarDados();
+        carregarContatos();
       });
     } catch (e) {
       print("Erro ao editar email: $e");
@@ -129,7 +78,7 @@ class _MainScaffoldState extends State<MainScaffold> {
         emailId: data['emailId'],
       );
       setState(() {
-        carregarDados();
+        carregarContatos();
       });
     } catch (e) {
       print("Erro ao deletar email: $e");

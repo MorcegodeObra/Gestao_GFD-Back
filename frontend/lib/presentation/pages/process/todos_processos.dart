@@ -93,10 +93,7 @@ class _TodosProcessosState extends State<TodosProcessos> {
 
       final matchesAtraso = !mostrarApenasAtrasados || estaAtrasado;
 
-      return matchesBusca &&
-          matchesStatus &&
-          respondidoOk &&
-          matchesAtraso;
+      return matchesBusca && matchesStatus && respondidoOk && matchesAtraso;
     }).toList();
 
     final Set<String> statusDisponiveis = widget.processos
@@ -219,26 +216,6 @@ class _TodosProcessosState extends State<TodosProcessos> {
                                                   dataAtualizada,
                                                 );
                                                 setState(() {});
-                                                showDialog(
-                                                  context: context,
-                                                  builder: (context) => AlertDialog(
-                                                    title: const Text(
-                                                      'Sucesso',
-                                                    ),
-                                                    content: Text(
-                                                      "Processo foi para sua carga!",
-                                                    ),
-                                                    actions: [
-                                                      TextButton(
-                                                        onPressed: () =>
-                                                            Navigator.pop(
-                                                              context,
-                                                            ),
-                                                        child: const Text('OK'),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                );
                                               } catch (e) {
                                                 showDialog(
                                                   context: context,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/presentation/widgets/processo_card.dart';
-import '../widgets/modular_form.dart';
-import '../widgets/delete_dialog.dart';
+import '../../widgets/modular_form.dart';
+import '../../widgets/delete_dialog.dart';
 
 class MainMenu extends StatefulWidget {
   final int? userId;
