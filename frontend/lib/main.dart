@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import './presentation/pages/login.dart';
-import "presentation/pages/router_navBar.dart";
-import './presentation/pages/cadastro.dart';
+import 'modules/pages/login.dart';
+import "modules/pages/router_navBar.dart";
+import 'modules/pages/cadastro.dart';
 
 void main() {
   runApp(const MyApp());

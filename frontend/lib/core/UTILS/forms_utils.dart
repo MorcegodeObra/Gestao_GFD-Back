@@ -26,7 +26,8 @@ class FormUtils {
     required BuildContext context,
     required TextEditingController controller,
   }) async {
-    DateTime initialDate = parseDateFromDisplay(controller.text) ?? DateTime.now();
+    DateTime initialDate =
+        parseDateFromDisplay(controller.text) ?? DateTime.now();
 
     DateTime? pickedDate = await showDatePicker(
       context: context,

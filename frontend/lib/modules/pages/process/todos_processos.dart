@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/presentation/widgets/processo_card.dart';
+import 'package:frontend/modules/widgets/processo_card.dart';
 
 class TodosProcessos extends StatefulWidget {
   final int? userId;

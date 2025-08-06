@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/presentation/widgets/processo_card.dart';
+import 'package:frontend/modules/widgets/processo_card.dart';
 import '../../widgets/modular_form.dart';
 import '../../widgets/delete_dialog.dart';
 

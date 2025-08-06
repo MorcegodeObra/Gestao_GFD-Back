@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:frontend/core/API/api_controller.dart';
 import '../widgets/app_navbar.dart';
 import '../../core/UTILS/salvar_dados.dart';
-import '../pages/main_page.dart';
-import '../pages/contatos_page.dart';
+import 'main_page.dart';
+import 'contatos_page.dart';
 import 'process/meus_processos.dart';
 import 'process/todos_processos.dart';
 import '../widgets/delete_dialog.dart';
-import '../pages/services/main_services.dart';
+import 'services/main_services.dart';
 
 class MainScaffold extends StatefulWidget {
   const MainScaffold({Key? key}) : super(key: key);

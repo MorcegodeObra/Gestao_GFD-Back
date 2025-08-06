@@ -26,10 +26,11 @@ export async function handleContact(proces, now) {
     if (diasSemAtualizacao >= 30 && doisDias) {
       titulo = '⚠️ Prazo vencido';
       corpo = `
-      Verificamos que o prazo de 30 dias para o envio das informações expirou há <strong>${diasSemAtualizacao - 30} dias</strong>.<br><br>
-      Solicitamos, por gentileza, o envio da documentação pendente ou atualização sobre o andamento da demanda.<br><br>
-      Caso já tenha enviado, favor desconsiderar esta mensagem.
-    `;
+      Verificamos que o prazo de <strong>30 dias</strong> para o envio das informações expirou há <strong>${diasSemAtualizacao - 30} dias</strong>.<br><br>
+      Solicitamos, por gentileza, o envio da documentação pendente ou uma atualização sobre o andamento da demanda. Conforme disposto no Decreto 140/2015, 
+      o não envio dentro do prazo de 30 dias sujeita o interessado ao pagamento de nova taxa de vistoria e análise de projeto.<br>
+      Caso a documentação já tenha sido encaminhada, pedimos a gentileza de confirmar o envio por este e-mail ou diretamente com o responsável pelo processo.
+      `;
       const mensagem = await gerarMensagemHTML(proces, contato, titulo, corpo)
       await enviarMensagem(proces, now, mensagem, contato);
       return;
@@ -40,9 +41,8 @@ export async function handleContact(proces, now) {
     if (deveNotificar) {
       titulo = '⏳ Acompanhamento de prazo';
       corpo = `
-      Atualmente restam <strong>${diasRestantes} dias</strong> para o vencimento do prazo de 30 dias para o envio das informações.<br><br>
-      Se já estiver providenciando, não é necessária nenhuma ação adicional neste momento.<br><br>
-      Permanecemos à disposição para dúvidas.
+      Atualmente restam <strong>${diasRestantes} dias</strong> para o vencimento do prazo de 30 dias para o envio das informações.<br>
+      Se já estiver providenciando, não é necessária nenhuma ação adicional neste momento.<br>
     `;
       const mensagem = await gerarMensagemHTML(proces, contato, titulo, corpo)
       await enviarMensagem(proces, now, mensagem, contato);
