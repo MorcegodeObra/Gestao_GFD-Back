@@ -3,7 +3,7 @@ import { sequelize } from './src/config/sequelize.js';
 import routerBot from './src/router/router.js';
 import { configDotenv } from 'dotenv';
 import cors from 'cors';
-import {servicoCobranca} from './src/functions/mensagens/controladorMensagens.js';
+import {iniciarCobranca} from './src/functions/mensagens/controladorMensagens.js';
 import {verificaEmail} from "./src/functions/mensagens/verificaRespostas.js";
 import { sendWeeklySummaries } from './src/functions/mensagens/resumoSemanal.js';
 
@@ -24,7 +24,7 @@ sequelize.authenticate()
   });
 
 verificaEmail.start();
-servicoCobranca.start();
+iniciarCobranca();
 sendWeeklySummaries.start();
 
 // Sincronizar DB e iniciar servidor
