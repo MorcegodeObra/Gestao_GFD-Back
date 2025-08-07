@@ -14,6 +14,7 @@ export const verificaEmail = cron.schedule('*/5 * * * *', async () => {
         proces.answer = true;
         proces.processoComDER = true
         proces.lastInteration = now;
+        proces.cobrancas = 0
         await proces.save();
       }
     }

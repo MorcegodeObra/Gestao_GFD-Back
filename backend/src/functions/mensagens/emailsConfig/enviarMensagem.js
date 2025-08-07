@@ -9,6 +9,7 @@ export async function enviarMensagem(proces, now, mensagem, contato) {
   //await sendWhatsAppMessage(proces.number, mensagem, contato);
   await sendEmailMessage(proces, mensagem, contato);
   proces.lastSent = now;
+  proces.cobrancas = (proces.cobrancas || 0) + 1
   await proces.save();
   console.log(`[SALVO] lastSent atualizado para ${proces.lastSent} do processo ${proces.processoSider}`);
 }

@@ -28,6 +28,7 @@ export async function gerarMensagemHTML(proces, contato, titulo, corpo) {
           Início do contato: <strong>${formatarData(
             new Date(proces.lastInteration)
           )}</strong><br>
+          Quantidades de emails desde ultimo contato: ${proces.cobrancas}
           Última mensagem anexa: <strong>${proces.subject}</strong></p>
         </div>
       <div style="font-size: 13px; text-align: flex-start;">

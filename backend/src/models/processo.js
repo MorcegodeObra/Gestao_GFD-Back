@@ -102,6 +102,10 @@ export const Process = sequelize.define('Process', {
         type: DataTypes.INTEGER,
         allowNull: true
     },
+    cobrancas: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
 })
 
 Process.beforeCreate((process, options) => {
