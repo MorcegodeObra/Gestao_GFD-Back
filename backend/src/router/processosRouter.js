@@ -8,6 +8,7 @@ import {
   resumoSemanal,
   aceitarSolicitacao,
 } from '../controllers/processosController.js';
+import { resumoProcessosAtraso } from '../controllers/resumoAtraso/resumoProcessosAtraso.js';
 
 import { adicionarValorContato, removerValorContato } from "../controllers/processosContExtra.js"
 
@@ -24,5 +25,6 @@ router.post("/:id/addValor", adicionarValorContato)
 router.post("/:id/removerValor", removerValorContato)
 router.post("/id", aceitarSolicitacao)
 router.post("/:id/aceitarProcesso", aceitarSolicitacao)
+router.post("/resumoAtraso", resumoProcessosAtraso)
 
 export default router;

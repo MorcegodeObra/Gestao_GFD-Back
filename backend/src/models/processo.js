@@ -98,4 +98,28 @@ export const Process = sequelize.define('Process', {
         type: DataTypes.INTEGER,
         allowNull: true
     },
+    ano: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
 })
+
+Process.beforeCreate((process, options) => {
+  const partes = process.processoSider.split('/');
+  if (partes.length > 1) {
+    const anoExtraido = parseInt(partes[1]);
+    if (!isNaN(anoExtraido)) {
+      process.ano = anoExtraido;
+    }
+  }
+});
+
+Process.beforeUpdate((process, options) => {
+  const partes = process.processoSider.split('/');
+  if (partes.length > 1) {
+    const anoExtraido = parseInt(partes[1]);
+    if (!isNaN(anoExtraido)) {
+      process.ano = anoExtraido;
+    }
+  }
+});
