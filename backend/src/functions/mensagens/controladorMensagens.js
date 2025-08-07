@@ -41,8 +41,6 @@ async function servicoCobranca() {
       } else {
         console.log("Final de semana!");
       }
-      isRunning = false;
-      console.log("Finalizado o envio de emails.");
     } catch (err) {
       console.error(
         "Erro ao executar o cron job para envio de mensagens:",
@@ -50,6 +48,8 @@ async function servicoCobranca() {
       );
     }
   }
+  isRunning = false;
+  console.log("Finalizado o envio de emails.");
 }
 
 export function iniciarCobranca() {
