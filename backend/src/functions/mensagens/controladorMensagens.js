@@ -38,6 +38,8 @@ async function servicoCobranca() {
         for (const proces of process) {
           await handleContact(proces, now);
         }
+        isRunning = false
+        console.log("Finalizado o envio de emails.")
       } else {
         console.log("Final de semana!");
       }
