@@ -36,14 +36,15 @@ export async function gerarMensagemHTMLMultiplosProcessos(
       const nomeContato = contatosMap[p.contatoId];
       const lastInterationDate = new Date(p.lastInteration);
       const diffMs = now - lastInterationDate;
-      const diasAtraso = Math.floor(diffMs/(1000*60*60*24));
+      const diasAtraso = Math.floor(diffMs / (1000 * 60 * 60 * 24));
       return `
       <li style="margin-bottom: 10px;">
         <strong>${p.processoSider}</strong><br> 
         Dias de atraso: <strong>${diasAtraso}</strong><br>
         Status: ${p.contatoStatus}<br>
         Contato: ${nomeContato} <br>
-        Início do contato: ${formatarData(lastInterationDate)} 
+        Início do contato: <strong>${formatarData(lastInterationDate)}</strong> <br>
+        Envios realizados: <strong>${p.cobrancas}</strong>
       </li>
     `;
     })

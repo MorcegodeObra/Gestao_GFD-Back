@@ -13,7 +13,8 @@ export const resumoProcessosAtraso = async (req, res) => {
         lastInteration: { [Op.lt]: subDays(new Date(), 30) },
         contatoStatus: { [Op.notIn]: ["CANCELADO/ARQUIVADO", "CONCLUIDO"] },
         userId: { [Op.ne]: 12 },
-        ano:{[Op.in]:req.body.anos}
+        ano: { [Op.in]: req.body.anos },
+        cobrancas: { [Op.gte]: 2 },
       },
     });
     const titulo = "⚠️ Processos em atraso";
@@ -23,6 +24,7 @@ export const resumoProcessosAtraso = async (req, res) => {
       o não envio dentro do prazo de 30 dias sujeita o interessado ao pagamento de nova taxa de vistoria e análise de projeto.<br>
       Caso haja alguma atualização do processo e não foi atualizada,sugerimos a atulização apra que não haja o arquivamento errôneo.
       `;
+
     const mensagem = await gerarMensagemHTMLMultiplosProcessos(
       processos,
       titulo,
