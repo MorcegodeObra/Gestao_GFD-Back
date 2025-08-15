@@ -198,6 +198,10 @@ export const editarProcesso = async (req, res) => {
       newUserId: null,
     });
 
+    if (answer == true){
+      process.cobrancas = 0
+    }
+
     if (novoDono !== 12) {
       await user.update({
         editados: (user.editados || 0) + 1
