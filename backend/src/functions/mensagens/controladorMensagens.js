@@ -1,4 +1,3 @@
-import cron from "node-cron";
 import { handleContact } from "./verificacoes/controladorProcessos.js";
 import { Process } from "../../models/processo.js";
 import { Op } from "sequelize";
@@ -52,8 +51,7 @@ async function servicoCobranca() {
   console.log("Finalizado o envio de emails.");
 }
 
-export function iniciarCobranca() {
-  servicoCobranca();
-
+export async function iniciarCobranca() {
+  await servicoCobranca();
   setInterval(servicoCobranca, 5 * 60 * 1000);
 }

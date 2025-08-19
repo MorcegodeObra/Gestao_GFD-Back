@@ -1,7 +1,5 @@
-import cron from "node-cron";
 import { checkEmailReply } from "./verificacoes/checkEmailReply.js";
 import { Process } from "../../models/processo.js";
-import { set } from "date-fns";
 
 let isReading = false;
 
@@ -33,8 +31,7 @@ async function verificaEmail() {
   console.log("Finalizado a leitura de emails!");
 }
 
-export function iniciarVerificaEmail() {
-  verificaEmail();
-
+export async function iniciarVerificaEmail() {
+  await verificaEmail();
   setInterval(verificaEmail, 5 * 60 * 1000);
 }

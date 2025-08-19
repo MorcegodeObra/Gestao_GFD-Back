@@ -1,25 +1,56 @@
-import nodemailer from 'nodemailer';
-import { gerarGraficoResumo, gerarGraficoProcessoComUsuario } from './gerarGraficoResumo.js';
-import { getWeek } from 'date-fns';
+import nodemailer from "nodemailer";
+import { Process } from "../../../models/processo.js";
+import { getWeek } from "date-fns";
 
-export async function sendResumo(email, emDia, atrasados, criados, modificados, comUsuario, semUsuario) {
+import { gerarGraficoGenerico } from "./gerarGrafico.js";
+
+export async function sendResumo(
+  email,
+  emDia,
+  atrasados,
+  criados,
+  modificados,
+  comUsuario,
+  semUsuario
+) {
   try {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: "gmail",
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
     });
 
-    const dataAtual = new Date();
-    const numeroSemana = getWeek(dataAtual, { weekStartsOn: 0 }); // 0 = domingo, 1 = segunda
-
-    const bufferStatus = await gerarGraficoResumo({ emDia, atrasados });
-    const bufferUsuario = await gerarGraficoProcessoComUsuario({
-      sim: comUsuario,
-      nao: semUsuario,
+    // Busca todos os processos e conta eles
+    const processos = await Process.findAll();
+    const statusCount = {};
+    processos.forEach((p) => {
+      const status = p.contatoStatus || "SEM STATUS";
+      statusCount[status] = (statusCount[status] || 0) + 1;
     });
+
+    // Gera gráficos
+    const dadosUsuario = {
+      "Com Usuário": comUsuario,
+      "Sem Usuário": semUsuario,
+    };
+    const bufferUsuario = await gerarGraficoGenerico(
+      dadosUsuario,
+      "Processos com Usuário"
+    );
+    const dadosPrazo = { "Em Dia": emDia, Atrasados: atrasados };
+    const bufferPrazo = await gerarGraficoGenerico(
+      dadosPrazo,
+      "Resumo de Prazos"
+    );
+    const bufferStatus = await gerarGraficoGenerico(
+      statusCount,
+      "Processos por Status"
+    );
+
+    const dataAtual = new Date();
+    const numeroSemana = getWeek(dataAtual, { weekStartsOn: 0 });
 
     const mailOptions = {
       from: `"Contato Smart" <${process.env.EMAIL_USER}>`,
@@ -36,20 +67,16 @@ export async function sendResumo(email, emDia, atrasados, criados, modificados, 
       </ul>
 
       <p><strong>Status Geral:</strong></p>
-      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center; table-layout: fixed;">
         <tr>
-          <td>
-            <p>Status dos Processos</p>
-            <img src="cid:graficoStatus" style="width: 180px;" />
-            <br> Processos em dia: <strong>${emDia}</strong></br>
-            <br> Processos em atraso: <strong>${atrasados}</strong></br>
-
+          <td style="width: 50%; vertical-align: top; padding: 5px;">
+            <img src="cid:graficoStatus" style="width: 100%; height: auto; max-width: 500px;" />
           </td>
-          <td>
-            <p>Com DER</p>
-            <img src="cid:graficoUsuario" style="width: 180px;" />
-            <br> Processos com usuário DER: <strong>${comUsuario}</strong></br>
-            <br> Processos com Solicitante: <strong>${semUsuario}</strong></br>
+          <td style="width: 50%; vertical-align: top; padding: 5px;">
+            <img src="cid:graficoPrazo" style="width: 100%; height: auto; max-width: 500px;" />
+          </td>
+          <td style="width: 50%; vertical-align: top; padding: 5px;">
+            <img src="cid:graficoUsuario" style="width: 100%; height: auto; max-width: 500px;" />
           </td>
         </tr>
       </table>
@@ -63,21 +90,25 @@ export async function sendResumo(email, emDia, atrasados, criados, modificados, 
   `,
       attachments: [
         {
-          filename: 'grafico-status.png',
+          filename: "grafico-status.png",
           content: bufferStatus,
-          cid: 'graficoStatus',
+          cid: "graficoStatus",
         },
         {
-          filename: 'grafico-usuario.png',
+          filename: "grafico-usuario.png",
           content: bufferUsuario,
-          cid: 'graficoUsuario',
+          cid: "graficoUsuario",
+        },
+        {
+          filename: "grafico-prazo.png",
+          content: bufferPrazo,
+          cid: "graficoPrazo",
         },
       ],
     };
 
-
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    console.error('Erro ao enviar e-mail:', error.message);
+    console.error("Erro ao enviar e-mail:", error);
   }
 }

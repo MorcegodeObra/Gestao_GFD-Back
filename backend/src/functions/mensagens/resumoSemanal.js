@@ -1,10 +1,10 @@
-import { User } from '../../models/users.js';
-import { Process } from '../../models/processo.js';
-import { sendResumo } from './emailsConfig/mensagemResumoSemanal.js';
-import cron from 'node-cron';
+import { User } from "../../models/users.js";
+import { Process } from "../../models/processo.js";
+import { sendResumo } from "./emailsConfig/mensagemResumoSemanal.js";
+import { Op, where } from "sequelize";
 
-export const sendWeeklySummaries = cron.schedule('*/15 * * * *', async () => {
-  console.log("Rodando resumo semanal!!")
+async function resumoSemanal() {
+  console.log("Rodando resumo semanal!!");
   const hoje = new Date();
   const diaSemana = hoje.getDay(); // 5 = sexta-feira
   const umaSemanaAtras = new Date();
@@ -12,12 +12,12 @@ export const sendWeeklySummaries = cron.schedule('*/15 * * * *', async () => {
 
   if (diaSemana !== 5) return;
 
-  const users = await User.findAll();
+  const users = await User.findAll({ where: { id: { [Op.notIn]: [12] } } });
 
   for (const user of users) {
     if (!user || !user.id) continue;
-    const criados = user.criados
-    const modificados = user.editados
+    const criados = user.criados;
+    const modificados = user.editados;
 
     const [comUsuario, semUsuario] = await Promise.all([
       Process.count({ where: { userId: user.id, processoComDER: true } }),
@@ -44,10 +44,12 @@ export const sendWeeklySummaries = cron.schedule('*/15 * * * *', async () => {
     let mensagensEmDia = 0;
 
     for (const proces of processos) {
-
       const dataEnvio = proces.lastInteration || proces.lastSent;
-      const diasDesdeEnvio = Math.floor((hoje - dataEnvio) / (1000 * 60 * 60 * 24));
-      if (!dataEnvio) continue;
+      if (!dataEnvio) continue; // ignora se não houver data
+
+      const diasDesdeEnvio = Math.floor(
+        (hoje - new Date(dataEnvio)) / (1000 * 60 * 60 * 24)
+      );
 
       if (diasDesdeEnvio > 30) {
         mensagensAtraso++;
@@ -56,12 +58,27 @@ export const sendWeeklySummaries = cron.schedule('*/15 * * * *', async () => {
       }
     }
 
-    await sendResumo(user.userEmail, mensagensEmDia, mensagensAtraso, criados, modificados, comUsuario, semUsuario);
+    await sendResumo(
+      user.userEmail,
+      mensagensEmDia,
+      mensagensAtraso,
+      criados,
+      modificados,
+      comUsuario,
+      semUsuario
+    );
+    console.log(`Resumo enviado para ${user.userEmail} com sucesso.`);
+
     //await sendWhatsAppMessage(user.userNumber, resumoMsg);
-    console.log(`Resumo Enviado para ${user.userName} no dia ${hoje}`);
     user.userResumo = hoje;
     user.criados = 0;
     user.editados = 0;
     await user.save();
   }
-});
+}
+
+export async function iniciarResumo() {
+  await resumoSemanal();
+  console.log("Resumos enviados");
+  setInterval(sendResumo, 10 * 60 * 1000);
+}

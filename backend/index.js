@@ -5,7 +5,7 @@ import { configDotenv } from "dotenv";
 import cors from "cors";
 import { iniciarCobranca } from "./src/functions/mensagens/controladorMensagens.js";
 import { iniciarVerificaEmail } from "./src/functions/mensagens/verificaRespostas.js";
-import { sendWeeklySummaries } from "./src/functions/mensagens/resumoSemanal.js";
+import { iniciarResumo } from "./src/functions/mensagens/resumoSemanal.js";
 
 const app = express();
 const PORT = 3000;
@@ -26,7 +26,7 @@ sequelize
 
 iniciarVerificaEmail();
 iniciarCobranca();
-sendWeeklySummaries.start();
+iniciarResumo();
 
 // Sincronizar DB e iniciar servidor
 sequelize.sync({ alter: true }).then(() => {
