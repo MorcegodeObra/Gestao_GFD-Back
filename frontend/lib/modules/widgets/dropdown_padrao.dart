@@ -17,7 +17,7 @@ class DropdownPadrao extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      value: valorSelecionado,
+      initialValue: valorSelecionado,
       isExpanded: true,
       decoration: InputDecoration(
         labelText: label,

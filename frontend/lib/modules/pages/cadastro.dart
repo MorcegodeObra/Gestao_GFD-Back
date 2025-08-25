@@ -62,7 +62,7 @@ class _CadastroPageState extends State<CadastroPage> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               decoration: const InputDecoration(labelText: 'Área'),
-              value: areaSelecionada,
+              initialValue: areaSelecionada,
               items: areas.map((area) {
                 return DropdownMenuItem<String>(value: area, child: Text(area));
               }).toList(),
@@ -75,7 +75,7 @@ class _CadastroPageState extends State<CadastroPage> {
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               decoration: const InputDecoration(labelText: 'Cargo'),
-              value: cargoSelecionado,
+              initialValue: cargoSelecionado,
               items: cargos.map((cargo) {
                 return DropdownMenuItem<String>(
                   value: cargo,
