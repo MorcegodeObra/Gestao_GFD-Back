@@ -5,11 +5,11 @@ final ApiService repo = ApiService();
 
 List<dynamic> processos = [];
 List<dynamic> contatos = [];
-Future<void> carregarProcessos() async {
-  contatos = await repo.processos.getProcessos();
+void carregarProcessos() async {
+  processos = await repo.processos.getProcessos();
 }
 
-Future<void> carregarContatos() async {
+void carregarContatos() async {
   contatos = await repo.contatos.getContatos();
 }
 
