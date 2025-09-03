@@ -106,6 +106,14 @@ export const Process = sequelize.define('Process', {
         type: DataTypes.INTEGER,
         defaultValue: 0
     },
+    tipoDeOcupacao: {
+        type: DataTypes.ENUM('ANEXO I','ANEXO II','ANEXO III','S/A'),
+        defaultValue: "S/A"
+    },
+    especificacaoDeOcupacao: {
+        type: DataTypes.ENUM("LONGITUDINAL",'TRANSVERSAL','AMBOS','S/A'),
+        defaultValue: "S/A"
+    },
 })
 
 Process.beforeCreate((process, options) => {

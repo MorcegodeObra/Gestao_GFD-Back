@@ -1,6 +1,6 @@
-import { Process } from "../models/processo.js"
-import { User } from "../models/users.js"
-import { DATE, Op } from 'sequelize';
+import { Process } from "../models/processo.js";
+import { User } from "../models/users.js";
+import { DATE, Op } from "sequelize";
 
 export const criarProcesso = async (req, res) => {
   try {
@@ -20,8 +20,10 @@ export const criarProcesso = async (req, res) => {
       subject,
       priority,
       rodovia,
+      tipoDeOcupacao,
+      especificacaoDeOcupacao,
     } = req.body;
-    const user = await User.findByPk(userId)
+    const user = await User.findByPk(userId);
 
     const process = await Process.create({
       processoSider,
@@ -40,16 +42,20 @@ export const criarProcesso = async (req, res) => {
       subject,
       priority,
       rodovia,
+      tipoDeOcupacao,
+      especificacaoDeOcupacao,
     });
 
     await user.update({
-      criados: (user.criados || 0) + 1
+      criados: (user.criados || 0) + 1,
     });
 
     res.status(201).json(process);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erro ao criar o Processo. Tente novamente mais tarde.' });
+    res
+      .status(500)
+      .json({ error: "Erro ao criar o Processo. Tente novamente mais tarde." });
   }
 };
 
@@ -66,7 +72,7 @@ export const listarProcesso = async (req, res) => {
   try {
     const processos = await Process.findAll({
       where: whereClause,
-      order: [['updatedAt', 'DESC']],
+      order: [["updatedAt", "DESC"]],
     });
     res.json(processos);
   } catch (error) {
@@ -84,36 +90,36 @@ export const resumoSemanal = async (req, res) => {
     const criados = await Process.findAll({
       where: {
         userId,
-        createdAt: { [Op.gte]: umaSemanaAtras }
-      }
+        createdAt: { [Op.gte]: umaSemanaAtras },
+      },
     });
 
     const modificados = await Process.findAll({
       where: {
         userId,
-        lastInteration: { [Op.gte]: umaSemanaAtras }
-      }
+        lastInteration: { [Op.gte]: umaSemanaAtras },
+      },
     });
 
     res.json({
       semana: {
-        de: umaSemanaAtras.toISOString().split('T')[0],
-        ate: hoje.toISOString().split('T')[0]
+        de: umaSemanaAtras.toISOString().split("T")[0],
+        ate: hoje.toISOString().split("T")[0],
       },
       criados: {
         total: criados.length,
-        lista: criados.map(p => p.processoSider)
+        lista: criados.map((p) => p.processoSider),
       },
       modificados: {
         total: modificados.length,
-        lista: modificados.map(p => p.processoSider)
-      }
+        lista: modificados.map((p) => p.processoSider),
+      },
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ erro: 'Erro ao gerar resumo semanal.' });
+    res.status(500).json({ erro: "Erro ao gerar resumo semanal." });
   }
-}
+};
 
 export const listarIdProcesso = async (req, res) => {
   try {
@@ -121,18 +127,21 @@ export const listarIdProcesso = async (req, res) => {
     if (process) {
       res.json(process);
     } else {
-      res.status(404).json({ error: 'Processo não encontrado' });
+      res.status(404).json({ error: "Processo não encontrado" });
     }
   } catch (error) {
     console.error(error); // Log do erro
-    res.status(500).json({ error: 'Erro ao buscar o Processo. Tente novamente mais tarde.' });
+    res.status(500).json({
+      error: "Erro ao buscar o Processo. Tente novamente mais tarde.",
+    });
   }
 };
 
 export const editarProcesso = async (req, res) => {
   try {
     const process = await Process.findByPk(req.params.id);
-    if (!process) return res.status(404).json({ error: 'Processo não encontrado' });
+    if (!process)
+      return res.status(404).json({ error: "Processo não encontrado" });
 
     const {
       processoSider,
@@ -149,6 +158,8 @@ export const editarProcesso = async (req, res) => {
       subject,
       priority,
       rodovia,
+      tipoDeOcupacao,
+      especificacaoDeOcupacao,
     } = req.body;
 
     const donoAtual = process.userId;
@@ -168,15 +179,19 @@ export const editarProcesso = async (req, res) => {
           });
 
           return res.status(202).json({
-            message: 'Solicitação de transferência enviada ao dono atual do processo.',
+            message:
+              "Solicitação de transferência enviada ao dono atual do processo.",
           });
         }
       }
     }
-    let answerDate = answer ? new Date() : process.answerDate
-    let novoStatus = (!contatoStatus && answer) ? "AGUARDANDO DER" : (contatoStatus || process.contatoStatus);
+    let answerDate = answer ? new Date() : process.answerDate;
+    let novoStatus =
+      !contatoStatus && answer
+        ? "AGUARDANDO DER"
+        : contatoStatus || process.contatoStatus;
 
-    const user = await User.findByPk(novoDono)
+    const user = await User.findByPk(novoDono);
     await process.update({
       processoSider,
       protocolo,
@@ -196,66 +211,78 @@ export const editarProcesso = async (req, res) => {
       rodovia,
       solicitacaoProcesso: false,
       newUserId: null,
+      tipoDeOcupacao,
+      especificacaoDeOcupacao,
     });
 
-    if (answer == true){
-      process.cobrancas = 0
+    if (answer == true) {
+      process.cobrancas = 0;
     }
 
     if (novoDono !== 12) {
       await user.update({
-        editados: (user.editados || 0) + 1
+        editados: (user.editados || 0) + 1,
       });
     }
 
     res.json(process);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erro ao editar o Processo. Tente novamente mais tarde.' });
+    res.status(500).json({
+      error: "Erro ao editar o Processo. Tente novamente mais tarde.",
+    });
   }
 };
-
-
 
 export const deletarProcesso = async (req, res) => {
   try {
     const process = await Process.findByPk(req.params.id);
     if (!process) {
-      return res.status(404).json({ error: 'Processo não encontrado' });
+      return res.status(404).json({ error: "Processo não encontrado" });
     }
 
     await process.destroy();
-    res.json({ message: 'Processo deletado com sucesso' });
+    res.json({ message: "Processo deletado com sucesso" });
   } catch (error) {
     console.error(error); // Log do erro
-    res.status(500).json({ error: 'Erro ao deletar o Processo. Tente novamente mais tarde.' });
+    res.status(500).json({
+      error: "Erro ao deletar o Processo. Tente novamente mais tarde.",
+    });
   }
 };
 
 export const aceitarSolicitacao = async (req, res) => {
   try {
     const process = await Process.findByPk(req.params.id);
-    if (!process) return res.status(404).json({ error: 'Processo não encontrado' });
+    if (!process)
+      return res.status(404).json({ error: "Processo não encontrado" });
 
     const { userId } = req.body;
 
     if (!process.solicitacaoProcesso || !process.newUserId) {
-      return res.status(400).json({ error: 'Não há solicitação pendente para este processo.' });
+      return res
+        .status(400)
+        .json({ error: "Não há solicitação pendente para este processo." });
     }
 
     if (process.userId !== userId) {
-      return res.status(403).json({ error: 'Você não tem permissão para aprovar esta solicitação.' });
+      return res.status(403).json({
+        error: "Você não tem permissão para aprovar esta solicitação.",
+      });
     }
 
     await process.update({
       userId: process.newUserId,
       solicitacaoProcesso: false,
-      newUserId: null
+      newUserId: null,
     });
 
-    res.json({ message: 'Solicitação aprovada. Processo transferido com sucesso.', process });
+    res.json({
+      message: "Solicitação aprovada. Processo transferido com sucesso.",
+      process,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Erro ao aprovar a solicitação.' });
+    res.status(500).json({ error: "Erro ao aprovar a solicitação." });
   }
 };
