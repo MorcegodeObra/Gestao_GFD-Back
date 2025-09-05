@@ -153,9 +153,7 @@ class _MainMenuState extends State<MainMenu> {
   @override
   Widget build(BuildContext context) {
     final processosFiltradosFila = widget.processos
-        .where(
-          (p) => p['answer'] == true && p['userId'] == widget.userId,
-        )
+        .where((p) => p['answer'] == true && p['userId'] == widget.userId)
         .toList();
 
     final prioridadeOrdem = {"URGENTE": 0, "ALTO": 1, "MÉDIO": 2, "BAIXO": 3};
@@ -181,6 +179,7 @@ class _MainMenuState extends State<MainMenu> {
       final dateB = DateTime.tryParse(b['answerDate'] ?? '') ?? DateTime(1900);
       return dateA.compareTo(dateB); // se prioridade igual, compara por data
     });
+
     final Map<int, String> mapaContatos = {
       for (var contato in widget.contatos)
         contato["id"] as int: (contato['name'] ?? "Desconhecido").toString(),
@@ -214,6 +213,13 @@ class _MainMenuState extends State<MainMenu> {
           respondidoOk &&
           matchesAtraso;
     }).toList();
+
+    final processosOrdenados = [...processosFiltrados];
+    processosOrdenados.sort((a, b) {
+      final dateA = DateTime.tryParse(a['answerDate'] ?? '') ?? DateTime(1900);
+      final dateB = DateTime.tryParse(b['answerDate'] ?? '') ?? DateTime(1900);
+      return dateA.compareTo(dateB);
+    });
 
     final Set<String> statusDisponiveis = widget.processos
         .map((p) => p['contatoStatus'] as String?)
@@ -342,7 +348,7 @@ class _MainMenuState extends State<MainMenu> {
                             children: [
                               Expanded(
                                 child: ListView(
-                                  children: processosFiltrados.map((processos) {
+                                  children: processosOrdenados.map((processos) {
                                     final contatoId = processos['contatoId'];
                                     final nomeContato =
                                         mapaContatos[contatoId] ??

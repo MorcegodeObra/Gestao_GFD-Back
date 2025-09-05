@@ -20,6 +20,9 @@ async function servicoCobranca() {
         day: "numeric",
       });
 
+      const quinzeDias = new Date();
+      quinzeDias.setDate(now.getDate() - 15);
+
       const process = await Process.findAll({
         where: {
           contatoStatus: {
@@ -30,6 +33,7 @@ async function servicoCobranca() {
           },
           answer: { [Op.notIn]: true },
           cobrancas: { [Op.lt]: 4 },
+          lastInteration: { [Op.lt]: quinzeDias },
         },
       });
 

@@ -28,10 +28,10 @@ class _MainScaffoldState extends State<MainScaffold> {
     carregarDados();
   }
 
-  Future<void> carregarDados() async {
+  void carregarDados() async {
     final userData = await getDadosUsuario();
-    carregarContatos();
-    carregarProcessos();
+    await carregarContatos();
+    await carregarProcessos();
     userId = userData['userId'];
     setState(() {
       isLoading = false;
@@ -40,7 +40,8 @@ class _MainScaffoldState extends State<MainScaffold> {
 
   Future<void> atualizarProcesso(int id, Map<String, dynamic> data) async {
     await repo.processos.atualizarProcessos(id, data);
-    carregarProcessos();
+    await carregarProcessos();
+    setState(() {});
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
