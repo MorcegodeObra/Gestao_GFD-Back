@@ -12,7 +12,8 @@ export const resumoProcessosAtraso = async (req, res) => {
       where: {
         lastInteration: { [Op.lt]: subDays(new Date(), 30) },
         contatoStatus: { [Op.notIn]: ["CANCELADO/ARQUIVADO", "CONCLUIDO"] },
-        userId: { [Op.ne]: 12 },
+        userId: { [Op.eq]: req.body.userId },
+        contatoId: { [Op.ne]: 33 },
         ano: { [Op.in]: req.body.anos },
         cobrancas: { [Op.gte]: 2 },
       },
