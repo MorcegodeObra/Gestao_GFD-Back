@@ -8,7 +8,7 @@ async function resumoSemanal() {
   const hoje = new Date();
   const diaSemana = hoje.getDay(); // 5 = sexta-feira
   const umaSemanaAtras = new Date();
-  umaSemanaAtras.setDate(hoje.getDate() - 7);
+  umaSemanaAtras.setDate(hoje.getDate() - 5);
 
   if (diaSemana !== 5) return;
 

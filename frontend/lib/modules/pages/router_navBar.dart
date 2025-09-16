@@ -57,6 +57,31 @@ class _MainScaffoldState extends State<MainScaffold> {
     );
   }
 
+  Future criarContato(Map<String, dynamic> data) async {
+    final contato = await repo.contatos.criarContatos(data);
+    final contatoId = contato['id'];
+    final emails = data['emails'];
+
+    if (emails.isNotEmpty) {
+      await repo.contatos.adicionarEmail(contatoId, emails);
+    }
+    await carregarContatos();
+    setState(() {});
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text('Sucesso'),
+        content: Text("O contato foi criado com sucesso."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+
   void editarEmail(Map<String, dynamic> data) async {
     try {
       await repo.contatos.editarEmail(

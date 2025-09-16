@@ -11,6 +11,11 @@ Future<void> carregarProcessos() async {
 
 Future<void> carregarContatos() async {
   contatos = await repo.contatos.getContatos();
+  contatos.sort(
+    (a, b) => (a['name'] ?? '').toLowerCase().compareTo(
+      (b['name'] ?? '').toLowerCase(),
+    ),
+  );
 }
 
 void deletarProcesso(int id) async {
@@ -25,11 +30,6 @@ void aceitarEnvioProcesso(int id, Map<String, dynamic> data) async {
 
 void criarProcesso(Map<String, dynamic> data) async {
   await repo.processos.criarProcessos(data);
-  carregarProcessos();
-}
-
-void criarContato(Map<String, dynamic> data) async {
-  await repo.contatos.criarContatos(data);
   carregarProcessos();
 }
 

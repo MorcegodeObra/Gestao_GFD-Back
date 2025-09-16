@@ -52,20 +52,13 @@ class _ContatosState extends State<Contatos> {
 
           if (contatos == null) {
             // Criação de novo contato
-            final contatoCriado = await repo.contatos.criarContatos({
-              'name': data['name'],
-              'userId': data['userId'],
-            });
-
-            final contatoId = contatoCriado['id'];
-
-            // Envia os emails em um array
             final List<Map<String, dynamic>> emails =
                 (data['ContactEmails'] as List).cast<Map<String, dynamic>>();
-
-            if (emails.isNotEmpty) {
-              await repo.contatos.adicionarEmail(contatoId, emails);
-            }
+            widget.criarContatos({
+              'name': data['name'],
+              'userId': data['userId'],
+              'emails': emails,
+            });
           } else {
             // Atualização de contato (sem incluir emails aqui)
             await repo.contatos.atualizarContatos(contatos['id'], data);
@@ -92,20 +85,10 @@ class _ContatosState extends State<Contatos> {
 
           if (contatos == null) {
             // Criação de novo contato
-            final contatoCriado = await repo.contatos.criarContatos({
+            await repo.contatos.criarContatos({
               'name': data['name'],
               'userId': data['userId'],
             });
-
-            final contatoId = contatoCriado['id'];
-
-            // Envia os emails em um array
-            final List<Map<String, dynamic>> emails =
-                (data['ContactEmails'] as List).cast<Map<String, dynamic>>();
-
-            if (emails.isNotEmpty) {
-              await repo.contatos.adicionarEmail(contatoId, emails);
-            }
           } else {
             // Atualização de contato (sem incluir emails aqui)
             await repo.contatos.editarEmail(
