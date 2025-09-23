@@ -201,7 +201,6 @@ export const editarProcesso = async (req, res) => {
 
     const user = await User.findByPk(novoDono);
     await process.update({
-      cobrancas,
       processoSider,
       protocolo,
       area,
