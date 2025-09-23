@@ -127,14 +127,15 @@ class _MainMenuState extends State<MainMenu> {
               {'label': 'ASSINATURAS', 'value': 'ASSINATURAS'},
               {'label': 'AGUARDANDO DER', 'value': 'AGUARDANDO DER'},
               {'label': 'CANCELADO/ARQUIVADO', 'value': 'CANCELADO/ARQUIVADO'},
+              {'label': 'PAGAMENTO DA GR', 'value': 'PAGAMENTO DA GR'},
             ],
           },
           {
             "label": "Respondido",
             "key": "answer",
             "itens": [
-              {"label": "Sim", "value": "true"},
-              {"label": "Não", "value": "false"},
+              {"label": "Sim", "value": true},
+              {"label": "Não", "value": false},
             ],
           },
         ],
@@ -156,29 +157,12 @@ class _MainMenuState extends State<MainMenu> {
         .where((p) => p['answer'] == true && p['userId'] == widget.userId)
         .toList();
 
-    final prioridadeOrdem = {"URGENTE": 0, "ALTO": 1, "MÉDIO": 2, "BAIXO": 3};
-
     final corPorPrioridade = {
       "URGENTE": Colors.red.shade300,
       "ALTO": Colors.orange.shade300,
       "MÉDIO": Colors.yellow.shade300,
       "BAIXO": Colors.green.shade300,
     };
-
-    processosFiltradosFila.sort((a, b) {
-      final prioridadeA = prioridadeOrdem[a['priority']] ?? 999;
-      final prioridadeB = prioridadeOrdem[b['priority']] ?? 999;
-
-      if (prioridadeA != prioridadeB) {
-        return prioridadeA.compareTo(
-          prioridadeB,
-        ); // menor número = maior prioridade
-      }
-
-      final dateA = DateTime.tryParse(a['answerDate'] ?? '') ?? DateTime(1900);
-      final dateB = DateTime.tryParse(b['answerDate'] ?? '') ?? DateTime(1900);
-      return dateA.compareTo(dateB); // se prioridade igual, compara por data
-    });
 
     final Map<int, String> mapaContatos = {
       for (var contato in widget.contatos)
@@ -213,13 +197,6 @@ class _MainMenuState extends State<MainMenu> {
           respondidoOk &&
           matchesAtraso;
     }).toList();
-
-    final processosOrdenados = [...processosFiltrados];
-    processosOrdenados.sort((a, b) {
-      final dateA = DateTime.tryParse(a['answerDate'] ?? '') ?? DateTime(1900);
-      final dateB = DateTime.tryParse(b['answerDate'] ?? '') ?? DateTime(1900);
-      return dateA.compareTo(dateB);
-    });
 
     final Set<String> statusDisponiveis = widget.processos
         .map((p) => p['contatoStatus'] as String?)
@@ -348,7 +325,7 @@ class _MainMenuState extends State<MainMenu> {
                             children: [
                               Expanded(
                                 child: ListView(
-                                  children: processosOrdenados.map((processos) {
+                                  children: processosFiltrados.map((processos) {
                                     final contatoId = processos['contatoId'];
                                     final nomeContato =
                                         mapaContatos[contatoId] ??

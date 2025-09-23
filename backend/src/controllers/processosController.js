@@ -185,14 +185,23 @@ export const editarProcesso = async (req, res) => {
         }
       }
     }
+    if (answer == true) {
+      process.cobrancas = 0;
+    }
     let answerDate = answer ? new Date() : process.answerDate;
     let novoStatus =
       !contatoStatus && answer
         ? "AGUARDANDO DER"
         : contatoStatus || process.contatoStatus;
 
+    if (answer == false || process.answer == false) {
+      process.answerDate == null;
+      process.answerMsg == null;
+    }
+
     const user = await User.findByPk(novoDono);
     await process.update({
+      cobrancas,
       processoSider,
       protocolo,
       area,
@@ -214,10 +223,6 @@ export const editarProcesso = async (req, res) => {
       tipoDeOcupacao,
       especificacaoDeOcupacao,
     });
-
-    if (answer == true) {
-      process.cobrancas = 0;
-    }
 
     if (novoDono !== 12) {
       await user.update({

@@ -7,6 +7,28 @@ List<dynamic> processos = [];
 List<dynamic> contatos = [];
 Future<void> carregarProcessos() async {
   processos = await repo.processos.getProcessos();
+
+  final prioridadeOrdem = {"URGENTE": 0, "ALTO": 1, "MÉDIO": 2, "BAIXO": 3};
+
+  final processosOrdenados = [...processos];
+
+  processosOrdenados.sort((a, b) {
+    final prioridadeA = prioridadeOrdem[a['priority']] ?? 999;
+    final prioridadeB = prioridadeOrdem[b['priority']] ?? 999;
+
+    // 1. Compara pela prioridade
+    if (prioridadeA != prioridadeB) {
+      return prioridadeA.compareTo(prioridadeB);
+    }
+
+    // 2. Se prioridade for igual, compara por data
+    final dateA = DateTime.tryParse(a['answerDate'] ?? '') ?? DateTime(1900);
+    final dateB = DateTime.tryParse(b['answerDate'] ?? '') ?? DateTime(1900);
+    return dateA.compareTo(dateB);
+  });
+
+  // se quiser sobrescrever a lista original:
+  processos = processosOrdenados;
 }
 
 Future<void> carregarContatos() async {
