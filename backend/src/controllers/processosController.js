@@ -195,8 +195,8 @@ export const editarProcesso = async (req, res) => {
         : contatoStatus || process.contatoStatus;
 
     if (answer == false || process.answer == false) {
-      process.answerDate == null;
-      process.answerMsg == null;
+      process.answerDate == 0;
+      process.answerMsg == 0;
     }
 
     const user = await User.findByPk(novoDono);
