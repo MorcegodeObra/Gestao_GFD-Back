@@ -131,6 +131,16 @@ class _MainMenuState extends State<MainMenu> {
             ],
           },
           {
+            'label': 'Ocupação',
+            'key': 'tipoDeOcupacao',
+            'itens': [
+              {'label': 'ANEXO I', 'value': 'ANEXO I'},
+              {'label': 'ANEXO II', 'value': 'ANEXO II'},
+              {'label': 'ANEXO III', 'value': 'ANEXO III'},
+              {'label': 'S/A', 'value': 'S/A'},
+            ],
+          },
+          {
             "label": "Respondido",
             "key": "answer",
             "itens": [

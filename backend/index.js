@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(routerBot);
 
 // Autenticação com PostgreSQL
-sequelize
+await sequelize
   .authenticate()
   .then(() => console.log("Conexão com PostgreSQL foi bem-sucedida! 🚀"))
   .catch((err) => {
@@ -24,13 +24,13 @@ sequelize
     process.exit(1); // Encerra o servidor caso a conexão falhe
   });
 
-iniciarVerificaEmail();
-iniciarCobranca();
-iniciarResumo();
-
 // Sincronizar DB e iniciar servidor
-sequelize.sync({ alter: true }).then(() => {
+await sequelize.sync({ alter: true }).then(() => {
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Servidor rodando...`);
   });
 });
+
+iniciarVerificaEmail();
+iniciarCobranca();
+iniciarResumo();

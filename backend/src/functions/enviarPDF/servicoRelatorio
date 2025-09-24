@@ -1,0 +1,29 @@
+import { User } from "../../models/users.js";
+import { Process } from "../../models/processo.js";
+import { sendEmail } from "./emailService.js";
+import { gerarPdfBuffer } from "./estruturaPDF.js";
+
+// Função principal que monta o PDF e envia
+export async function enviarRelatorio(req, res) {
+  try {
+    const { userId, processId } = req.body;
+    // Buscar usuário e processo
+    const user = await User.findByPk(userId);
+    const process = await Process.findOne({ where: { id: processId } });
+
+    if (!user || !process) {
+      throw new Error("Usuário ou processo não encontrado");
+    }
+    const pdfBuffer = await gerarPdfBuffer(user, process);
+    // Enviar email para o usuário
+    await sendEmail(
+      user.userEmail,
+      `Relatório Técnico - Processo ${process.id}`,
+      pdfBuffer,
+      process.id
+    );
+    res.json({ sucess: true, message: "Relatório enviado por email!" });
+  } catch (err) {
+    res.status(500).json({ error: "Erro ao enviar relatório" });
+  }
+}
