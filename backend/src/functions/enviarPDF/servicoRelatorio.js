@@ -1,7 +1,7 @@
 import { User } from "../../models/users.js";
 import { Process } from "../../models/processo.js";
-import { sendEmail } from "./emailService.js";
 import { gerarPdfBuffer } from "./estruturaPDF.js";
+import { enviarEmail } from "../../config/funcoesEmail.js";
 
 // Função principal que monta o PDF e envia
 export async function enviarRelatorio(req, res) {
@@ -16,12 +16,17 @@ export async function enviarRelatorio(req, res) {
     }
     const pdfBuffer = await gerarPdfBuffer(user, process);
     // Enviar email para o usuário
-    await sendEmail(
-      user.userEmail,
-      `Relatório Técnico - Processo ${process.id}`,
-      pdfBuffer,
-      process.id
-    );
+    const from = `Relatório Gerado - ${process.env.EMAIL_USER}`;
+    const to = user.userEmail;
+    const subject = `Relatório Técnico - Processo ${process.id}`;
+    const body = `Segue em anexo o relatório técnico do processo ${processId}.`;
+    const attachments = [
+      {
+        filename: `relatorio-processo-${processId}.pdf`,
+        content: pdfBuffer,
+      },
+    ];
+    await enviarEmail(from, to, subject, body, attachments);
     res.json({ sucess: true, message: "Relatório enviado por email!" });
   } catch (err) {
     res.status(500).json({ error: "Erro ao enviar relatório" });

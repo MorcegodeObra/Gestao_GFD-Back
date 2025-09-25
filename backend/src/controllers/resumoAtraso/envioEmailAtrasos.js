@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { transporter } from "../../config/funcoesEmail.js";
 
 function formatarData(data) {
   const dia = String(data.getDate()).padStart(2, "0");
@@ -9,13 +9,6 @@ function formatarData(data) {
 
 export async function enviarResumoAtraso(message, user) {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
     const agora = formatarData(new Date());
     let ccList = [user.userEmail];
 
@@ -27,7 +20,7 @@ export async function enviarResumoAtraso(message, user) {
     };
 
     await transporter.sendMail(mailOptions);
-    return(`Resumo enviado para ${ccList}`);
+    return `Resumo enviado para ${ccList}`;
   } catch (error) {
     console.error("Erro ao enviar e-mail:", error.message);
   }

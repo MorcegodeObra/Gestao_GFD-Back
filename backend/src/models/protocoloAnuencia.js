@@ -5,6 +5,7 @@ export const Anuencia = sequelize.define("Anuencia", {
   protocolo: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   area: {
     type: DataTypes.ENUM(
@@ -52,6 +53,7 @@ export const Anuencia = sequelize.define("Anuencia", {
   protocoloStatus: {
     type: DataTypes.ENUM(
       "LEVANTAMENTO TOPOGRAFICO",
+      "IR OBRA",
       "ANALISE TÉCNICA",
       "FINALIZADO",
       "AGUARDANDO DER",

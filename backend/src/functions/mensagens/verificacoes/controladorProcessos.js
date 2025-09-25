@@ -1,6 +1,6 @@
 import { shouldNotify } from './shouldNotify.js';
 import { Contact } from '../../../models/contato.js';
-import { enviarMensagem, isSameDay } from "../emailsConfig/enviarMensagem.js";
+import { enviarMensagem, isSameDay } from "../emailsConfig/middlewareMensagem.js";
 import { gerarMensagemHTML } from '../emailsConfig/gerarMensagemHTML.js';
 import { ContactEmail } from '../../../models/contactEmail.js';
 import { ContactNumber } from '../../../models/contactNumber.js';

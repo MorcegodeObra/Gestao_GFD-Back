@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { transporter } from "../../../config/funcoesEmail.js";
 import { Process } from "../../../models/processo.js";
 import { getWeek } from "date-fns";
 
@@ -14,14 +14,6 @@ export async function sendResumo(
   semUsuario
 ) {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
     // Busca todos os processos e conta eles
     const processos = await Process.findAll();
     const statusCount = {};

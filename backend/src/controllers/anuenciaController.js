@@ -115,29 +115,10 @@ export const editarAnuencia = async (req, res) => {
     const novoDono = userId;
 
     // Está tentando mudar o dono
-    const mudandoDono = novoDono !== donoAtual;
-
-    if (novoDono !== 12) {
-      if (mudandoDono) {
-        // Se o dono atual não é o sistema (12), não deixa mudar direto
-        if (donoAtual !== 12) {
-          // Registra a solicitação de transferência
-          await Anuencia.update({
-            solicitacaoProtocolo: true,
-            newUserId: novoDono,
-          });
-
-          return res.status(202).json({
-            message:
-              "Solicitação de transferência enviada ao dono atual do Protocolo.",
-          });
-        }
-      }
-    }
     if (respondido == true) {
       edicaoProtocolo.cobrancas = 0;
     }
-    let answerDate = respondido ? new Date() : edicaoProtocolo.respondido;
+    let answerDate = respondido ? new Date() : edicaoProtocolo.dataResposta;
     let novoStatus =
       !protocoloStatus && respondido
         ? "AGUARDANDO DER"

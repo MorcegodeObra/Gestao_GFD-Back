@@ -1,5 +1,5 @@
 import { sendWhatsAppMessage } from "../whatsMensagem.js";
-import { sendEmailMessage } from "../emailsConfig/emailMensagem.js";
+import { sendEmailMessage } from "./emailMensagem.js";
 
 export function isSameDay(date1, date2) {
   return (

@@ -12,7 +12,7 @@ const router = Router();
 router.post("/", novaAnuencia);
 router.get("/", listarAnuencias);
 router.get("/:id", listarIdAnuencias);
-router.put("/:id", editarAnuencia);
+router.patch("/:id", editarAnuencia);
 router.delete("/:id", deletarAnuencia);
 
 export default router;

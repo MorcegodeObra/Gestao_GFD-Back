@@ -43,5 +43,13 @@ export const User = sequelize.define('User', {
   editados: {
     type: DataTypes.INTEGER,
     defaultValue: 0
+  },
+  anuenciaCriados: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
+  },
+  anuenciaEditados: {
+    type: DataTypes.INTEGER,
+    defaultValue: 0
   }
 });
