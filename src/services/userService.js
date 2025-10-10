@@ -1,11 +1,8 @@
 import userRepository from "../repositories/userRepository.js";
-import userValidator from "../validators/userValidator.js";
 import bcrypt from "bcrypt";
 
 export default {
   async create(data) {
-    userValidator.validateCreate(data);
-
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(data.password, saltRounds);
 

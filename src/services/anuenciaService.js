@@ -1,11 +1,8 @@
 import anuenciaRepository from "../repositories/anuenciaRepository.js";
 import userRepository from "../repositories/userRepository.js";
-import anuenciaValidator from "../validators/anuenciaValidator.js";
 
 export default {
   async criar(data) {
-    anuenciaValidator.validarCriacao(data);
-
     const user = await userRepository.findById(data.userId);
     if (!user) throw new Error("Usuário não encontrado");
 

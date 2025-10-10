@@ -1,12 +1,9 @@
 import processRepository from "../repositories/processRepository.js";
 import userRepository from "../repositories/userRepository.js";
-import processValidator from "../validators/processValidator.js";
 import { Op } from "sequelize";
 
 export default {
   async create(data) {
-    processValidator.validateCreate(data);
-
     const user = await userRepository.findById(data.userId);
     if (!user) throw new Error("Usuário não encontrado.");
 
@@ -118,11 +115,11 @@ export default {
       },
       criados: {
         total: criados.length,
-        lista: criados.map(p => p.processoSider),
+        lista: criados.map((p) => p.processoSider),
       },
       modificados: {
         total: modificados.length,
-        lista: modificados.map(p => p.processoSider),
+        lista: modificados.map((p) => p.processoSider),
       },
     };
   },
