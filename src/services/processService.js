@@ -44,7 +44,7 @@ export default {
     }
 
     const donoAtual = process.userId;
-    const novoDono = data.userId;
+    const novoDono = Number(data.userId);
 
     // Solicitação de transferência
     if (novoDono !== 12 && donoAtual !== novoDono && donoAtual !== 12) {
@@ -65,6 +65,7 @@ export default {
       process.answerDate = null;
       process.answerMsg = null;
     }
+    process.cobrancas = 0;
 
     const updated = await processRepository.update(process, {
       ...data,

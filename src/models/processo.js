@@ -5,13 +5,27 @@ export const Process = sequelize.define("Process", {
   processoSider: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
+    unique: {
+      name: "unique_processoSider",
+      msg: "Já existe um processo com este número (processoSider) cadastrado.",
+    },
     validate: {
       notEmpty: { msg: "O processoSider não pode ser vazio" },
       isValidFormat(value) {
         // Exemplo: formato "123/2025"
         if (!/^\d+\/\d{4}$/.test(value)) {
           throw new Error("processoSider deve estar no formato '123/AAAA'");
+        }
+      },
+      async isUnique(value) {
+        // Validação manual antes de tentar salvar
+        const existing = await this.constructor.findOne({
+          where: { processoSider: value },
+        });
+        if (existing && existing.id !== this.id) {
+          throw new Error(
+            "Já existe um processo com este processo cadastrado."
+          );
         }
       },
     },
@@ -41,31 +55,20 @@ export const Process = sequelize.define("Process", {
   rodovia: {
     type: DataTypes.STRING,
     defaultValue: "Rodovia não adicionada ao processo.",
-    validate: {
-      notEmpty: { msg: "Rodovia não pode ser uma string vazia" },
-    },
+    allowNull: true,
   },
   lastSent: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
-    validate: {
-      isDate: { msg: "lastSent deve ser uma data válida" },
-    },
   },
   answerMsg: { type: DataTypes.TEXT, allowNull: true },
   answerDate: {
     type: DataTypes.DATE,
     allowNull: true,
-    validate: {
-      isDate: { msg: "answerDate deve ser uma data válida" },
-    },
   },
   lastInteration: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
-    validate: {
-      isDate: { msg: "lastInteration deve ser uma data válida" },
-    },
   },
   answer: { type: DataTypes.BOOLEAN, defaultValue: false },
   contatoStatus: {

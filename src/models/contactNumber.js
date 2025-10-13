@@ -5,7 +5,6 @@ export const ContactNumber = sequelize.define('ContactPhone', {
   number: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
     validate: {
       notEmpty: { msg: "O número não pode ser vazio" },
       isValidPhone(value) {

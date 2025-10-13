@@ -34,11 +34,7 @@ export async function gerarEEnviarKmz(req, res) {
     const kmlPath = path.join(tempDir, `${nomeArquivo}.kml`);
     const kmzPath = path.join(tempDir, `${nomeArquivo}.kmz`);
 
-    fs.writeFileSync(
-      kmlPath,
-      await gerarKmlCompleto(linhas, nomeArquivo),
-      "utf-8"
-    );
+    fs.writeFileSync(kmlPath, await gerarKmlCompleto(linhas, nomeArquivo));
 
     // 📦 Compacta em KMZ
     await new Promise((resolve, reject) => {

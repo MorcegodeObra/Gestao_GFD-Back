@@ -5,7 +5,6 @@ export const ContactEmail = sequelize.define('ContactEmail', {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
     validate: {
       notEmpty: { msg: "O email não pode ser vazio" },
       isEmail: { msg: "O email deve ser válido" }

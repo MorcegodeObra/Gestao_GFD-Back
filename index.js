@@ -1,6 +1,6 @@
 import express from "express";
 import { sequelize } from "./src/config/sequelize.js";
-import routerBot from "./src/router/router.js";
+import routerBot from "./src/routes/router.js";
 import { configDotenv } from "dotenv";
 import cors from "cors";
 import { iniciarCobranca } from "./src/functions/mensagens/controladorMensagens.js";
