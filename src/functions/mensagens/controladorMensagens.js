@@ -32,7 +32,7 @@ async function servicoCobranca() {
             [Op.notIn]: [12],
           },
           answer: { [Op.notIn]: true },
-          cobrancas: { [Op.lt]: 4 },
+          cobrancas: { [Op.lt]: 6 },
           lastInteration: { [Op.lt]: quinzeDias },
         },
       });
