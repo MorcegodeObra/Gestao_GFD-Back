@@ -65,7 +65,10 @@ export default {
       process.answerDate = null;
       process.answerMsg = null;
     }
-    process.cobrancas = 0;
+
+    if (data.answer === true) {
+      process.cobrancas = 0;
+    }
 
     const updated = await processRepository.update(process, {
       ...data,
