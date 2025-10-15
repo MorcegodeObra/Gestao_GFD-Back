@@ -8,13 +8,31 @@ export const transporter = nodemailer.createTransport({
   },
 });
 
-export async function enviarEmail(from, to, subject, body, attachments,cc) {
+export async function enviarEmail(
+  from,
+  to,
+  cc,
+  subject,
+  body,
+  attachments = []
+) {
+  if (
+    !to ||
+    (Array.isArray(to) && to.length === 0) ||
+    (typeof to === "string" && to.trim() === "")
+  ) {
+    throw new Error("Nenhum destinatário definido para o e-mail");
+  }
+
+  if (!Array.isArray(attachments)) attachments = [];
+  if (!Array.isArray(cc)) cc = undefined;
+
   await transporter.sendMail({
-    from: from,
-    to: to,
-    cc: cc,
-    subject: subject,
-    text: body,
-    attachments: attachments,
+    from,
+    to,
+    cc,
+    subject,
+    html: body, // HTML completo
+    attachments,
   });
 }

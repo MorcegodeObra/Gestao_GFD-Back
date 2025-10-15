@@ -40,9 +40,7 @@ export async function sendEmailMessage(proces, message, contato) {
       return e.rodovias.includes(proces.rodovia); // Se tem rodovias, só se coincidir com a do processo
     });
 
-    const emailDestinos = emailsFiltrados.map((e) =>
-      e.email?.trim().filter(Boolean)
-    );
+    const emailDestinos = emailsFiltrados.map((e) => e.email);
     if (!emailDestinos.length) {
       console.warn(
         `⚠️ Nenhum e-mail encontrado para área ${proces.area} no contato ${contato.name}`
@@ -52,11 +50,11 @@ export async function sendEmailMessage(proces, message, contato) {
 
     const from = `Solicitação - ${proces.processoSider} <${process.env.EMAIL_USER}>`;
     const to = emailDestinos.join(",");
-    const cc = ccList.map((e) => e?.trim()).filter(Boolean);
+    const cc = ccList.map((e) => e?.trim());
     const subject = `Solicitação - ${proces.processoSider}`;
     const body = message;
 
-    await enviarEmail(from, to, cc.length ? cc : undefined, subject, body);
+    await enviarEmail(from, to, cc, subject, body);
     console.log(
       `E-mail enviado para ${emailDestinos} (CC: ${
         ccList.join(", ") || "nenhum"
