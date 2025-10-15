@@ -16,23 +16,27 @@ export async function enviarEmail(
   body,
   attachments = []
 ) {
-  if (
-    !to ||
-    (Array.isArray(to) && to.length === 0) ||
-    (typeof to === "string" && to.trim() === "")
-  ) {
-    throw new Error("Nenhum destinatário definido para o e-mail");
-  }
-
   if (!Array.isArray(attachments)) attachments = [];
   if (!Array.isArray(cc)) cc = undefined;
+
+  // Converte apenas content inválido, mantém path
+  attachments = attachments.map((att) => {
+    if (att.path) return att;
+
+    let content = att.content;
+    if (Array.isArray(content)) content = content.join("\n");
+    else if (typeof content !== "string" && !(content instanceof Buffer))
+      content = String(content);
+
+    return { ...att, content };
+  });
 
   await transporter.sendMail({
     from,
     to,
     cc,
     subject,
-    html: body, // HTML completo
+    html: body,
     attachments,
   });
 }

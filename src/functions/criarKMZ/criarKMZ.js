@@ -57,7 +57,7 @@ export async function gerarEEnviarKmz(req, res) {
     const subject = nomeArquivo;
     const body =
       "Segue em anexo o arquivo KMZ com os pontos da sua solicitação.";
-    await enviarEmail(from, user.userEmail, subject, body, kmzFiles);
+    await enviarEmail(from, user.userEmail,null, subject, body, kmzFiles);
 
     res.status(200).json({ message: "KMZ enviado por e-mail com sucesso." });
   } catch (err) {
