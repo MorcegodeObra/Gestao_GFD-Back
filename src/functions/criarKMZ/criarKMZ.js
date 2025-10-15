@@ -8,52 +8,59 @@ import crypto from "crypto";
 import { gerarKmlCompleto, lerPlanilha } from "./funçõesXLSX.js";
 
 export async function gerarEEnviarKmz(req, res) {
-  const { userId } = req.body;
-  const arquivo = req.file;
+  const { userId, fileBase64, fileName } = req.body;
+  const arquivo = req.files?.arquivo; // caso venha multipart
   let tempDir = null;
 
   try {
     const user = await User.findByPk(userId);
-    if (!arquivo || !user) {
-      return res
-        .status(400)
-        .json({ error: "Arquivo e email são obrigatórios" });
-    }
+    if (!user) return res.status(400).json({ error: "Usuário não encontrado" });
 
-    // 📁 Cria diretório temporário único
+    // 🔹 Cria diretório temporário
     const tempBase = path.resolve("temp");
     const uniqueId = crypto.randomUUID();
     tempDir = path.join(tempBase, uniqueId);
     fs.mkdirSync(tempDir, { recursive: true });
 
-    // 📑 Lê todas as linhas da planilha
-    const linhas = await lerPlanilha(arquivo.path);
+    let filePath;
+    if (arquivo) {
+      // caso venha via multipart/form-data
+      filePath = path.join(tempDir, arquivo.name);
+      await arquivo.mv(filePath);
+    } else if (fileBase64 && fileName) {
+      // caso venha via JSON com base64
+      filePath = path.join(tempDir, fileName);
+      const buffer = Buffer.from(fileBase64, "base64");
+      fs.writeFileSync(filePath, buffer);
+    } else {
+      return res
+        .status(400)
+        .json({ error: "Arquivo (upload ou base64) é obrigatório" });
+    }
 
-    // 📄 Gera o conteúdo KML completo
-    const nomeArquivo = path.parse(arquivo.originalname).name;
+    // 📑 Lê planilha
+    const linhas = await lerPlanilha(filePath);
+
+    // 📄 Gera KML e KMZ
+    const nomeArquivo = path.parse(filePath).name;
     const kmlPath = path.join(tempDir, `${nomeArquivo}.kml`);
     const kmzPath = path.join(tempDir, `${nomeArquivo}.kmz`);
 
     fs.writeFileSync(kmlPath, await gerarKmlCompleto(linhas, nomeArquivo));
 
-    // 📦 Compacta em KMZ
     await new Promise((resolve, reject) => {
       const output = fs.createWriteStream(kmzPath);
       const archive = archiver("zip", { zlib: { level: 9 } });
-
       output.on("close", resolve);
       archive.on("error", reject);
-
       archive.pipe(output);
       archive.file(kmlPath, { name: `${nomeArquivo}.kml` });
       archive.finalize();
     });
 
-    // 📧 Envia um único arquivo KMZ
-    const kmzFiles = [{ filename: `${nomeArquivo}.kmz`, path: kmzPath }];
-    const from = `KMZ - ${XLSX.readFile(arquivo.path).SheetNames[0]} ${
-      process.env.EMAIL_USER
-    }`;
+    // 📧 Envia e-mail
+    const attachments = [{ filename: `${nomeArquivo}.kmz`, path: kmzPath }];
+    const from = `KMZ - ${XLSX.readFile(filePath).SheetNames[0]} ${process.env.EMAIL_USER}`;
     const subject = nomeArquivo;
     const body =
       "Segue em anexo o arquivo KMZ com os pontos da sua solicitação.";
@@ -64,12 +71,9 @@ export async function gerarEEnviarKmz(req, res) {
     console.error(err);
     res.status(500).json({ error: "Erro ao gerar ou enviar KMZ." });
   } finally {
-    // 🧼 Limpa o diretório temporário inteiro
     try {
-      if (fs.existsSync(tempDir)) {
+      if (tempDir && fs.existsSync(tempDir))
         fs.rmSync(tempDir, { recursive: true, force: true });
-      }
-      if (arquivo?.path) fs.unlinkSync(arquivo.path);
     } catch (cleanupErr) {
       console.warn("Erro ao limpar arquivos temporários:", cleanupErr);
     }
