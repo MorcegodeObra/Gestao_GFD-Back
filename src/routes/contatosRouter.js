@@ -7,7 +7,7 @@ const router = Router();
 
 // Emails
 router.post("/:id/emails", emailContato.adicionarEmail);
-router.put("/:id/emails/:emailId", emailContato.editarEmail);
+router.patch("/:id/emails/:emailId", emailContato.editarEmail);
 router.delete("/:id/emails/:emailId", emailContato.deletarEmail);
 
 // Telefones
@@ -17,7 +17,7 @@ router.delete("/:id/numbers/:numberId", numeroContato.deletarTelefone);
 router.post("/", contato.criarContato);
 router.get("/", contato.listarContatos);
 router.get("/:id", contato.buscarContato);
-router.put("/:id", contato.editarContato);
+router.patch("/:id", contato.editarContato);
 router.delete("/:id", contato.deletarContato);
 
 export default router;

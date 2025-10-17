@@ -26,12 +26,14 @@ export default {
   async remove(id) {
     return await User.destroy({ where: { id } });
   },
-
-  async incrementCreated(user) {
-    await user.update({ criados: (user.criados || 0) + 1 });
+  
+  async incrementarCriados(user) {
+    if (!user || !user.id) return null;
+    return await user.update({ criados: (user.criados || 0) + 1 });
   },
 
-  async incrementEdited(user) {
-    await user.update({ editados: (user.editados || 0) + 1 });
+  async incrementarEditados(user) {
+    if (!user || !user.id) return null;
+    return await user.update({ editados: (user.editados || 0) + 1 });
   },
 };
