@@ -20,10 +20,10 @@ export async function handleContact(proces, now) {
   if (lastInteration && !proces.answer) {
     const diasSemAtualizacao = Math.floor((now - lastInteration) / (1000 * 60 * 60 * 24));
     const lastSent = proces.lastSent ? new Date(proces.lastSent) : null;
-    const doisDias = lastSent && differenceInDays(now,lastSent)>=2;
+    const tresDias = lastSent && differenceInDays(now,lastSent)>=3;
     const diasRestantes = 30 - diasSemAtualizacao
 
-    if (diasSemAtualizacao >= 30 && doisDias) {
+    if (diasSemAtualizacao >= 30 && tresDias) {
       titulo = '⚠️ Prazo vencido';
       corpo = `
       Verificamos que o prazo de <strong>30 dias</strong> para o envio das informações expirou há <strong>${diasSemAtualizacao - 30} dias</strong>.<br><br>
