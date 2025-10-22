@@ -14,6 +14,7 @@ export const resumoProcessosAtraso = async (req, res) => {
         contatoStatus: { [Op.notIn]: ["CANCELADO/ARQUIVADO", "CONCLUIDO"] },
         userId: { [Op.eq]: req.body.userId },
         contatoId: { [Op.ne]: 33 },
+        answer: {[Op.not]:true},
         ano: { [Op.in]: req.body.anos },
         cobrancas: { [Op.gte]: 2 },
       },
