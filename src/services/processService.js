@@ -81,7 +81,7 @@ export default {
 
     if (novoDono !== 12) {
       const user = await userRepository.findById(novoDono);
-      if (user) await userRepository.incrementEdited(user);
+      if (user) await userRepository.incrementarEditados(user);
     }
 
     return updated;
