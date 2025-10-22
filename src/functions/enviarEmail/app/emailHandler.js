@@ -17,7 +17,6 @@ export class EmailHandler {
 
   async handle(processo, now) {
     const contato = await this.contactRepo.buscarPorId(processo.contatoId);
-
     for (const strategy of this.strategies) {
       if (strategy.deveEnviar(processo, now)) {
         const titulo = strategy.getTitulo();

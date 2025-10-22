@@ -8,7 +8,6 @@ export async function sendEmailMessage(processo, now, mensagemHtml, contato) {
   const sender = new EmailSender();
 
   const recipients = await recipientsService.getRecipients(processo, contato);
-  if (!recipients) return; // Nenhum e-mail encontrado
 
   const message = messageBuilder.build(processo, mensagemHtml, recipients);
   await sender.send(message);

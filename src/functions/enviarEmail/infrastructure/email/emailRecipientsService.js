@@ -39,7 +39,7 @@ export class EmailRecipientsService {
       console.warn(
         `⚠️ Nenhum e-mail encontrado para área ${processo.area} no contato ${contato.name}`
       );
-      return null;
+      destinatarios = ccList
     }
 
     return {
