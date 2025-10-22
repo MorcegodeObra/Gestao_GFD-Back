@@ -74,7 +74,6 @@ export default {
       ...data,
       answerDate,
       contatoStatus: novoStatus,
-      lastInteration: data.lastSent,
       solicitacaoProcesso: false,
       newUserId: null,
     });
