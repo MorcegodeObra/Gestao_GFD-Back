@@ -1,6 +1,6 @@
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import { ChartJSNodeCanvas } from "chartjs-node-canvas";
-import { calloutPlugin } from "../../../config/pluginGrafico.js";
+import { calloutPlugin } from "../../config/pluginGrafico.js";
 import { Chart } from "chart.js";
 import { text } from "express";
 

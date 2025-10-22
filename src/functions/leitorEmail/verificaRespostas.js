@@ -1,4 +1,4 @@
-import { checkEmailReply } from "./verificacoes/checkEmailReply.js";
+import { checkEmailReply } from "./checkEmailReply.js";
 import { Process } from "../../models/processo.js";
 
 let isReading = false;

@@ -3,9 +3,9 @@ import { sequelize } from "./src/config/sequelize.js";
 import routerBot from "./src/routes/router.js";
 import { configDotenv } from "dotenv";
 import cors from "cors";
-import { iniciarCobranca } from "./src/functions/mensagens/controladorMensagens.js";
-import { iniciarVerificaEmail } from "./src/functions/mensagens/verificaRespostas.js";
-import { iniciarResumo } from "./src/functions/mensagens/resumoSemanal.js";
+import { iniciarCobranca } from "./src/functions/enviarEmail/app/emailScheduler.js";
+import { iniciarVerificaEmail } from "./src/functions/leitorEmail/verificaRespostas.js";
+import { iniciarResumo } from "./src/functions/resumoSemanal/resumoSemanal.js";
 
 const app = express();
 const PORT = 3000;

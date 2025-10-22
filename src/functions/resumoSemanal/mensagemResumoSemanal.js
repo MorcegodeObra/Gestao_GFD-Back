@@ -1,5 +1,5 @@
-import { transporter } from "../../../config/funcoesEmail.js";
-import { Process } from "../../../models/processo.js";
+import { transporter } from "../../config/funcoesEmail.js";
+import { Process } from "../../models/processo.js";
 import { getWeek } from "date-fns";
 
 import { gerarGraficoGenerico } from "./gerarGrafico.js";

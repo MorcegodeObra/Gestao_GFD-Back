@@ -1,6 +1,6 @@
 import { User } from "../../models/users.js";
 import { Process } from "../../models/processo.js";
-import { sendResumo } from "./emailsConfig/mensagemResumoSemanal.js";
+import { sendResumo } from "./mensagemResumoSemanal.js";
 import { Op, where } from "sequelize";
 
 async function resumoSemanal() {

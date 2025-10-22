@@ -17,7 +17,7 @@ export async function enviarEmail(
   attachments = []
 ) {
   if (!Array.isArray(attachments)) attachments = [];
-  if (!Array.isArray(cc)) cc = undefined;
+  if (!cc) cc = undefined;
 
   // Converte apenas content inválido, mantém path
   attachments = attachments.map((att) => {

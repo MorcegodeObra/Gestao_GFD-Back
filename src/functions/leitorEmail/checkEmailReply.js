@@ -1,9 +1,9 @@
 import Imap from 'imap';
 import { simpleParser } from 'mailparser';
 import dotenv from 'dotenv';
-import { Contact } from '../../../models/contato.js';
+import { Contact } from '../../models/contato.js';
 import extractReplyBody from "./extrairCorpoEmail.js";
-import { ContactEmail } from '../../../models/contactEmail.js'; // importe o modelo se ainda não tiver feito
+import { ContactEmail } from '../../models/contactEmail.js'; // importe o modelo se ainda não tiver feito
 
 dotenv.config();
 
