@@ -19,7 +19,7 @@ async function resumoSemanal() {
     const criados = user.criados;
     const modificados = user.editados;
 
-    const [comUsuario, semUsuario] = await Promise.all([
+    const [comUsuario, comSolicitante] = await Promise.all([
       Process.count({ where: { userId: user.id, processoComDER: true } }),
       Process.count({ where: { userId: user.id, processoComDER: false } }),
     ]);
@@ -65,7 +65,7 @@ async function resumoSemanal() {
       criados,
       modificados,
       comUsuario,
-      semUsuario
+      comSolicitante
     );
     console.log(`Resumo enviado para ${user.userEmail} com sucesso.`);
 

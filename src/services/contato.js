@@ -1,4 +1,4 @@
-import contactRepository from "../repositories/contactRepository.js";
+import contactRepository from "../repositories/contato.js";
 
 export default {
   async create(data) {

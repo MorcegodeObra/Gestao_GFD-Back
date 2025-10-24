@@ -1,5 +1,5 @@
-import anuenciaRepository from "../repositories/anuenciaRepository.js";
-import userRepository from "../repositories/userRepository.js";
+import anuenciaRepository from "../repositories/anuencia.js";
+import userRepository from "../repositories/user.js";
 
 export default {
   async criar(data) {

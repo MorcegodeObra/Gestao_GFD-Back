@@ -1,5 +1,5 @@
-import processRepository from "../repositories/processRepository.js";
-import userRepository from "../repositories/userRepository.js";
+import processRepository from "../repositories/processo.js";
+import userRepository from "../repositories/user.js";
 import { Op } from "sequelize";
 
 export default {

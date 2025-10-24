@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as controller from "../controllers/anuenciaController.js";
+import * as controller from "../controllers/anuencia.js";
 
 const router = Router();
 

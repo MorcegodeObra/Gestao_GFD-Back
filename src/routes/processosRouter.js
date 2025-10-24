@@ -1,5 +1,5 @@
 import { Router } from "express";
-import * as controller from "../controllers/processosController.js";
+import * as controller from "../controllers/processos.js";
 
 const router = Router();
 

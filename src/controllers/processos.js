@@ -1,4 +1,4 @@
-import processService from "../services/processService.js";
+import processService from "../services/processo.js";
 
 export const criarProcesso = async (req, res) => {
   try {

@@ -1,4 +1,4 @@
-import contactNumberService from "../services/contactNumberService.js";
+import contactNumberService from "../services/contatoNumber.js";
 
 export const adicionarTelefone = async (req, res) => {
   try {

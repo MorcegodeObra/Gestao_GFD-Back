@@ -1,4 +1,4 @@
-import anuenciaService from "../services/anuenciaService.js";
+import anuenciaService from "../services/anuencia.js";
 
 export const novaAnuencia = async (req, res) => {
   try {

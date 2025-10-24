@@ -14,22 +14,10 @@ export async function enviarEmail(
   cc,
   subject,
   body,
-  attachments = []
+  attachments
 ) {
-  if (!Array.isArray(attachments)) attachments = [];
+  if (!attachments) attachments = [];
   if (!cc) cc = undefined;
-
-  // Converte apenas content inválido, mantém path
-  attachments = attachments.map((att) => {
-    if (att.path) return att;
-
-    let content = att.content;
-    if (Array.isArray(content)) content = content.join("\n");
-    else if (typeof content !== "string" && !(content instanceof Buffer))
-      content = String(content);
-
-    return { ...att, content };
-  });
 
   await transporter.sendMail({
     from,

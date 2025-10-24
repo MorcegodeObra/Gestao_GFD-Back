@@ -1,7 +1,7 @@
 import { Router } from "express";
-import * as contato from "../controllers/contatoController.js";
-import * as numeroContato from "../controllers/contatoNumberController.js";
-import * as emailContato from "../controllers/contatoEmailController.js";
+import * as contato from "../controllers/contato.js";
+import * as numeroContato from "../controllers/contatoNumber.js";
+import * as emailContato from "../controllers/contatoEmail.js";
 
 const router = Router();
 

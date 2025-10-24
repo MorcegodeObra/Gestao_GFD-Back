@@ -1,5 +1,5 @@
 // controllers/contactEmailController.js
-import contactEmailService from "../services/contactEmailService.js";
+import contactEmailService from "../services/contatoEmail.js";
 
 export const adicionarEmail = async (req, res) => {
   try {

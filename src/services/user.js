@@ -1,4 +1,4 @@
-import userRepository from "../repositories/userRepository.js";
+import userRepository from "../repositories/user.js";
 import bcrypt from "bcrypt";
 
 export default {

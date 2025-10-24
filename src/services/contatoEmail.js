@@ -1,5 +1,5 @@
-import contactRepository from "../repositories/contactRepository.js";
-import contactEmailRepository from "../repositories/contactEmailRepository.js";
+import contactRepository from "../repositories/contato.js";
+import contactEmailRepository from "../repositories/contatoEmail.js";
 
 export default {
   async add(contactId, emails) {

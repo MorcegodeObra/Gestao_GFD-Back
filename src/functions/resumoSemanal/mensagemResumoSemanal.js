@@ -11,7 +11,7 @@ export async function sendResumo(
   criados,
   modificados,
   comUsuario,
-  semUsuario
+  comSolicitante
 ) {
   try {
     // Busca todos os processos e conta eles
@@ -25,7 +25,7 @@ export async function sendResumo(
     // Gera gráficos
     const dadosUsuario = {
       "Com Usuário": comUsuario,
-      "Sem Usuário": semUsuario,
+      "Com Solicitante": comSolicitante,
     };
     const bufferUsuario = await gerarGraficoGenerico(
       dadosUsuario,

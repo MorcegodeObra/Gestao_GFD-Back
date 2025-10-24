@@ -1,5 +1,5 @@
-import contactRepository from "../repositories/contactRepository.js";
-import contactNumberRepository from "../repositories/contactNumberRepository.js";
+import contactRepository from "../repositories/contato.js";
+import contactNumberRepository from "../repositories/contatoNumber.js";
 
 export default {
   async add(contactId, numbers) {

@@ -1,7 +1,25 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/sequelize.js";
+import { SREDer } from "./codigoSRE.js";
 
 export const Anuencia = sequelize.define("Anuencia", {
+  informacao: {
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    allowNull: true,
+  },
+  interessado: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: "Não informado",
+  },
+  codigoSRE: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: "Não adicionado",
+    validate: {
+      notEmpty: { msg: "O codigoSRE não pode ser vazio" },
+    },
+  },
   protocolo: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -105,8 +123,19 @@ export const Anuencia = sequelize.define("Anuencia", {
     type: DataTypes.ENUM("BAIXO", "MEDIO", "ALTO", "URGENTE"),
     defaultValue: "BAIXO",
   },
+  fotos: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: true },
   solicitacaoProtocolo: { type: DataTypes.BOOLEAN, defaultValue: false },
   newUserId: { type: DataTypes.INTEGER, allowNull: true },
   ano: { type: DataTypes.INTEGER, allowNull: true },
   cobrancas: { type: DataTypes.INTEGER, defaultValue: 0, validate: { min: 0 } },
 });
+
+Anuencia.associate = (models) => {
+  Anuencia.belongsTo(models.SREDers, {
+    foreignKey: "codigoSRE",
+    targetKey: "codigoSRE",
+    onDelete: "RESTRICT",
+    onUpdate: "CASCADE",
+  });
+};
+

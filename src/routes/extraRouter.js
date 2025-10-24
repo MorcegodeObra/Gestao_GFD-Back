@@ -2,7 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 import { verificacaoPlanilhas } from "../functions/importarDados/verificação.js";
 import { gerarEEnviarKmz } from "../functions/criarKMZ/criarKMZ.js";
-import { enviarRelatorio } from "../functions/enviarPDF/servicoRelatorio.js";
+import { controladorRelatorio } from "../functions/enviarPDF/pdfController.js";
 import { resumoProcessosAtraso } from "../controllers/resumoAtraso/resumoProcessosAtraso.js";
 
 const router = Router();
@@ -14,7 +14,7 @@ router.post(
   verificacaoPlanilhas
 );
 router.post("/gerarKMZ", upload.single("arquivo"), gerarEEnviarKmz);
-router.post("/relatorioPDF", enviarRelatorio);
+router.post("/relatorioPDF", controladorRelatorio);
 router.post("/resumoAtraso", resumoProcessosAtraso);
 
 export default router;
