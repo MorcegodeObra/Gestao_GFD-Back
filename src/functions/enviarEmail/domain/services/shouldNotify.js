@@ -1,5 +1,5 @@
 export class DeveNotificar {
-  async notificar(proces,now) {
+  notificar(proces,now) {
     const priorityDays = {
       BAIXO: 4,
       MÉDIO: 3,
