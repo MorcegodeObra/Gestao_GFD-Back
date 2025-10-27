@@ -4,11 +4,7 @@ import { ptBR } from "date-fns/locale";
 import { renderHeader } from "./header.js";
 import { conclusaoAprovado } from "./conclusao.js";
 import { conclusaoReprovado } from "./conclusao.js";
-import {
-  carregarImagemRemota,
-  renderAssinatura,
-  renderRodape,
-} from "./PdfUtils.js";
+import {  carregarImagemRemota,  renderAssinatura,  renderRodape} from "./PdfUtils.js";
 import { createWriteStream } from "fs";
 
 export class RelatorioTecnico {
