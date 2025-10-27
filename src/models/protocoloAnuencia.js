@@ -98,6 +98,7 @@ export const Anuencia = sequelize.define("Anuencia", {
       "ANALISE TÉCNICA",
       "FINALIZADO",
       "AGUARDANDO DER",
+      "AGUARDANDO SOLICITANTE",
       "SEM STATUS"
     ),
     defaultValue: "SEM STATUS",
