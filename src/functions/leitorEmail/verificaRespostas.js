@@ -21,8 +21,8 @@ async function verificaEmail() {
           proces.lastInteration = now;
           proces.cobrancas = 0;
           await proces.save();
-          await new Promisse((r) => setTimeout(r, 3000));
         }
+        return new Promise((resolve) => setTimeout(resolve, 1000));
       }
     } catch (err) {
       console.error("Erro ao executar a leitura de mensagens:", err);
