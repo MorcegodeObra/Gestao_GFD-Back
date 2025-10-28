@@ -21,6 +21,7 @@ async function verificaEmail() {
           proces.lastInteration = now;
           proces.cobrancas = 0;
           await proces.save();
+          await new Promisse((r) => setTimeout(r, 3000));
         }
       }
     } catch (err) {
