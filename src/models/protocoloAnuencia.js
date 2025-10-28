@@ -10,12 +10,12 @@ export const Anuencia = sequelize.define("Anuencia", {
   verticesConfrontantes: {
     type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: false,
-    defaultValue: ["Vertices não cadastrados"]
+    defaultValue: ["Vertices não cadastrados"],
   },
   folhasMaterial: {
     type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: false,
-    defaultValue: ["Folhas do material técnico não cadastrados"]
+    defaultValue: ["Folhas do material técnico não cadastrados"],
   },
   interessado: {
     type: DataTypes.STRING,
@@ -39,15 +39,6 @@ export const Anuencia = sequelize.define("Anuencia", {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
-    validate: {
-      notEmpty: { msg: "O protocolo não pode ser vazio" },
-      isValidFormat(value) {
-        // Exemplo: formato "123/2025"
-        if (!/^\d+\/\d{4}$/.test(value)) {
-          throw new Error("Protocolo deve estar no formato '123/AAAA'");
-        }
-      },
-    },
   },
   area: {
     type: DataTypes.ENUM(
@@ -79,7 +70,7 @@ export const Anuencia = sequelize.define("Anuencia", {
   ladoDaAnuencia: {
     type: DataTypes.ENUM("DIREITO", "ESQUERDO", "Sem lado"),
     allowNull: false,
-    defaultValue: "Sem lado"
+    defaultValue: "Sem lado",
   },
   dataFinal: {
     type: DataTypes.DATE,
@@ -160,4 +151,3 @@ Anuencia.associate = (models) => {
     onUpdate: "CASCADE",
   });
 };
-
