@@ -21,6 +21,7 @@ export class ProcessRepository {
       where: {
         contatoStatus: { [Op.notIn]: ["CANCELADO/ARQUIVADO", "CONCLUIDO"] },
         userId: { [Op.notIn]: [12] },
+        contatoId: { [Op.not]: [33] },
         answer: { [Op.not]: true },
         cobrancas: { [Op.lt]: 6 },
         [Op.or]: [

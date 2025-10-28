@@ -37,6 +37,16 @@ export const SREDer = sequelize.define("SREDer", {
     allowNull: true,
     defaultValue: "Sem ano encontrado",
   },
+  de: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: "Sem local de inicio cadastrado",
+  },
+  para: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: "Sem local de final cadastrado",
+  },
   larguraFaixa: {
     type: DataTypes.INTEGER,
     allowNull: true,

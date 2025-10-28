@@ -7,7 +7,22 @@ export const Anuencia = sequelize.define("Anuencia", {
     type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: true,
   },
+  verticesConfrontantes: {
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    allowNull: false,
+    defaultValue: ["Vertices não cadastrados"]
+  },
+  folhasMaterial: {
+    type: DataTypes.ARRAY(DataTypes.STRING),
+    allowNull: false,
+    defaultValue: ["Folhas do material técnico não cadastrados"]
+  },
   interessado: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: "Não informado",
+  },
+  assunto: {
     type: DataTypes.STRING,
     allowNull: false,
     defaultValue: "Não informado",
@@ -60,6 +75,11 @@ export const Anuencia = sequelize.define("Anuencia", {
         msg: "Tipo de anuência inválido",
       },
     },
+  },
+  ladoDaAnuencia: {
+    type: DataTypes.ENUM("DIREITO", "ESQUERDO", "Sem lado"),
+    allowNull: false,
+    defaultValue: "Sem lado"
   },
   dataFinal: {
     type: DataTypes.DATE,
@@ -124,7 +144,8 @@ export const Anuencia = sequelize.define("Anuencia", {
     type: DataTypes.ENUM("BAIXO", "MEDIO", "ALTO", "URGENTE"),
     defaultValue: "BAIXO",
   },
-  fotos: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: true },
+  fotosObra: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: true },
+  fotosMaterial: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: true },
   solicitacaoProtocolo: { type: DataTypes.BOOLEAN, defaultValue: false },
   newUserId: { type: DataTypes.INTEGER, allowNull: true },
   ano: { type: DataTypes.INTEGER, allowNull: true },

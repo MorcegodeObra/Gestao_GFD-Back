@@ -87,6 +87,11 @@ export const User = sequelize.define("User", {
     defaultValue: DataTypes.NOW,
     validate: { isDate: { msg: "userResumo deve ser uma data válida" } },
   },
+  numeroCrea: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: "Crea não cadastrado"
+  },
   criados: { type: DataTypes.INTEGER, defaultValue: 0, validate: { min: 0 } },
   editados: { type: DataTypes.INTEGER, defaultValue: 0, validate: { min: 0 } },
   anuenciaCriados: {
