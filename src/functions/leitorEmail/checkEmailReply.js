@@ -41,13 +41,7 @@ export async function checkEmailReply(proces) {
       },
     });
 
-    const emailsContato = Array.isArray(contato.email)
-      ? contato.email.map(e => e.trim().toLowerCase())
-      : [contato.email.trim().toLowerCase()];
-
-    const subjectQuery = `Solicitação - ${proces.processoSider}`;
-    const sinceDate = new Date(Date.now() - 30 * 60 * 1000);
-
+    const sinceDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
     imap.once('ready', () => {
       imap.openBox('INBOX', false, (err) => {
@@ -79,13 +73,17 @@ export async function checkEmailReply(proces) {
             parsePromises.push(new Promise((resolveMsg) => {
               msg.on('body', (stream) => {
                 simpleParser(stream, (err, mail) => {
-                  const from = (mail.from?.value?.[0]?.address || '').toLowerCase();
                   const subject = mail.subject || '';
                   const date = mail.date;
 
-                  const normalizedSubject = subject.replace(/^re:\s*/i, '').trim().toLowerCase();
+                  const normalizedSubject = subject
+                    .replace(/^(Re|Fwd|Fw|RES|AW):\s*/i, '')
+                    .trim()
+                    .toLowerCase();
 
-                  if (emailsContato.includes(from) && normalizedSubject.includes(subjectQuery.toLowerCase())) {
+                  const normalizedQuery = `Solicitação - ${proces.processoSider}`.toLowerCase();
+
+                  if (normalizedSubject.includes(normalizedQuery.toLowerCase())) {
                     if (!latestMsgDate || date > latestMsgDate) {
                       latestMsgDate = date;
                       latestMsgText = mail.text || mail.html || null;

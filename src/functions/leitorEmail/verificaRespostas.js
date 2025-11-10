@@ -1,5 +1,6 @@
 import { checkEmailReply } from "./checkEmailReply.js";
 import { Process } from "../../models/processo.js";
+import { Op } from "sequelize";
 
 let isReading = false;
 
@@ -11,18 +12,19 @@ async function verificaEmail() {
     isReading = true;
     try {
       const now = new Date();
-      const process = await Process.findAll();
+      const process = await Process.findAll(
+        {
+          where: {
+            contatoStatus: { [Op.notIn]: ["CANCELADO/ARQUIVADO", "CONCLUIDO"] },
+            userId: { [Op.notIn]: [12] },
+            contatoId: { [Op.not]: [33] },
+            answer: { [Op.not]: true },
+          }
+        }
+      );
 
       for (const proces of process) {
-        const emailRespondido = await checkEmailReply(proces);
-        if (emailRespondido || proces.answer == true) {
-          proces.answer = true;
-          proces.processoComDER = true;
-          proces.lastInteration = now;
-          proces.cobrancas = 0;
-          await proces.save();
-        }
-        return new Promise((resolve) => setTimeout(resolve, 1000));
+        await checkEmailReply(proces);
       }
     } catch (err) {
       console.error("Erro ao executar a leitura de mensagens:", err);
@@ -34,5 +36,4 @@ async function verificaEmail() {
 
 export async function iniciarVerificaEmail() {
   await verificaEmail();
-  setInterval(verificaEmail, 5 * 60 * 1000);
 }

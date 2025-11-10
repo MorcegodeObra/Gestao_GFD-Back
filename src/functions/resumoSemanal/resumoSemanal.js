@@ -80,5 +80,4 @@ async function resumoSemanal() {
 export async function iniciarResumo() {
   await resumoSemanal();
   console.log("Resumos enviados");
-  setInterval(sendResumo, 10 * 60 * 1000);
 }

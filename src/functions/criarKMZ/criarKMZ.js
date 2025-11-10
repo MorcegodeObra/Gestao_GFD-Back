@@ -54,7 +54,7 @@ export async function gerarEEnviarKmz(req, res) {
     });
 
     // 📧 Envia um único arquivo KMZ
-    const kmzFiles = [{ filename: `${nomeArquivo}.kmz`, path: kmzPath }];
+    const kmzFiles = [{ filename: `Protocolo - ${nomeArquivo}.kmz`, path: kmzPath }];
     const from = `KMZ - ${XLSX.readFile(arquivo.path).SheetNames[0]} ${
       process.env.EMAIL_USER
     }`;

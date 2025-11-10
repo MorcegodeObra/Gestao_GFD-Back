@@ -31,6 +31,12 @@ await sequelize.sync({ alter: true }).then(() => {
   });
 });
 
-iniciarVerificaEmail();
-iniciarCobranca();
-iniciarResumo();
+async function iniciarTarefasEmail() {
+  await iniciarVerificaEmail();
+  await iniciarCobranca();
+  await iniciarResumo();
+}
+
+await iniciarTarefasEmail();
+
+setInterval(iniciarTarefasEmail, 10 * 60 * 1000);
