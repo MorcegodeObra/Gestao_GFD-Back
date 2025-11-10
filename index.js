@@ -32,6 +32,7 @@ await sequelize.sync({ alter: true }).then(() => {
 });
 
 async function iniciarTarefasEmail() {
+  //inicio funcao
   await iniciarVerificaEmail();
   await iniciarCobranca();
   await iniciarResumo();
