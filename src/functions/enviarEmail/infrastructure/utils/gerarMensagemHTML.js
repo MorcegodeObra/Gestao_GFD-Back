@@ -19,7 +19,7 @@ export function gerarMensagemHTML(proces, contato, titulo, corpo, user) {
       </div>
       <div style="font-size: 13px; text-align: flex-start;">
         <p>${corpo}</p>
-        <p><strong>Para parar de receber os emails caso já tenha sido resolvido,favor responder esse email e o responsável pelo processo será notificado.<strong></p>
+        <p><strong>Para parar de receber os emails caso já tenha sido resolvido,favor responder esse email e o responsável pelo processo será notificado.</strong></p>
         <p>Permanecemos à disposição para dúvidas.</p>
         <p>
           <strong>Responsável pelo processo: </strong>${user.userName}<br>
