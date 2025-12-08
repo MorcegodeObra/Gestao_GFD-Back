@@ -10,6 +10,14 @@ export const ContactEmail = sequelize.define('ContactEmail', {
       isEmail: { msg: "O email deve ser válido" }
     }
   },
+  nomeEmail: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: "Sem nome registrado",
+    validate: {
+      isEmail: { msg: "O email deve ser válido" }
+    }
+  },
   area: {
     type: DataTypes.ENUM("AREA 1", "AREA 2", "AREA 3", "AREA 4", "AREA 5", "SEM AREA"),
     defaultValue: "SEM AREA",
