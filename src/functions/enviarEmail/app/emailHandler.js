@@ -9,8 +9,8 @@ export class EmailHandler {
   constructor() {
     this.contactRepo = new ContactRepository();
     this.strategies = [
-      new MensagemPrazoVencido(),
       new MensagemAcompanhamento(),
+      new MensagemPrazoVencido(),
     ];
     this.emailHTMLBuilder = new EmailHTMLBuilder();
   }
