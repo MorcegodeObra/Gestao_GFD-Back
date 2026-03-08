@@ -18,7 +18,7 @@ export const SREDer = sequelize.define("SREDer", {
       "AREA 3",
       "AREA 4",
       "AREA 5",
-      "SEM AREA"
+      "SEM AREA",
     ),
     allowNull: false,
   },

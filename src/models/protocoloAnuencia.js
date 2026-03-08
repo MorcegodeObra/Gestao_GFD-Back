@@ -4,8 +4,9 @@ import { SREDer } from "./codigoSRE.js";
 
 export const Anuencia = sequelize.define("Anuencia", {
   informacao: {
-    type: DataTypes.ARRAY(DataTypes.STRING),
+    type: DataTypes.STRING,
     allowNull: true,
+    defaultValue:"Sem informação"
   },
   verticesConfrontantes: {
     type: DataTypes.ARRAY(DataTypes.STRING),
@@ -47,7 +48,7 @@ export const Anuencia = sequelize.define("Anuencia", {
       "AREA 3",
       "AREA 4",
       "AREA 5",
-      "SEM AREA"
+      "SEM AREA",
     ),
     allowNull: false,
     validate: {
@@ -77,6 +78,19 @@ export const Anuencia = sequelize.define("Anuencia", {
     allowNull: true,
     validate: { isDate: { msg: "dataFinal deve ser uma data válida" } },
   },
+  dataVistoria: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    validate: { isDate: { msg: "data vistoria deve ser uma data válida" } },
+  },
+  vistoriaCampo: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  analiseMaterial: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
   rodovia: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -90,6 +104,10 @@ export const Anuencia = sequelize.define("Anuencia", {
   mensagemResposta: {
     type: DataTypes.TEXT,
     allowNull: true,
+  },
+  invasoesFaixa: {
+    type: DataTypes.TEXT,
+    defaultValue: "Sem invasões",
   },
   dataResposta: {
     type: DataTypes.DATE,
@@ -110,9 +128,17 @@ export const Anuencia = sequelize.define("Anuencia", {
       "FINALIZADO",
       "AGUARDANDO DER",
       "AGUARDANDO SOLICITANTE",
-      "SEM STATUS"
+      "SEM STATUS",
     ),
     defaultValue: "SEM STATUS",
+  },
+  statusAnuencia: {
+    type: DataTypes.ENUM("REPROVADO", "APROVADO", "SEM STATUS"),
+    defaultValue: "SEM STATUS",
+  },
+  statusAnuencia: {
+    type: DataTypes.TEXT,
+    defaultValue: "Sem status",
   },
   userId: {
     type: DataTypes.INTEGER,
