@@ -1,4 +1,4 @@
-import { formatarData } from "../utils/formatarData.js";
+import { formatarData } from "./formatarData.js";
 
 export function gerarMensagemHTML(proces, contato, titulo, corpo, user) {
   return `

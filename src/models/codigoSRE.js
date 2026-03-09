@@ -11,17 +11,6 @@ export const SREDer = sequelize.define("SREDer", {
       notEmpty: { msg: "Código SRE não pode ser vazio" },
     },
   },
-  area: {
-    type: DataTypes.ENUM(
-      "AREA 1",
-      "AREA 2",
-      "AREA 3",
-      "AREA 4",
-      "AREA 5",
-      "SEM AREA",
-    ),
-    allowNull: false,
-  },
   rodovia: {
     type: DataTypes.STRING,
     allowNull: false,

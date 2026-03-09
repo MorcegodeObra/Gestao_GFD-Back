@@ -1,11 +1,18 @@
 import { enviarEmail } from "../../config/funcoesEmail.js";
 import { unlink } from "fs/promises";
-import { gerarDocx, converterPDF } from "./infraestrutura/relatorioTecnico.js";
+import { gerarDocx } from "./infraestrutura/utils/relatorioTecnico.js";
+import { converterPDF } from "./infraestrutura/utils/geral.js";
 
 export class ControllerParecer {
-  async controladorPDF(anuencia, user, sreDer) {
-    const bufferDOC = await gerarDocx(anuencia, sreDer);
-    const bufferPdf = await converterPDF(bufferDOC,anuencia.informacao);
+  async controladorPDF(anuencia, user, sreDer, fotosMaterial, fotosObra) {
+    const bufferDOC = await gerarDocx(
+      anuencia,
+      sreDer,
+      fotosMaterial,
+      fotosObra,
+    );
+    
+    const bufferPdf = await converterPDF(bufferDOC, anuencia.informacao);
 
     const from = `Protocolo - ${anuencia.protocolo} <${process.env.EMAIL_USER}>`;
     const to = user.userEmail;

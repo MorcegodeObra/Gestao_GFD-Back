@@ -1,4 +1,4 @@
-import { BaseMensagemStrategy } from "../strategies/baseMessageStrategy.js";
+import { BaseMensagemStrategy } from "./baseMessageStrategy.js";
 import { DeveNotificar } from "../services/shouldNotify.js";
 
 export class MensagemAcompanhamento extends BaseMensagemStrategy {
