@@ -6,15 +6,15 @@ export const Anuencia = sequelize.define("Anuencia", {
   informacao: {
     type: DataTypes.STRING,
     allowNull: true,
-    defaultValue:"Sem informação"
+    defaultValue: "Sem informação",
   },
   verticesConfrontantes: {
-    type: DataTypes.ARRAY(DataTypes.STRING),
+    type: DataTypes.STRING,
     allowNull: false,
     defaultValue: ["Vertices não cadastrados"],
   },
   folhasMaterial: {
-    type: DataTypes.ARRAY(DataTypes.STRING),
+    type: DataTypes.STRING,
     allowNull: false,
     defaultValue: ["Folhas do material técnico não cadastrados"],
   },
