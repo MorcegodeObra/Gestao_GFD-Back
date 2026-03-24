@@ -8,9 +8,11 @@ export class MensagemPrazoVencido extends BaseMensagemStrategy {
   }
 
   deveEnviar(processo, now) {
-    return this.DeveNotificar.notificar(processo, now);
-  }
+    const deveNotificar = this.DeveNotificar.notificar(processo, now);
+    const vencido = new Date(processo.dataPrazo) < now;
 
+    return deveNotificar && vencido;
+  }
 
   getTitulo() {
     return "⚠️ Prazo vencido";
@@ -19,7 +21,7 @@ export class MensagemPrazoVencido extends BaseMensagemStrategy {
   getCorpo(processo, contato, now) {
     const lastInteration = new Date(processo.lastInteration);
     const diasSemAtualizacao = Math.floor(
-      (now - lastInteration) / (1000 * 60 * 60 * 24)
+      (now - lastInteration) / (1000 * 60 * 60 * 24),
     );
 
     // === REGRA DO PRAZO REAL ===
@@ -36,5 +38,4 @@ export class MensagemPrazoVencido extends BaseMensagemStrategy {
   Solicitamos, por gentileza, o envio da documentação pendente ou uma atualização sobre o andamento da demanda.<br>
   Caso a documentação já tenha sido encaminhada, pedimos a gentileza de confirmar o envio por este e-mail ou diretamente com o responsável pelo processo.`;
   }
-
 }

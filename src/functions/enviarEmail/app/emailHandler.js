@@ -9,8 +9,8 @@ export class EmailHandler {
   constructor() {
     this.contactRepo = new ContactRepository();
     this.strategies = [
-      new MensagemAcompanhamento(),
       new MensagemPrazoVencido(),
+      new MensagemAcompanhamento(),
     ];
     this.emailHTMLBuilder = new EmailHTMLBuilder();
   }
@@ -25,7 +25,7 @@ export class EmailHandler {
           processo,
           contato,
           titulo,
-          corpo
+          corpo,
         );
         await sendEmailMessage(processo, now, mensagem, contato);
         //await sendWhatsAppMessage(processo, now, mensagem, contato);

@@ -13,7 +13,7 @@ export function gerarMensagemHTML(proces, contato, titulo, corpo, user) {
           Rodovia: <strong>${proces.rodovia}</strong><br>
           Status: <strong>${proces.contatoStatus}</strong><br>
           Início do contato: <strong>${formatarData(new Date(proces.lastInteration))}</strong><br>
-          Quantidade de e-mails após 30 dias: <strong>${proces.cobrancas}</strong><br>
+          Quantidade de e-mails após expiração do prazo: <strong>${proces.cobrancas}</strong><br>
           Última mensagem anexa: <strong>${proces.subject}</strong>
         </p>
       </div>

@@ -19,7 +19,7 @@ router.post(
   "/relatorioPDF",
   upload.fields([
     { name: "fotosMaterial", maxCount: 10 },
-    { name: "fotosObra", maxCount: 10 },
+    { name: "fotosObra", maxCount: 15 },
   ]),
   controladorRelatorio,
 );
