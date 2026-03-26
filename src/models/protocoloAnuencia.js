@@ -6,7 +6,6 @@ export const Anuencia = sequelize.define("Anuencia", {
   informacao: {
     type: DataTypes.STRING,
     allowNull: true,
-    defaultValue: "Sem informação",
   },
   verticesConfrontantes: {
     type: DataTypes.STRING,
@@ -59,11 +58,11 @@ export const Anuencia = sequelize.define("Anuencia", {
     },
   },
   tipoAnuencia: {
-    type: DataTypes.ENUM("ANUENCIA", "USOCAPIAO", "SEM STATUS"),
+    type: DataTypes.ENUM("ANUENCIA", "USOCAPIAO", "USUCAPIAO", "SEM STATUS"),
     allowNull: false,
     validate: {
       isIn: {
-        args: [["ANUENCIA", "USOCAPIAO", "SEM STATUS"]],
+        args: [["ANUENCIA", "USOCAPIAO", "USUCAPIAO", "SEM STATUS"]],
         msg: "Tipo de anuência inválido",
       },
     },
@@ -114,11 +113,6 @@ export const Anuencia = sequelize.define("Anuencia", {
     allowNull: true,
     validate: { isDate: { msg: "dataResposta deve ser uma data válida" } },
   },
-  ultimaInteracao: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-    validate: { isDate: { msg: "ultimaInteracao deve ser uma data válida" } },
-  },
   respondido: { type: DataTypes.BOOLEAN, defaultValue: true },
   protocoloStatus: {
     type: DataTypes.ENUM(
@@ -132,14 +126,7 @@ export const Anuencia = sequelize.define("Anuencia", {
     ),
     defaultValue: "SEM STATUS",
   },
-  statusAnuencia: {
-    type: DataTypes.ENUM("REPROVADO", "APROVADO", "SEM STATUS"),
-    defaultValue: "SEM STATUS",
-  },
-  statusAnuencia: {
-    type: DataTypes.TEXT,
-    defaultValue: "Sem status",
-  },
+
   userId: {
     type: DataTypes.INTEGER,
     references: { model: "Users", key: "id" },
@@ -161,11 +148,6 @@ export const Anuencia = sequelize.define("Anuencia", {
     type: DataTypes.ENUM("BAIXO", "MEDIO", "ALTO", "URGENTE"),
     defaultValue: "BAIXO",
   },
-  fotosObra: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: true },
-  fotosMaterial: { type: DataTypes.ARRAY(DataTypes.STRING), allowNull: true },
-  solicitacaoProtocolo: { type: DataTypes.BOOLEAN, defaultValue: false },
-  newUserId: { type: DataTypes.INTEGER, allowNull: true },
-  ano: { type: DataTypes.INTEGER, allowNull: true },
   cobrancas: { type: DataTypes.INTEGER, defaultValue: 0, validate: { min: 0 } },
 });
 

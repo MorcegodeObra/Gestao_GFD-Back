@@ -25,6 +25,10 @@ export class ControllerParecer {
         path: bufferPdf,
         contentType: "application/pdf",
       },
+      {
+        filename: bufferDOC,
+        path: bufferDOC,
+      },
     ];
     await enviarEmail(from, to, cc, subject, body, attachments);
     await unlink(bufferPdf);

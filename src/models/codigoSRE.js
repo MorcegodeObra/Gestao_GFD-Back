@@ -1,12 +1,12 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, UUIDV4 } from "sequelize";
 import { sequelize } from "../config/sequelize.js";
 
 export const SREDer = sequelize.define("SREDer", {
   codigoSRE: {
     type: DataTypes.STRING,
     allowNull: false,
-    unique: true,
     primaryKey: true,
+    unique: true,
     validate: {
       notEmpty: { msg: "Código SRE não pode ser vazio" },
     },
