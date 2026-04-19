@@ -8,7 +8,7 @@ import { iniciarVerificaEmail } from "./src/functions/leitorEmail/verificaRespos
 import { iniciarResumo } from "./src/functions/resumoSemanal/resumoSemanal.js";
 
 const app = express();
-const PORT = 3000;
+const PORT = 4000;
 
 configDotenv();
 app.use(cors());

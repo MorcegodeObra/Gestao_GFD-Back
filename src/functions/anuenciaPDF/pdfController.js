@@ -7,7 +7,8 @@ const controllerParecer = new ControllerParecer();
 
 export async function controladorRelatorio(req, res) {
   try {
-    const anuencia = await Anuencia.findByPk(req.body.id);
+    const data = JSON.parse(req.body.data);
+    const anuencia = await Anuencia.findByPk(data.id);
     const sreDer = await SREDer.findByPk(anuencia.codigoSRE);
     const user = await User.findByPk(anuencia.userId);
 
